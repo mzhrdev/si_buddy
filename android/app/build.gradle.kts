@@ -19,10 +19,18 @@ android {
         applicationId = "com.example.si_buddy"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 30
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            // flutter_edge_ai's LiteRT-LM engine ships arm64-v8a only
+            // (and requires minSdk 30 above); restrict the APK to it so
+            // unsupported devices are excluded at install time instead
+            // of failing to load the engine at runtime.
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     buildTypes {

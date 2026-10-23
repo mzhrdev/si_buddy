@@ -45,6 +45,11 @@ dependencies:
   drift_flutter: ^0.3.1
   path_provider: ^2.1.6
   path: ^1.9.1
+  # On-device AI runtime (see MODEL_RUNTIME_EVALUATION.md): core +
+  # LiteRT-LM engine, pinned exactly — the two must be upgraded
+  # together deliberately.
+  flutter_edge_ai: 2.5.2
+  flutter_edge_ai_litertlm: 1.17.0
 
 dev_dependencies:
   flutter_test:

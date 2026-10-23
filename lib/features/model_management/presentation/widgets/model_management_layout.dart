@@ -30,6 +30,8 @@ class ModelManagementLayout extends StatelessWidget {
     this.readinessChild,
     this.secondaryColor = AppColors.primary,
     this.secondaryBorderColor = AppColors.border,
+    this.modelVersion = 'To be confirmed',
+    this.downloadSize = 'To be confirmed',
     super.key,
   });
 
@@ -54,6 +56,11 @@ class ModelManagementLayout extends StatelessWidget {
   final Color secondaryColor;
   final Color secondaryBorderColor;
 
+  /// Package card metadata. Defaults keep the design's placeholder;
+  /// wired screens pass the real model's values.
+  final String modelVersion;
+  final String downloadSize;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,6 +76,8 @@ class ModelManagementLayout extends StatelessWidget {
                   _ModelPackageCard(
                     statusLabel: statusLabel,
                     statusColor: statusColor,
+                    modelVersion: modelVersion,
+                    downloadSize: downloadSize,
                   ),
                   const SizedBox(height: 16),
                   _ReadinessCard(
@@ -146,10 +155,14 @@ class _ModelPackageCard extends StatelessWidget {
   const _ModelPackageCard({
     required this.statusLabel,
     required this.statusColor,
+    required this.modelVersion,
+    required this.downloadSize,
   });
 
   final String statusLabel;
   final Color statusColor;
+  final String modelVersion;
+  final String downloadSize;
 
   @override
   Widget build(BuildContext context) {
@@ -221,9 +234,9 @@ class _ModelPackageCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const _MetadataRow(label: 'Model version', value: 'To be confirmed'),
+          _MetadataRow(label: 'Model version', value: modelVersion),
           const SizedBox(height: 6),
-          const _MetadataRow(label: 'Download size', value: 'To be confirmed'),
+          _MetadataRow(label: 'Download size', value: downloadSize),
         ],
       ),
     );
@@ -425,9 +438,14 @@ class _AvailabilityRow extends StatelessWidget {
 }
 
 /// Download progress shown in the readiness card of the Downloading
-/// frame (5:15129): label, percentage, and the 42% progress track.
+/// frame (5:15129): label, percentage, and the progress track. The
+/// defaults render the design's static 42%; the wired downloading
+/// screen passes the download's live [fraction].
 class ModelDownloadProgress extends StatelessWidget {
-  const ModelDownloadProgress({super.key});
+  const ModelDownloadProgress({super.key, this.fraction = 0.42});
+
+  /// Download progress, 0.0–1.0.
+  final double fraction;
 
   @override
   Widget build(BuildContext context) {
@@ -438,9 +456,9 @@ class ModelDownloadProgress extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Model download', style: AppTextStyles.caption),
-            const Text(
-              '42%',
-              style: TextStyle(
+            Text(
+              '${(fraction * 100).round()}%',
+              style: const TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -458,7 +476,7 @@ class ModelDownloadProgress extends StatelessWidget {
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
-            widthFactor: 0.42,
+            widthFactor: fraction.clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.primary,

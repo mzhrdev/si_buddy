@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../domain/generation_config.dart';
 import '../providers/generation_providers.dart';
 import '../widgets/generation_source_card.dart';
@@ -27,29 +28,39 @@ class GenerationSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
-  /// The Generate action: consult the repository's model readiness
-  /// and route accordingly — ready goes to the processing screen,
-  /// not ready to the missing-model screen. Until a model runtime is
-  /// bound, no repository (and therefore no model) exists, so the
-  /// honest destination is the missing-model screen, never fake
-  /// progress.
+  /// The Generate action: with a ready model and an extracted
+  /// document, start a real generation job and show its progress.
+  /// Without them, route to the designed explainer for what is
+  /// missing — the missing-model screen when no model is ready, the
+  /// insufficient-text screen when there is no extracted text to
+  /// generate from. Progress and results are never faked.
   Future<void> _onGenerate() async {
     final repository = ref.read(boundGenerationRepositoryProvider);
-    if (repository == null) {
+    if (repository == null || !await repository.isModelReady()) {
       if (mounted) context.push(AppRoutes.missingModel);
       return;
     }
-    final ready = await repository.isModelReady();
-    if (!mounted) return;
-    context.push(
-      ready ? AppRoutes.generationProcessing : AppRoutes.missingModel,
-    );
+    final source = ref.read(extractionProvider).result;
+    if (source == null || !source.hasText) {
+      if (mounted) context.push(AppRoutes.insufficientText);
+      return;
+    }
+    ref
+        .read(generationConfigProvider.notifier)
+        .setDocumentId(source.document.id);
+    final config = ref.read(generationConfigProvider);
+    ref
+        .read(generationJobProvider.notifier)
+        .start(source: source, config: config);
+    if (mounted) context.push(AppRoutes.generationProcessing);
   }
 
   @override
   Widget build(BuildContext context) {
     final config = ref.watch(generationConfigProvider);
     final notifier = ref.read(generationConfigProvider.notifier);
+    final extraction = ref.watch(extractionProvider);
+    final source = extraction.result;
     const materialTypes = GenerationMaterialType.values;
     const difficulties = GenerationDifficulty.values;
     return Scaffold(
@@ -64,7 +75,20 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const GenerationSourceCard(),
+                    // The most recently extracted document, once
+                    // one exists; the design's sample until then.
+                    GenerationSourceCard(
+                      title:
+                          source?.document.originalFileName ??
+                          'Cell Biology - Chapter 4.pdf',
+                      subtitle: source == null
+                          ? 'Biology · 2.4 MB · 12 pages'
+                          : generationSourceSubtitle(
+                              document: source.document,
+                              subject: extraction.subject,
+                            ),
+                      formatLabel: source?.document.format.label ?? 'PDF',
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'What would you like to create?',

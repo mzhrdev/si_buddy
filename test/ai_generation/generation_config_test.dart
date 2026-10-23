@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:si_buddy/features/ai_generation/data/generation_repository_impl.dart';
 import 'package:si_buddy/features/ai_generation/domain/generation_config.dart';
 import 'package:si_buddy/features/ai_generation/presentation/providers/generation_providers.dart';
 
@@ -158,33 +159,23 @@ void main() {
   });
 
   group('generationRepositoryProvider', () {
-    test('is unbound: reading it surfaces the UnimplementedError', () {
+    test('is bound to the real implementation over the engine seam', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      Object? caught;
-      try {
-        container.read(generationRepositoryProvider);
-      } catch (e) {
-        caught = e;
-      }
-
-      // Riverpod wraps errors thrown while creating a provider; the
-      // seam's contract is that the failure carries the
-      // UnimplementedError announcing the unbound runtime.
-      expect(caught, isNotNull);
-      expect(caught.toString(), contains('UnimplementedError'));
+      // The runtime integration binds the flutter_edge_ai-backed
+      // implementation; constructing it touches no platform channel.
       expect(
-        caught.toString(),
-        contains('on-device model runtime has not been chosen'),
+        container.read(generationRepositoryProvider),
+        isA<GenerationRepositoryImpl>(),
       );
     });
 
-    test('boundGenerationRepositoryProvider is null while unbound', () {
+    test('boundGenerationRepositoryProvider returns the implementation', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(boundGenerationRepositoryProvider), isNull);
+      expect(container.read(boundGenerationRepositoryProvider), isNotNull);
     });
   });
 }

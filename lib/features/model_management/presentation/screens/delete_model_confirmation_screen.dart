@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../providers/model_providers.dart';
 
 /// AI Model — Delete Model Confirmation, implemented from the Figma
 /// frame "SI Buddy · AI Model — Delete Model Confirmation" (5:15515):
 /// a confirmation dialog over the dimmed Ready Offline screen.
-class DeleteModelConfirmationScreen extends StatelessWidget {
+/// Confirming deletes the model through the model state, then shows
+/// Not Installed.
+class DeleteModelConfirmationScreen extends ConsumerWidget {
   const DeleteModelConfirmationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0x99172033), // Figma: overlay
       body: SafeArea(
@@ -76,7 +80,12 @@ class DeleteModelConfirmationScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   FilledButton(
-                    onPressed: () => context.push(AppRoutes.notInstalled),
+                    onPressed: () async {
+                      await ref.read(modelProvider.notifier).deleteModel();
+                      if (context.mounted) {
+                        context.push(AppRoutes.notInstalled);
+                      }
+                    },
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.danger,
                     ),

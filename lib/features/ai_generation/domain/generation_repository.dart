@@ -11,10 +11,9 @@ import 'generation_models.dart';
 /// `InsufficientTextException` instead — generation reuses that
 /// failure rather than redefining it.
 ///
-/// No implementation exists yet: the on-device runtime (see
-/// `MODEL_RUNTIME_EVALUATION.md`) has not been chosen, so
-/// `generationRepositoryProvider` throws [UnimplementedError] until
-/// one is bound.
+/// The bound implementation is `GenerationRepositoryImpl`
+/// (ai_generation/data), running on flutter_edge_ai + the LiteRT-LM
+/// engine through the `EdgeAiEngine` seam.
 abstract class GenerationRepository {
   /// Whether an AI model is installed on this device and ready to
   /// generate. The generation setup screen's Generate action consults
