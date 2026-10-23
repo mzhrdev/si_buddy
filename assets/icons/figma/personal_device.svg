@@ -1,0 +1,25 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="163" height="257" viewBox="0 0 163 257" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Personal device" clip-path="url(#clip0_0_18)">
+<g id="Device outline">
+<path d="M0 4C0 1.79086 1.79086 0 4 0H159C161.209 0 163 1.79086 163 4V253C163 255.209 161.209 257 159 257H4C1.79086 257 0 255.209 0 253V4Z" fill="white"/>
+<mask id="stroke0_0_18" fill="white">
+<path d="M0 4C0 1.79086 1.79086 0 4 0H159C161.209 0 163 1.79086 163 4V253C163 255.209 161.209 257 159 257H4C1.79086 257 0 255.209 0 253V4Z"/>
+</mask>
+<path d="M4 257H159C161.209 257 163 255.209 163 253V4C163 1.79086 161.209 0 159 0H4C1.79086 0 0 1.79086 0 4V253C0 255.209 1.79086 257 4 257Z" stroke-width="10" stroke="#CBD5E1" mask="url(#stroke0_0_18)"/>
+</g>
+<rect id="Device screen" x="10" y="10" width="143" height="237" rx="4" fill="#DCE7FA"/>
+<rect id="Device gesture" x="61" y="235" width="41" height="3" rx="1.5" fill="#9AB5E8"/>
+<rect id="Note line" x="49" y="192" width="65" height="6" rx="3" fill="#9AB5E8"/>
+<rect id="Note line_2" x="36" y="177" width="91" height="6" rx="3" fill="#9AB5E8"/>
+<path id="Privacy shield" d="M81.5 55C96 64 108 67 123 70V102C122 125 107 141 81.5 153C56 141 41 125 40 102V70C55 67 67 64 81.5 55Z" fill="#2457C5"/>
+<rect id="Lock body" x="66" y="101" width="32" height="26" rx="4" fill="white"/>
+<ellipse id="Keyhole" cx="82" cy="114" rx="3" ry="4" fill="#2457C5"/>
+<path id="Lock shackle" d="M70 105V94.92C70 80.36 94 80.36 94 94.92V105" stroke-width="4" stroke="white"/>
+<rect id="Earpiece" x="63" y="13" width="37" height="4" rx="2" fill="#9AB5E8"/>
+</g>
+<defs>
+<clipPath id="clip0_0_18">
+<rect width="163" height="257" fill="white"/>
+</clipPath>
+</defs>
+</svg>

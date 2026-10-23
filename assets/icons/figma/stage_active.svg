@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Stage indicator">
+<rect x="0.5" y="0.5" width="31" height="31" rx="3.5" fill="#DCE7FA"/>
+<rect x="0.5" y="0.5" width="31" height="31" rx="3.5" stroke="#2457C5"/>
+<path id="Activity indicator" d="M16 11C16.9518 11 17.8838 11.2717 18.6865 11.783C19.4892 12.2944 20.1293 13.0243 20.5315 13.8869C20.9338 14.7495 21.0815 15.709 20.9572 16.6526C20.833 17.5963 20.442 18.4848 19.8302 19.2139C19.2184 19.943 18.4113 20.4824 17.5035 20.7686C16.5958 21.0548 15.6252 21.076 14.7059 20.8296C13.7866 20.5833 12.9566 20.0797 12.3136 19.378C11.6706 18.6762 11.2412 17.8056 11.076 16.8682" stroke-width="2" stroke="#2457C5"/>
+</g>
+</svg>
