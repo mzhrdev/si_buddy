@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../providers/documents_providers.dart';
 
 /// Extracted text review, implemented from the Figma frame
 /// "SI Buddy · Extracted text review" (4:5039).
@@ -13,19 +15,23 @@ import '../../../../core/widgets/app_header.dart';
 /// The reader shows the extracted pages with a working search field
 /// and page navigation; confirming pushes the extraction success
 /// screen. Nothing is generated until a study tool is chosen.
-class ExtractedTextReviewScreen extends StatefulWidget {
+///
+/// When an extraction job has completed, the reader shows the real
+/// extracted text (one card per page/slide) and the document's real
+/// name and page count; opened without a result it keeps the design's
+/// sample pages.
+class ExtractedTextReviewScreen extends ConsumerStatefulWidget {
   const ExtractedTextReviewScreen({super.key});
 
   @override
-  State<ExtractedTextReviewScreen> createState() =>
+  ConsumerState<ExtractedTextReviewScreen> createState() =>
       _ExtractedTextReviewScreenState();
 }
 
-class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
+class _ExtractedTextReviewScreenState
+    extends ConsumerState<ExtractedTextReviewScreen> {
   final _searchController = TextEditingController();
   int _currentPage = 1;
-
-  static const _totalPages = 12;
 
   @override
   void dispose() {
@@ -33,14 +39,22 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
     super.dispose();
   }
 
-  void _goToPage(int page) {
+  void _goToPage(int page, int totalPages) {
     setState(() {
-      _currentPage = page.clamp(1, _totalPages);
+      _currentPage = page.clamp(1, totalPages);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final extraction = ref.watch(extractionProvider);
+    final result = extraction.result;
+    final totalPages = result?.document.pageCount ?? 12;
+    final fileName =
+        result?.document.originalFileName ?? 'Cell Biology - Chapter 4.pdf';
+    final subject = extraction.subject ?? 'Biology';
+    final currentPage = _currentPage.clamp(1, totalPages);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -75,7 +89,7 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Cell Biology - Chapter 4.pdf',
+                          fileName,
                           style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -92,7 +106,7 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'Biology',
+                          subject,
                           style: AppTextStyles.badge.copyWith(
                             color: AppColors.primary,
                           ),
@@ -151,21 +165,21 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Page $_currentPage of $_totalPages',
+                          'Page $currentPage of $totalPages',
                           style: AppTextStyles.link,
                         ),
                         Row(
                           children: [
                             IconButton(
-                              onPressed: _currentPage > 1
-                                  ? () => _goToPage(_currentPage - 1)
+                              onPressed: currentPage > 1
+                                  ? () => _goToPage(currentPage - 1, totalPages)
                                   : null,
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_left.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
-                                  _currentPage > 1
+                                  currentPage > 1
                                       ? AppColors.navInactive
                                       : AppColors.border,
                                   BlendMode.srcIn,
@@ -179,15 +193,15 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                             ),
                             const SizedBox(width: 2),
                             IconButton(
-                              onPressed: _currentPage < _totalPages
-                                  ? () => _goToPage(_currentPage + 1)
+                              onPressed: currentPage < totalPages
+                                  ? () => _goToPage(currentPage + 1, totalPages)
                                   : null,
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_right.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
-                                  _currentPage < _totalPages
+                                  currentPage < totalPages
                                       ? AppColors.navInactive
                                       : AppColors.border,
                                   BlendMode.srcIn,
@@ -206,7 +220,21 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView(
-                        children: const [_PageOneCard(), _PageTwoCard()],
+                        children: result == null
+                            ? const [_PageOneCard(), _PageTwoCard()]
+                            : [
+                                for (
+                                  var i = 0;
+                                  i < result.sections.length;
+                                  i++
+                                )
+                                  _ExtractedPageCard(
+                                    page: i + 1,
+                                    totalPages: totalPages,
+                                    text: result.sections[i],
+                                    isLast: i == result.sections.length - 1,
+                                  ),
+                              ],
                       ),
                     ),
                   ],
@@ -235,7 +263,7 @@ class _ExtractedTextReviewScreenState extends State<ExtractedTextReviewScreen> {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Scroll to review all 12 pages',
+                        'Scroll to review all \$totalPages pages',
                         style: AppTextStyles.caption,
                       ),
                     ],
@@ -348,6 +376,50 @@ class _PageTwoCard extends StatelessWidget {
           Text(
             'The nucleus stores genetic information. Mitochondria release usable energy through cellular respiration.',
             style: AppTextStyles.body.copyWith(height: 22 / 14),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One page/slide of real extracted text, in the review card chrome.
+class _ExtractedPageCard extends StatelessWidget {
+  const _ExtractedPageCard({
+    required this.page,
+    required this.totalPages,
+    required this.text,
+    required this.isLast,
+  });
+
+  final int page;
+  final int totalPages;
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Page $page of $totalPages',
+            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            text.isEmpty ? 'No readable text on this page.' : text,
+            style: AppTextStyles.body.copyWith(
+              height: 22 / 14,
+              color: text.isEmpty ? AppColors.muted : null,
+            ),
           ),
         ],
       ),

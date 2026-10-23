@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/import_issue_layout.dart';
 import '../widgets/selected_document_card.dart';
 
 /// Low-storage error, implemented from the Figma frame
 /// "SI Buddy · Insufficient storage" (4:3658): the guidance card
 /// compares the storage needed for the import with what is available.
-class InsufficientStorageScreen extends StatelessWidget {
+class InsufficientStorageScreen extends ConsumerWidget {
   const InsufficientStorageScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // When the user lands here from a failed import, the card shows
+    // the file that failed; otherwise it keeps the design's sample.
+    final file = ref.watch(importJobProvider).file;
     return ImportIssueLayout(
-      documentCard: const SelectedDocumentCard(
-        title: 'Cell Biology - Chapter 4.pdf',
-        subtitle: 'PDF · 2.4 MB',
-      ),
+      documentCard: file == null
+          ? const SelectedDocumentCard(
+              title: 'Cell Biology - Chapter 4.pdf',
+              subtitle: 'PDF · 2.4 MB',
+            )
+          : SelectedDocumentCard(
+              title: file.name,
+              subtitle: '${file.format.label} · ${file.sizeLabel}',
+              formatLabel: file.format.label,
+            ),
       iconAsset: 'assets/icons/figma/hard_drive.svg',
       // Figma: warning-text
       iconColor: AppColors.warningText,

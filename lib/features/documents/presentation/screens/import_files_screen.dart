@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,8 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../domain/document_failures.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/import_action_buttons.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/state_message.dart';
@@ -16,7 +19,13 @@ import '../widgets/state_message.dart';
 /// "SI Buddy · Import files" (4:3267): a device-browser card with the
 /// supported-format illustration and "Browse files" action, followed
 /// by the recently imported documents.
-class ImportFilesScreen extends StatelessWidget {
+///
+/// "Browse files" opens the real file picker via [ImportJobNotifier];
+/// a validated file continues to the preview, and a validation failure
+/// routes to its designed error screen. The "Recently imported" list
+/// below is still the design's sample content — it gets wired with
+/// the library phase.
+class ImportFilesScreen extends ConsumerWidget {
   const ImportFilesScreen({super.key});
 
   static const _recent = [
@@ -25,8 +34,26 @@ class ImportFilesScreen extends StatelessWidget {
     _RecentDoc('DOCX', 'Research Methods', '8 pages · 840 KB · Oct 12'),
   ];
 
+  Future<void> _browse(BuildContext context, WidgetRef ref) async {
+    final picked = await ref.read(importJobProvider.notifier).pickFile();
+    if (!context.mounted) return;
+    if (picked) {
+      context.push(AppRoutes.selectedPreview);
+      return;
+    }
+    final error = ref.read(importJobProvider).error;
+    if (error is UnsupportedFormatException) {
+      context.push(AppRoutes.unsupported);
+    } else if (error is InsufficientStorageException) {
+      context.push(AppRoutes.storageError);
+    } else if (error is CorruptedDocumentException) {
+      context.push(AppRoutes.corrupted);
+    }
+    // No error means the user cancelled the picker: stay here.
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -49,8 +76,7 @@ class ImportFilesScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         _DeviceBrowserCard(
-                          onBrowse: () =>
-                              context.push(AppRoutes.selectedPreview),
+                          onBrowse: () => _browse(context, ref),
                         ),
                         const SizedBox(height: 24),
                         Row(

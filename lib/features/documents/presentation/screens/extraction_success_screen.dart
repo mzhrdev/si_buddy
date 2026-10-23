@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/selected_document_card.dart';
 
@@ -13,12 +15,22 @@ import '../widgets/selected_document_card.dart';
 /// "SI Buddy · Extraction success" (4:5099).
 ///
 /// The document is saved locally; the next study step offers
-/// flashcards, a quiz, or viewing the document.
-class ExtractionSuccessScreen extends StatelessWidget {
+/// flashcards, a quiz, or viewing the document. When an extraction
+/// job has completed, the copy and document card show the real
+/// document; opened without one it keeps the design's sample content.
+class ExtractionSuccessScreen extends ConsumerWidget {
   const ExtractionSuccessScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final extraction = ref.watch(extractionProvider);
+    final result = extraction.result;
+    final document = result?.document;
+    final subject = extraction.subject ?? 'Biology';
+    final body = document == null
+        ? 'All 12 pages are ready in your Biology library. Choose how you’d like to study next.'
+        : 'All ${document.pageCount} ${document.format.unitLabel} are ready in your $subject library. Choose how you’d like to study next.';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -45,7 +57,7 @@ class ExtractionSuccessScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'All 12 pages are ready in your Biology library. Choose how you’d like to study next.',
+                          body,
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.muted,
                             height: 22 / 14,
@@ -53,10 +65,17 @@ class ExtractionSuccessScreen extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        const SelectedDocumentCard(
-                          title: 'Cell Biology - Chapter 4.pdf',
-                          subtitle: 'Biology · 12 pages · Saved locally',
-                        ),
+                        document == null
+                            ? const SelectedDocumentCard(
+                                title: 'Cell Biology - Chapter 4.pdf',
+                                subtitle: 'Biology · 12 pages · Saved locally',
+                              )
+                            : SelectedDocumentCard(
+                                title: document.originalFileName,
+                                subtitle:
+                                    '$subject · ${document.pageCount} ${document.format.unitLabel} · Saved locally',
+                                formatLabel: document.format.label,
+                              ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

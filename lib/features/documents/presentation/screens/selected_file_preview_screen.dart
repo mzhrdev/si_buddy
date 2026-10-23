@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,8 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../domain/document_models.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/import_action_buttons.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/state_message.dart';
@@ -14,22 +17,26 @@ import '../widgets/state_message.dart';
 /// "SI Buddy · Selected-file preview" (4:3338): first-page preview,
 /// filename with a working rename dialog, metadata chips and a
 /// subject picker, then the "Import document" action.
-class SelectedFilePreviewScreen extends StatefulWidget {
+///
+/// The filename, metadata chips and subject come from the picked file
+/// in [importJobProvider]; renaming and subject changes are written
+/// back to it. "Import document" starts extraction and continues to
+/// the processing screen. When the screen is opened without a picked
+/// file it keeps the design's sample content and flow.
+class SelectedFilePreviewScreen extends ConsumerStatefulWidget {
   const SelectedFilePreviewScreen({super.key});
 
   @override
-  State<SelectedFilePreviewScreen> createState() =>
+  ConsumerState<SelectedFilePreviewScreen> createState() =>
       _SelectedFilePreviewScreenState();
 }
 
-class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
+class _SelectedFilePreviewScreenState
+    extends ConsumerState<SelectedFilePreviewScreen> {
   static const _subjects = ['Biology', 'Chemistry', 'Research Methods'];
 
-  String _filename = 'Cell Biology - Chapter 4.pdf';
-  String _subject = 'Biology';
-
-  Future<void> _rename() async {
-    final controller = TextEditingController(text: _filename);
+  Future<void> _rename(String current) async {
+    final controller = TextEditingController(text: current);
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -53,11 +60,11 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
       ),
     );
     if (result != null && result.isNotEmpty) {
-      setState(() => _filename = result);
+      ref.read(importJobProvider.notifier).setTitle(result);
     }
   }
 
-  Future<void> _pickSubject() async {
+  Future<void> _pickSubject(String current) async {
     final result = await showModalBottomSheet<String>(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -67,7 +74,7 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
             for (final subject in _subjects)
               ListTile(
                 title: Text(subject),
-                trailing: subject == _subject
+                trailing: subject == current
                     ? const Icon(Icons.check, color: AppColors.primary)
                     : null,
                 onTap: () => Navigator.of(sheetContext).pop(subject),
@@ -76,11 +83,43 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
         ),
       ),
     );
-    if (result != null) setState(() => _subject = result);
+    if (result != null) {
+      ref.read(importJobProvider.notifier).setSubject(result);
+    }
+  }
+
+  void _import() {
+    final job = ref.read(importJobProvider);
+    final file = job.file;
+    if (file == null) {
+      // Opened without a picked file: keep the design's sample flow.
+      context.push(AppRoutes.importLoading);
+      return;
+    }
+    ref
+        .read(extractionProvider.notifier)
+        .start(file: file, title: job.displayFileName, subject: job.subject);
+    context.push(AppRoutes.extractionProcessing);
   }
 
   @override
   Widget build(BuildContext context) {
+    final job = ref.watch(importJobProvider);
+    final file = job.file;
+    final filename = file == null
+        ? 'Cell Biology - Chapter 4.pdf'
+        : job.displayFileName;
+    final meta = file == null
+        ? const ['PDF document', '2.4 MB', '12 pages']
+        : <String>[
+            file.format == DocumentFormat.pdf
+                ? 'PDF document'
+                : 'PPTX document',
+            file.sizeLabel,
+            if (file.pageCount != null)
+              '${file.pageCount} ${file.format.unitLabel}',
+          ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -101,13 +140,20 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
                           body: 'Check your document and choose a subject.',
                         ),
                         const SizedBox(height: 22),
-                        const _DocumentPreview(),
+                        _DocumentPreview(pageCount: file?.pageCount ?? 12),
                         const SizedBox(height: 22),
-                        _FileDetails(filename: _filename, onRename: _rename),
+                        _FileDetails(
+                          filename: filename,
+                          meta: meta,
+                          onRename: () => _rename(filename),
+                        ),
                         const SizedBox(height: 22),
                         Text('Subject', style: AppTextStyles.itemTitle),
                         const SizedBox(height: 8),
-                        _SubjectField(subject: _subject, onTap: _pickSubject),
+                        _SubjectField(
+                          subject: job.subject,
+                          onTap: () => _pickSubject(job.subject),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           'Keep related notes together in your library.',
@@ -120,8 +166,7 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
                       children: [
                         ImportPrimaryButton(
                           label: 'Import document',
-                          onPressed: () =>
-                              context.push(AppRoutes.importLoading),
+                          onPressed: _import,
                         ),
                         const SizedBox(height: 16),
                         const PrivacyReassurance(
@@ -141,9 +186,11 @@ class _SelectedFilePreviewScreenState extends State<SelectedFilePreviewScreen> {
 }
 
 /// Bordered preview card holding a miniature first page and the
-/// "Page 1 of 12" caption.
+/// "Page 1 of N" caption.
 class _DocumentPreview extends StatelessWidget {
-  const _DocumentPreview();
+  const _DocumentPreview({required this.pageCount});
+
+  final int pageCount;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +241,7 @@ class _DocumentPreview extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text('Page 1 of 12', style: AppTextStyles.caption),
+          Text('Page 1 of $pageCount', style: AppTextStyles.caption),
         ],
       ),
     );
@@ -204,9 +251,14 @@ class _DocumentPreview extends StatelessWidget {
 /// Filename label row with the rename action, the filename itself and
 /// the metadata chips.
 class _FileDetails extends StatelessWidget {
-  const _FileDetails({required this.filename, required this.onRename});
+  const _FileDetails({
+    required this.filename,
+    required this.meta,
+    required this.onRename,
+  });
 
   final String filename;
+  final List<String> meta;
   final VoidCallback onRename;
 
   @override
@@ -252,7 +304,7 @@ class _FileDetails extends StatelessWidget {
         Wrap(
           spacing: 8,
           children: [
-            for (final meta in const ['PDF document', '2.4 MB', '12 pages'])
+            for (final chip in meta)
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -262,7 +314,7 @@ class _FileDetails extends StatelessWidget {
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(meta, style: AppTextStyles.caption),
+                child: Text(chip, style: AppTextStyles.caption),
               ),
           ],
         ),

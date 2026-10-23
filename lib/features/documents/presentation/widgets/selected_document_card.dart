@@ -10,11 +10,15 @@ class SelectedDocumentCard extends StatelessWidget {
   const SelectedDocumentCard({
     required this.title,
     required this.subtitle,
+    this.formatLabel = 'PDF',
     super.key,
   });
 
   final String title;
   final String subtitle;
+
+  /// The label inside the format box (`PDF`, `PPTX`).
+  final String formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +40,7 @@ class SelectedDocumentCard extends StatelessWidget {
               border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text('PDF', style: AppTextStyles.badge),
+            child: Text(formatLabel, style: AppTextStyles.badge),
           ),
           const SizedBox(width: 12),
           Expanded(
