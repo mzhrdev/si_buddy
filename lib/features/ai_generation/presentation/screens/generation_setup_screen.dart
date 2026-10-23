@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,37 +7,51 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../domain/generation_config.dart';
+import '../providers/generation_providers.dart';
 import '../widgets/generation_source_card.dart';
 
 /// Generation setup, implemented from the Figma frame
 /// "SI Buddy · Generation setup" (5:497): choose the material type,
 /// count and difficulty for the source document, with topic, language
-/// and explanation options. All controls work locally; the defaults
-/// match the design (Flashcards, 20, Medium, explanations on).
-class GenerationSetupScreen extends StatefulWidget {
+/// and explanation options. The controls read and write the shared
+/// [GenerationConfig] held by `generationConfigProvider`; its
+/// defaults match the design (Flashcards, 20, Medium, explanations
+/// on).
+class GenerationSetupScreen extends ConsumerStatefulWidget {
   const GenerationSetupScreen({super.key});
 
   @override
-  State<GenerationSetupScreen> createState() => _GenerationSetupScreenState();
+  ConsumerState<GenerationSetupScreen> createState() =>
+      _GenerationSetupScreenState();
 }
 
-class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
-  static const _materialTypes = [
-    'Flashcards',
-    'MCQs',
-    'True/false',
-    'Short answers',
-    'Summaries',
-  ];
-  static const _difficulties = ['Easy', 'Medium', 'Hard'];
-
-  String _materialType = 'Flashcards';
-  String _difficulty = 'Medium';
-  int _count = 20;
-  bool _explanations = true;
+class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
+  /// The Generate action: consult the repository's model readiness
+  /// and route accordingly — ready goes to the processing screen,
+  /// not ready to the missing-model screen. Until a model runtime is
+  /// bound, no repository (and therefore no model) exists, so the
+  /// honest destination is the missing-model screen, never fake
+  /// progress.
+  Future<void> _onGenerate() async {
+    final repository = ref.read(boundGenerationRepositoryProvider);
+    if (repository == null) {
+      if (mounted) context.push(AppRoutes.missingModel);
+      return;
+    }
+    final ready = await repository.isModelReady();
+    if (!mounted) return;
+    context.push(
+      ready ? AppRoutes.generationProcessing : AppRoutes.missingModel,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final config = ref.watch(generationConfigProvider);
+    final notifier = ref.read(generationConfigProvider.notifier);
+    const materialTypes = GenerationMaterialType.values;
+    const difficulties = GenerationDifficulty.values;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -65,11 +80,10 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                           if (i > 0) const SizedBox(width: 8),
                           Expanded(
                             child: _ChoiceChip(
-                              label: _materialTypes[i],
-                              selected: _materialType == _materialTypes[i],
-                              onTap: () => setState(
-                                () => _materialType = _materialTypes[i],
-                              ),
+                              label: materialTypes[i].label,
+                              selected: config.materialType == materialTypes[i],
+                              onTap: () =>
+                                  notifier.setMaterialType(materialTypes[i]),
                             ),
                           ),
                         ],
@@ -82,11 +96,10 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                           if (i > 3) const SizedBox(width: 8),
                           Expanded(
                             child: _ChoiceChip(
-                              label: _materialTypes[i],
-                              selected: _materialType == _materialTypes[i],
-                              onTap: () => setState(
-                                () => _materialType = _materialTypes[i],
-                              ),
+                              label: materialTypes[i].label,
+                              selected: config.materialType == materialTypes[i],
+                              onTap: () =>
+                                  notifier.setMaterialType(materialTypes[i]),
                             ),
                           ),
                         ],
@@ -126,21 +139,19 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                             children: [
                               _StepperButton(
                                 iconAsset: 'assets/icons/figma/minus.svg',
-                                onTap: () => setState(() {
-                                  if (_count > 1) _count--;
-                                }),
+                                onTap: notifier.decrementCount,
                               ),
                               SizedBox(
                                 width: 44,
                                 child: Text(
-                                  '$_count',
+                                  '${config.count}',
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.title,
                                 ),
                               ),
                               _StepperButton(
                                 iconAsset: 'assets/icons/figma/plus.svg',
-                                onTap: () => setState(() => _count++),
+                                onTap: notifier.incrementCount,
                               ),
                             ],
                           ),
@@ -152,15 +163,14 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        for (var i = 0; i < _difficulties.length; i++) ...[
+                        for (var i = 0; i < difficulties.length; i++) ...[
                           if (i > 0) const SizedBox(width: 8),
                           Expanded(
                             child: _ChoiceChip(
-                              label: _difficulties[i],
-                              selected: _difficulty == _difficulties[i],
-                              onTap: () => setState(
-                                () => _difficulty = _difficulties[i],
-                              ),
+                              label: difficulties[i].label,
+                              selected: config.difficulty == difficulties[i],
+                              onTap: () =>
+                                  notifier.setDifficulty(difficulties[i]),
                             ),
                           ),
                         ],
@@ -173,7 +183,7 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                         Expanded(
                           child: _SelectionField(
                             label: 'Topic',
-                            value: 'Cell structures',
+                            value: config.topic,
                             onTap: () {
                               // TODO(backend): open the topic picker.
                             },
@@ -183,7 +193,7 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                         Expanded(
                           child: _SelectionField(
                             label: 'Language',
-                            value: 'English',
+                            value: config.language,
                             onTap: () {
                               // TODO(backend): open the language picker.
                             },
@@ -216,9 +226,8 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                             ],
                           ),
                           _Toggle(
-                            value: _explanations,
-                            onChanged: (value) =>
-                                setState(() => _explanations = value),
+                            value: config.includeExplanations,
+                            onChanged: notifier.setIncludeExplanations,
                           ),
                         ],
                       ),
@@ -285,8 +294,7 @@ class _GenerationSetupScreenState extends State<GenerationSetupScreen> {
                   ),
                   const SizedBox(height: 8),
                   FilledButton(
-                    onPressed: () =>
-                        context.push(AppRoutes.generationProcessing),
+                    onPressed: _onGenerate,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
