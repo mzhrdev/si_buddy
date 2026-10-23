@@ -136,7 +136,6 @@ class _StudyToolsIllustration extends StatelessWidget {
             top: 155,
             child: Container(
               width: 215,
-              height: 146,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.white,
