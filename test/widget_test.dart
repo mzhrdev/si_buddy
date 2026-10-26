@@ -5,7 +5,8 @@ import 'package:si_buddy/app/app.dart';
 void main() {
   testWidgets('renders the SI Buddy splash screen', (tester) async {
     await tester.pumpWidget(const MyApp());
-    expect(find.text('Splash'), findsNWidgets(2));
-    expect(find.textContaining('Onboarding'), findsNWidgets(2));
+    await tester.pumpAndSettle();
+    expect(find.text('SI Buddy'), findsOneWidget);
+    expect(find.text('Your notes. Your AI. Your exam prep.'), findsOneWidget);
   });
 }

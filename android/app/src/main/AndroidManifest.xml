@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required in release builds to download the on-device AI model
+         (flutter_edge_ai); the debug/profile manifests already carry
+         it for the Flutter tool. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="si_buddy"
         android:name="${applicationName}"
