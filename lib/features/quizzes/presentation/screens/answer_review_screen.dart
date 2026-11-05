@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,9 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/domain/generation_models.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/quiz_bottom_bar.dart';
 import '../widgets/quiz_progress.dart';
 
@@ -14,14 +18,63 @@ import '../widgets/quiz_progress.dart';
 /// the user's (incorrect) answer, the correct answer, an explanation
 /// and the source reference. Previous / Next step through the review
 /// locally (the content shown is the design's Question 3).
-class AnswerReviewScreen extends StatelessWidget {
+class AnswerReviewScreen extends ConsumerWidget {
   const AnswerReviewScreen({super.key});
 
   // Figma: success-surface
   static const _successSurface = AppColors.successSurface;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final shortAnswers = ref.watch(quizShortAnswersProvider);
+    final questions = result?.questions ?? const [];
+    final hasRealResult = questions.isNotEmpty;
+    final reviewIndex = hasRealResult
+        ? ref.watch(reviewIndexProvider).clamp(0, questions.length - 1)
+        : 0;
+    final question = hasRealResult ? questions[reviewIndex] : null;
+    final correctCount = questions
+        .where((q) =>
+            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .length;
+    final incorrectCount = questions.length - correctCount;
+    String marker(int i) => String.fromCharCode('A'.codeUnitAt(0) + i);
+    String yourAnswerText() {
+      if (question == null) return 'B · A tissue';
+      if (question.type == QuizQuestionType.shortAnswer) {
+        final text = shortAnswers[question.prompt]?.trim() ?? '';
+        return text.isEmpty ? 'No answer given' : text;
+      }
+      final chosen = answers[question.prompt];
+      if (chosen == null) return 'No answer given';
+      return '${marker(chosen)} · ${question.options[chosen]}';
+    }
+    String correctAnswerText() {
+      if (question == null) return 'C · The cell';
+      if (question.type == QuizQuestionType.shortAnswer) {
+        return question.expectedAnswer ?? 'No expected answer recorded';
+      }
+      if (question.correctIndex == null) return 'Not recorded';
+      return '${marker(question.correctIndex!)} · ${question.options[question.correctIndex!]}';
+    }
+    final isCorrect = question != null &&
+        question.correctIndex != null &&
+        answers[question.prompt] == question.correctIndex;
+    final isAnswered = question != null &&
+        (question.type == QuizQuestionType.shortAnswer
+            ? (shortAnswers[question.prompt]?.trim().isNotEmpty ?? false)
+            : answers.containsKey(question.prompt));
+    final statusLabel = !hasRealResult
+        ? 'Incorrect'
+        : question!.type == QuizQuestionType.shortAnswer
+            ? (isAnswered ? 'Answered · not auto-scored' : 'Unanswered')
+            : (isCorrect ? 'Correct' : 'Incorrect');
+    final statusColor = !hasRealResult || !isCorrect
+        ? AppColors.danger
+        : AppColors.successText;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -34,35 +87,48 @@ class AnswerReviewScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const QuizIdentity(
-                      title: 'Cell structures',
-                      meta: '7 correct · 3 incorrect, including 2 unanswered',
+                    QuizIdentity(
+                      title: hasRealResult ? config.topic : 'Cell structures',
+                      meta: hasRealResult
+                          ? '$correctCount correct · $incorrectCount incorrect'
+                          : '7 correct · 3 incorrect, including 2 unanswered',
                     ),
                     const SizedBox(height: 16),
-                    const QuizProgressBar(
-                      leftLabel: 'Question 3 of 10',
-                      rightLabel: 'Incorrect',
-                      rightLabelColor: AppColors.danger,
-                      fraction: 0.3,
+                    QuizProgressBar(
+                      leftLabel: hasRealResult
+                          ? 'Question ${reviewIndex + 1} of ${questions.length}'
+                          : 'Question 3 of 10',
+                      rightLabel: statusLabel,
+                      rightLabelColor: statusColor,
+                      fraction: hasRealResult
+                          ? (reviewIndex + 1) / questions.length
+                          : 0.3,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Cell basics · Multiple choice',
+                      hasRealResult
+                          ? '${config.topic} · ${question!.type.label}'
+                          : 'Cell basics · Multiple choice',
                       style: AppTextStyles.caption,
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      'What is the basic unit of life?',
+                      question?.prompt ?? 'What is the basic unit of life?',
                       style: AppTextStyles.screenTitle,
                     ),
                     const SizedBox(height: 14),
                     _AnswerCard(
-                      background: AppColors.dangerSurface,
-                      iconAsset: 'assets/icons/figma/circle_x.svg',
-                      iconColor: AppColors.danger,
+                      background: isCorrect
+                          ? AppColors.successSurface
+                          : AppColors.dangerSurface,
+                      iconAsset: isCorrect
+                          ? 'assets/icons/figma/check_circle_2.svg'
+                          : 'assets/icons/figma/circle_x.svg',
+                      iconColor: isCorrect ? AppColors.success : AppColors.danger,
                       label: 'Your answer',
-                      labelColor: AppColors.danger,
-                      value: 'B · A tissue',
+                      labelColor:
+                          isCorrect ? AppColors.successText : AppColors.danger,
+                      value: yourAnswerText(),
                     ),
                     const SizedBox(height: 14),
                     _AnswerCard(
@@ -71,7 +137,7 @@ class AnswerReviewScreen extends StatelessWidget {
                       iconColor: AppColors.success,
                       label: 'Correct answer',
                       labelColor: AppColors.successText,
-                      value: 'C · The cell',
+                      value: correctAnswerText(),
                     ),
                     const SizedBox(height: 14),
                     Container(
@@ -91,10 +157,11 @@ class AnswerReviewScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 7),
                           Text(
-                            'Cells are the basic unit of life. Each cell '
-                            'contains structures that work together to '
-                            'support its functions. A tissue is a group of '
-                            'similar cells working together.',
+                            question?.explanation ??
+                                'Cells are the basic unit of life. Each cell '
+                                    'contains structures that work together to '
+                                    'support its functions. A tissue is a group of '
+                                    'similar cells working together.',
                             style: AppTextStyles.muted,
                           ),
                         ],
@@ -150,9 +217,20 @@ class AnswerReviewScreen extends StatelessWidget {
               leftLabel: 'Previous',
               rightLabel: 'Next',
               linkLabel: 'Back to Results',
-              onLeft: () => context.pop(),
-              // TODO(backend): step to the next reviewed question.
-              onRight: () {},
+              onLeft: () {
+                if (hasRealResult && reviewIndex > 0) {
+                  ref.read(reviewIndexProvider.notifier).previous();
+                } else {
+                  context.pop();
+                }
+              },
+              onRight: () {
+                if (hasRealResult) {
+                  ref
+                      .read(reviewIndexProvider.notifier)
+                      .next(questions.length);
+                }
+              },
               onLink: () => context.push(AppRoutes.results),
             ),
           ],

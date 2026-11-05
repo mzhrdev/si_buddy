@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,12 +7,14 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Quiz results, implemented from the Figma frame
 /// "SI Buddy · Quiz Results" (5:6216): score summary card, topic
 /// performance bars and the follow-up actions. All actions are
 /// primary buttons, matching the design.
-class QuizResultsScreen extends StatelessWidget {
+class QuizResultsScreen extends ConsumerWidget {
   const QuizResultsScreen({super.key});
 
   static const _topics = [
@@ -21,7 +24,37 @@ class QuizResultsScreen extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final shortAnswers = ref.watch(quizShortAnswersProvider);
+    final hasRealResult = result != null && result.questions.isNotEmpty;
+    final questions = result?.questions ?? const [];
+    final correct = questions
+        .where((q) =>
+            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .length;
+    final answered = questions
+        .where((q) =>
+            answers.containsKey(q.prompt) ||
+            (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false))
+        .length;
+    final total = hasRealResult ? questions.length : 10;
+    final correctCount = hasRealResult ? correct : 7;
+    final incorrectCount = total - correctCount;
+    final unanswered = hasRealResult ? total - answered : 2;
+    final percent = total == 0 ? 0 : (correctCount * 100 ~/ total);
+    final fraction = total == 0 ? 0.0 : correctCount / total;
+    final topics = hasRealResult
+        ? [
+            (
+              config.topic,
+              '$correctCount / $total correct · $percent%',
+              fraction,
+            ),
+          ]
+        : _topics;
     final actionStyle = FilledButton.styleFrom(
       minimumSize: const Size.fromHeight(48),
       textStyle: AppTextStyles.button,
@@ -45,7 +78,9 @@ class QuizResultsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Cell structures · 10 questions · Medium',
+                      hasRealResult
+                          ? '${config.topic} · $total questions · ${config.difficulty.label}'
+                          : 'Cell structures · 10 questions · Medium',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.body.copyWith(
                         fontSize: 12,
@@ -72,7 +107,7 @@ class QuizResultsScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '7 / 10',
+                                      '$correctCount / $total',
                                       style: _scoreStyle(AppColors.text),
                                     ),
                                     const SizedBox(height: 2),
@@ -87,11 +122,16 @@ class QuizResultsScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '70%',
+                                    '$percent%',
                                     style: _scoreStyle(AppColors.primary),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text('Duration · 6m 24s', style: _subStyle()),
+                                  Text(
+                                    hasRealResult
+                                        ? 'Duration · not tracked'
+                                        : 'Duration · 6m 24s',
+                                    style: _subStyle(),
+                                  ),
                                 ],
                               ),
                             ],
@@ -99,8 +139,8 @@ class QuizResultsScreen extends StatelessWidget {
                           const SizedBox(height: 12),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(100),
-                            child: const LinearProgressIndicator(
-                              value: 0.7,
+                            child: LinearProgressIndicator(
+                              value: fraction,
                               minHeight: 6,
                               backgroundColor: AppColors.surface,
                               valueColor: AlwaysStoppedAnimation(
@@ -113,18 +153,20 @@ class QuizResultsScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '7 correct',
+                                '$correctCount correct',
                                 style: _countStyle(AppColors.successText),
                               ),
                               Text(
-                                '3 incorrect',
+                                '$incorrectCount incorrect',
                                 style: _countStyle(AppColors.danger),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Includes 2 unanswered, counted as incorrect.',
+                            hasRealResult
+                                ? 'Includes $unanswered unanswered, counted as incorrect. Short answers are counted as answered, not scored.'
+                                : 'Includes 2 unanswered, counted as incorrect.',
                             style: AppTextStyles.caption,
                           ),
                         ],
@@ -139,12 +181,12 @@ class QuizResultsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    for (var i = 0; i < _topics.length; i++) ...[
+                    for (var i = 0; i < topics.length; i++) ...[
                       if (i > 0) const SizedBox(height: 12),
                       _TopicResult(
-                        name: _topics[i].$1,
-                        score: _topics[i].$2,
-                        fraction: _topics[i].$3,
+                        name: topics[i].$1,
+                        score: topics[i].$2,
+                        fraction: topics[i].$3,
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -167,7 +209,7 @@ class QuizResultsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Use your 3 missed questions to focus your next review.',
+                      'Use your $incorrectCount missed questions to focus your next review.',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.caption,
                     ),

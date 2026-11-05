@@ -10,6 +10,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../domain/document_failures.dart';
+import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
 import '../widgets/import_action_buttons.dart';
 import '../widgets/privacy_reassurance.dart';
@@ -23,16 +24,10 @@ import '../widgets/state_message.dart';
 /// "Browse files" opens the real file picker via [ImportJobNotifier];
 /// a validated file continues to the preview, and a validation failure
 /// routes to its designed error screen. The "Recently imported" list
-/// below is still the design's sample content — it gets wired with
-/// the library phase.
+/// below is the live library (newest first, up to three documents),
+/// or an empty-state line when nothing has been imported yet.
 class ImportFilesScreen extends ConsumerWidget {
   const ImportFilesScreen({super.key});
-
-  static const _recent = [
-    _RecentDoc('PDF', 'Cell Biology · Chapter 4', '12 pages · 2.4 MB · Today'),
-    _RecentDoc('PPTX', 'Organic Chemistry', '28 slides · 5.1 MB · Yesterday'),
-    _RecentDoc('DOCX', 'Research Methods', '8 pages · 840 KB · Oct 12'),
-  ];
 
   Future<void> _browse(BuildContext context, WidgetRef ref) async {
     final picked = await ref.read(importJobProvider.notifier).pickFile();
@@ -54,6 +49,15 @@ class ImportFilesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final recent = ref.watch(documentsStreamProvider).value ?? const [];
+    final recentItems = recent.take(3).map((document) {
+      return _RecentDoc(
+        document.format.label,
+        documentDisplayName(document),
+        '${document.pageCount} ${document.format.unitLabel} · ${formatFileSize(document.sizeBytes)} · ${formatLibraryDate(document.createdAt)}',
+        document.id,
+      );
+    }).toList();
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -86,14 +90,29 @@ class ImportFilesScreen extends ConsumerWidget {
                               'Recently imported',
                               style: AppTextStyles.title,
                             ),
-                            Text('3 documents', style: AppTextStyles.caption),
+                            Text(
+                              '${recent.length} document${recent.length == 1 ? '' : 's'}',
+                              style: AppTextStyles.caption,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        for (final doc in _recent)
+                        if (recentItems.isEmpty)
+                          Text(
+                            'Nothing imported yet.',
+                            style: AppTextStyles.caption,
+                          ),
+                        for (final doc in recentItems)
                           _RecentDocumentRow(
                             doc: doc,
-                            onTap: () => context.push(AppRoutes.details),
+                            onTap: () {
+                              if (doc.id != null) {
+                                ref
+                                    .read(selectedDocumentIdProvider.notifier)
+                                    .select(doc.id);
+                              }
+                              context.push(AppRoutes.details);
+                            },
                           ),
                       ],
                     ),
@@ -112,11 +131,14 @@ class ImportFilesScreen extends ConsumerWidget {
 }
 
 class _RecentDoc {
-  const _RecentDoc(this.format, this.title, this.meta);
+  const _RecentDoc(this.format, this.title, this.meta, [this.id]);
 
   final String format;
   final String title;
   final String meta;
+
+  /// Library id, null only for a row with no backing document.
+  final int? id;
 }
 
 /// White bordered card with the fanned supported-documents

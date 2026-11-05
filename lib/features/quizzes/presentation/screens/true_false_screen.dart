@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
@@ -8,24 +9,53 @@ import '../../../../core/widgets/app_header.dart';
 import '../widgets/answer_option_tile.dart';
 import '../widgets/quiz_bottom_bar.dart';
 import '../widgets/quiz_progress.dart';
+import '../../../ai_generation/domain/generation_models.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Quiz question — True/False, implemented from the Figma frame
 /// "SI Buddy · Quiz Question — True/False" (5:6006). The selected
 /// option matches the design ("False") and can be changed locally.
-class QuizTrueFalseScreen extends StatefulWidget {
+class QuizTrueFalseScreen extends ConsumerStatefulWidget {
   const QuizTrueFalseScreen({super.key});
 
   @override
-  State<QuizTrueFalseScreen> createState() => _QuizTrueFalseScreenState();
+  ConsumerState<QuizTrueFalseScreen> createState() => _QuizTrueFalseScreenState();
 }
 
-class _QuizTrueFalseScreenState extends State<QuizTrueFalseScreen> {
+class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
   static const _options = [('T', 'True'), ('F', 'False')];
 
   String _selected = 'F';
 
   @override
   Widget build(BuildContext context) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final questions = (result?.questions ?? const [])
+        .where((q) => q.type == QuizQuestionType.trueFalse)
+        .toList();
+    final question = questions.isEmpty ? null : questions.first;
+    final answers = ref.watch(quizAnswersProvider);
+    final answeredCount = result == null
+        ? 5
+        : (result.questions
+                .where((q) =>
+                    answers.containsKey(q.prompt) ||
+                    ref.watch(quizShortAnswersProvider).containsKey(q.prompt))
+                .length);
+    final total = questions.isEmpty ? 10 : questions.length;
+    final options = question == null
+        ? _options
+        : [
+            for (var i = 0; i < question.options.length; i++)
+              (i == 0 ? 'T' : 'F', question.options[i]),
+          ];
+    final selected = question == null
+        ? _selected
+        : (answers[question.prompt] == null
+            ? null
+            : (answers[question.prompt] == 0 ? 'T' : 'F'));
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -38,15 +68,23 @@ class _QuizTrueFalseScreenState extends State<QuizTrueFalseScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const QuizIdentity(
-                      title: 'Cell structures',
-                      meta: 'Biology · 10 questions · Medium · Mixed',
+                    QuizIdentity(
+                      title: question == null ? 'Cell structures' : config.topic,
+                      meta: question == null
+                          ? 'Biology · 10 questions · Medium · Mixed'
+                          : '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
                     ),
                     const SizedBox(height: 16),
-                    const QuizProgressBar(
-                      leftLabel: 'Question 5 of 10',
-                      rightLabel: '5 / 10 answered',
-                      fraction: 0.5,
+                    QuizProgressBar(
+                      leftLabel: question == null
+                          ? 'Question 5 of 10'
+                          : 'Question 1 of $total',
+                      rightLabel: question == null
+                          ? '5 / 10 answered'
+                          : '$answeredCount / $total answered',
+                      fraction: question == null
+                          ? 0.5
+                          : (total == 0 ? 0 : answeredCount / total),
                     ),
                     const SizedBox(height: 16),
                     const QuizTopicTimerRow(
@@ -74,12 +112,12 @@ class _QuizTrueFalseScreenState extends State<QuizTrueFalseScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text('05 / 10', style: AppTextStyles.caption),
+                                Text(question == null ? '05 / 10' : '01 / $total', style: AppTextStyles.caption),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              'All cells have a nucleus.',
+                              question?.prompt ?? 'All cells have a nucleus.',
                               style: AppTextStyles.screenTitle,
                             ),
                             const SizedBox(height: 20),
@@ -92,14 +130,21 @@ class _QuizTrueFalseScreenState extends State<QuizTrueFalseScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            for (var i = 0; i < _options.length; i++) ...[
+                            for (var i = 0; i < options.length; i++) ...[
                               if (i > 0) const SizedBox(height: 10),
                               AnswerOptionTile(
-                                marker: _options[i].$1,
-                                label: _options[i].$2,
-                                selected: _selected == _options[i].$1,
-                                onTap: () =>
-                                    setState(() => _selected = _options[i].$1),
+                                marker: options[i].$1,
+                                label: options[i].$2,
+                                selected: selected == options[i].$1,
+                                onTap: () {
+                                  if (question == null) {
+                                    setState(() => _selected = options[i].$1);
+                                  } else {
+                                    ref
+                                        .read(quizAnswersProvider.notifier)
+                                        .answer(question.prompt, i);
+                                  }
+                                },
                               ),
                             ],
                           ],

@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
+import '../../../model_management/presentation/providers/model_providers.dart';
 import '../../domain/home_models.dart';
 
 /// Time-aware greeting shown above the dashboard headline,
@@ -14,43 +17,51 @@ final greetingProvider = Provider<String>((ref) {
   return '$part, study buddy';
 });
 
-/// Dashboard content. Currently mock data mirroring the Figma design;
-/// this provider is the seam where the documents/study repositories
-/// will plug in without the UI changing.
+/// Dashboard content, built from live sources where they exist.
+///
+/// - Recent documents: the real library stream, newest first.
+/// - "Pick up where you left off": the most recent generation's
+///   flashcards, when one exists this session (decks are not
+///   persisted yet, so nothing shows here after a restart).
+/// - Study progress: study sessions, minutes and streaks are not
+///   tracked anywhere yet, so they honestly read 0 instead of the
+///   design's sample 24 cards / 15 minutes / 3-day streak.
+/// - Model status: the model provider's last known state. It only
+///   becomes "ready" after a model screen has probed or a download
+///   has completed in this session; on a cold start it reads as
+///   not installed until the AI Model screen is visited.
 final homeDashboardProvider = Provider<HomeDashboardData>((ref) {
-  return const HomeDashboardData(
+  final documents = ref.watch(documentsStreamProvider).value ?? const [];
+  final result = ref.watch(lastGenerationResultProvider);
+  final config = ref.watch(generationConfigProvider);
+  final modelReady = ref.watch(modelProvider).isReady;
+  return HomeDashboardData(
     progress: StudyProgress(
-      cardsReviewed: 24,
-      minutesStudied: 15,
+      cardsReviewed: 0,
+      minutesStudied: 0,
       dailyGoalMinutes: 20,
-      streakDays: 3,
-      modelReady: true,
+      streakDays: 0,
+      modelReady: modelReady,
     ),
     documents: [
-      DocumentSummary(
-        format: 'PDF',
-        title: 'Cell Biology · Chapter 4',
-        details: 'PDF · 12 pages · Today',
-      ),
-      DocumentSummary(
-        format: 'PPTX',
-        title: 'Organic Chemistry',
-        details: 'PPTX · 28 slides · Yesterday',
-      ),
+      for (final document in documents)
+        DocumentSummary(
+          id: document.id,
+          format: document.format.label,
+          title: documentDisplayName(document),
+          details:
+              '${document.format.label} · ${document.pageCount} ${document.format.unitLabel} · ${formatLibraryDate(document.createdAt)}',
+        ),
     ],
-    decks: [
-      DeckSummary(
-        title: 'Cell structures',
-        cardCount: 20,
-        dueCount: 8,
-        lastStudied: 'Studied 20 min ago',
-      ),
-      DeckSummary(
-        title: 'Chemical bonds',
-        cardCount: 24,
-        dueCount: 6,
-        lastStudied: 'Studied yesterday',
-      ),
-    ],
+    decks: result != null && result.flashcards.isNotEmpty
+        ? [
+            DeckSummary(
+              title: config.topic,
+              cardCount: result.flashcards.length,
+              dueCount: result.flashcards.length,
+              lastStudied: 'Just generated',
+            ),
+          ]
+        : const [],
   );
 });

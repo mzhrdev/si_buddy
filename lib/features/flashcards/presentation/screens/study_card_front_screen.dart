@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,24 +7,38 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/study_card_navigation.dart';
 import '../widgets/study_session_header.dart';
 
 /// Study card front (question face), implemented from the Figma frame
 /// "SI Buddy · Study Card Front" (5:2558).
-class StudyCardFrontScreen extends StatefulWidget {
+///
+/// With a generated deck this session, the question and counter come
+/// from the current card; otherwise the design's sample card shows.
+class StudyCardFrontScreen extends ConsumerStatefulWidget {
   const StudyCardFrontScreen({super.key});
 
   @override
-  State<StudyCardFrontScreen> createState() => _StudyCardFrontScreenState();
+  ConsumerState<StudyCardFrontScreen> createState() =>
+      _StudyCardFrontScreenState();
 }
 
-class _StudyCardFrontScreenState extends State<StudyCardFrontScreen> {
+class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
   bool _shuffleOn = false;
   bool _bookmarked = false;
 
   @override
   Widget build(BuildContext context) {
+    final cards = ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
+    final index = cards.isEmpty
+        ? 0
+        : ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
+    final question = cards.isEmpty
+        ? 'What is the basic unit of life?'
+        : cards[index].front;
+    final counter = cards.isEmpty ? '04 / 20' : '${index + 1} / ${cards.length}';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -43,12 +58,21 @@ class _StudyCardFrontScreenState extends State<StudyCardFrontScreen> {
                           setState(() => _bookmarked = !_bookmarked),
                     ),
                     const SizedBox(height: 10),
-                    Expanded(child: _QuestionCard(onTap: _showAnswer)),
+                    Expanded(
+                      child: _QuestionCard(
+                        question: question,
+                        counter: counter,
+                        onTap: _showAnswer,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     StudyCardNavigation(
-                      // TODO(backend): move between cards in the deck.
-                      onPrevious: () {},
-                      onNext: () {},
+                      onPrevious: () => ref
+                          .read(studyCardIndexProvider.notifier)
+                          .previous(),
+                      onNext: () => ref
+                          .read(studyCardIndexProvider.notifier)
+                          .next(cards.length),
                     ),
                     const SizedBox(height: 10),
                     Padding(
@@ -99,8 +123,14 @@ class _StudyCardFrontScreenState extends State<StudyCardFrontScreen> {
 /// The white question card: "QUESTION · 04 / 20", the question text and
 /// the "Tap card to reveal" hint.
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({required this.onTap});
+  const _QuestionCard({
+    required this.question,
+    required this.counter,
+    required this.onTap,
+  });
 
+  final String question;
+  final String counter;
   final VoidCallback onTap;
 
   @override
@@ -130,14 +160,14 @@ class _QuestionCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text('04 / 20', style: AppTextStyles.caption),
+                  Text(counter, style: AppTextStyles.caption),
                 ],
               ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: Text(
-                  'What is the basic unit of life?',
+                  question,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.display.copyWith(letterSpacing: -0.48),
                 ),

@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/study_card_navigation.dart';
 import '../widgets/study_session_header.dart';
 
 /// Study card back (answer face), implemented from the Figma frame
 /// "SI Buddy · Study Card Back" (5:2624).
-class StudyCardBackScreen extends StatefulWidget {
+class StudyCardBackScreen extends ConsumerStatefulWidget {
   const StudyCardBackScreen({super.key});
 
   @override
-  State<StudyCardBackScreen> createState() => _StudyCardBackScreenState();
+  ConsumerState<StudyCardBackScreen> createState() => _StudyCardBackScreenState();
 }
 
-class _StudyCardBackScreenState extends State<StudyCardBackScreen> {
+class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
   bool _shuffleOn = false;
   bool _bookmarked = false;
   String? _rating;
 
   @override
   Widget build(BuildContext context) {
+    final cards = ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
+    final index = cards.isEmpty
+        ? 0
+        : ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
+    final card = cards.isEmpty ? null : cards[index];
+    final counter = cards.isEmpty ? '04 / 20' : '${index + 1} / ${cards.length}';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -43,12 +52,25 @@ class _StudyCardBackScreenState extends State<StudyCardBackScreen> {
                           setState(() => _bookmarked = !_bookmarked),
                     ),
                     const SizedBox(height: 10),
-                    const Expanded(child: _AnswerCard()),
+                    Expanded(
+                      child: _AnswerCard(
+                        question: card?.front ??
+                            'What is the basic unit of life?',
+                        answer: card?.back ?? 'The cell.',
+                        explanation: card?.explanation ??
+                            'Each cell contains structures that work together to support its functions.',
+                        counter: counter,
+                        onShowQuestion: () => context.pop(),
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     StudyCardNavigation(
-                      // TODO(backend): move between cards in the deck.
-                      onPrevious: () {},
-                      onNext: () {},
+                      onPrevious: () => ref
+                          .read(studyCardIndexProvider.notifier)
+                          .previous(),
+                      onNext: () => ref
+                          .read(studyCardIndexProvider.notifier)
+                          .next(cards.length),
                     ),
                     const SizedBox(height: 10),
                     Padding(
@@ -108,7 +130,10 @@ class _StudyCardBackScreenState extends State<StudyCardBackScreen> {
   }
 
   void _selectRating(String rating) {
-    // TODO(backend): persist the rating and advance the session.
+    // Session-only: ratings feed the session summary. They are not
+    // persisted yet, so they reset when the app restarts.
+    final index = ref.read(studyCardIndexProvider);
+    ref.read(cardRatingsProvider.notifier).rate(index, rating);
     setState(() => _rating = rating);
   }
 }
@@ -116,7 +141,19 @@ class _StudyCardBackScreenState extends State<StudyCardBackScreen> {
 /// The white answer card: "ANSWER · 04 / 20", the question, the answer
 /// with its explanation, the source line and "Show question".
 class _AnswerCard extends StatelessWidget {
-  const _AnswerCard();
+  const _AnswerCard({
+    required this.question,
+    required this.answer,
+    required this.explanation,
+    required this.counter,
+    required this.onShowQuestion,
+  });
+
+  final String question;
+  final String answer;
+  final String explanation;
+  final String counter;
+  final VoidCallback onShowQuestion;
 
   @override
   Widget build(BuildContext context) {
@@ -141,12 +178,12 @@ class _AnswerCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text('04 / 20', style: AppTextStyles.caption),
+              Text(counter, style: AppTextStyles.caption),
             ],
           ),
           const Spacer(),
           Text(
-            'What is the basic unit of life?',
+            question,
             style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.w600,
               height: 20 / 14,
@@ -154,7 +191,7 @@ class _AnswerCard extends StatelessWidget {
           ),
           const SizedBox(height: 9),
           Text(
-            'The cell.',
+            answer,
             style: AppTextStyles.display.copyWith(
               fontSize: 28,
               height: 34 / 28,
@@ -162,19 +199,19 @@ class _AnswerCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 9),
-          Text(
-            'Each cell contains structures that work together to support its functions.',
-            style: AppTextStyles.muted.copyWith(height: 20 / 13),
-          ),
+          if (explanation.isNotEmpty)
+            Text(
+              explanation,
+              style: AppTextStyles.muted.copyWith(height: 20 / 13),
+            ),
           const Spacer(),
           Text(
-            'Source: Cell Biology - Chapter 4.pdf · p. 1',
+            'Generated on this device',
             style: AppTextStyles.badge.copyWith(color: AppColors.muted),
           ),
           const SizedBox(height: 9),
           InkWell(
-            // TODO(backend): flip back to the question face.
-            onTap: () {},
+            onTap: onShowQuestion,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
