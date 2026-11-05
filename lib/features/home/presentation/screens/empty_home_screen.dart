@@ -107,7 +107,7 @@ class EmptyHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'PDF, DOCX or PPTX · Stored on your device',
+                    'PDF or PPTX · Stored on your device',
                     style: AppTextStyles.caption,
                   ),
                 ],

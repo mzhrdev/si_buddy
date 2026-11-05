@@ -237,6 +237,7 @@ class ExtractionState {
     this.fraction = 0,
     this.result,
     this.error,
+    this.ocrActive = false,
   });
 
   final ExtractionStatus status;
@@ -267,6 +268,10 @@ class ExtractionState {
 
   /// The failure that ended the job, once [status] is failed.
   final Object? error;
+
+  /// True while the current page is being read with OCR (a scanned,
+  /// image-only page). See [ExtractionUpdate.ocrActive].
+  final bool ocrActive;
 
   /// Progress within the extraction stage, for its linear bar.
   double get stageFraction {
@@ -318,8 +323,9 @@ class ExtractionState {
       },
       StageStatus.active => switch (stage) {
         ExtractionStage.readingDocument => 'Reading your document',
-        ExtractionStage.extractingText =>
-          'Processing page $currentPage of $totalPages',
+        ExtractionStage.extractingText => ocrActive
+            ? 'Reading scanned page $currentPage of $totalPages'
+            : 'Processing page $currentPage of $totalPages',
         ExtractionStage.preparingContent => 'Organizing text for review',
       },
       StageStatus.upcoming => switch (stage) {
@@ -339,6 +345,7 @@ class ExtractionState {
     double? fraction,
     ExtractedDocument? result,
     Object? error,
+    bool? ocrActive,
   }) {
     return ExtractionState(
       status: status ?? this.status,
@@ -351,6 +358,7 @@ class ExtractionState {
       fraction: fraction ?? this.fraction,
       result: result ?? this.result,
       error: error ?? this.error,
+      ocrActive: ocrActive ?? this.ocrActive,
     );
   }
 }
@@ -392,6 +400,7 @@ class ExtractionNotifier extends Notifier<ExtractionState> {
                   : state.totalPages,
               fraction: update.fraction,
               result: update.document,
+              ocrActive: update.ocrActive,
             );
           },
           onError: (Object error) {

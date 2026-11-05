@@ -21,18 +21,26 @@ class DocumentRepositoryImpl implements DocumentRepository {
   DocumentRepositoryImpl({
     required this.db,
     Future<Directory> Function()? documentsDirectory,
+    Future<Directory> Function()? temporaryDirectory,
     PdfTextExtractor? pdfExtractor,
     PptxTextExtractor? pptxExtractor,
   }) : _documentsDirectory =
            documentsDirectory ?? getApplicationDocumentsDirectory,
+       _temporaryDirectory =
+           temporaryDirectory ?? getTemporaryDirectory,
        _pdfExtractor = pdfExtractor ?? PdfTextExtractor(),
        _pptxExtractor = pptxExtractor ?? PptxTextExtractor();
 
   /// The database the library is persisted in.
   final AppDatabase db;
   final Future<Directory> Function() _documentsDirectory;
+  final Future<Directory> Function() _temporaryDirectory;
   final PdfTextExtractor _pdfExtractor;
   final PptxTextExtractor _pptxExtractor;
+
+  /// Temp files staged for cloud picks (see [validatePickedBytes]):
+  /// removed once the library holds its own copy of the file.
+  final _tempPickedPaths = <String>{};
 
   // -- Picking & validation -------------------------------------------------
 
@@ -43,9 +51,62 @@ class DocumentRepositoryImpl implements DocumentRepository {
       allowedExtensions: const ['pdf', 'pptx'],
       dialogTitle: 'Choose a document',
     );
-    final path = picked?.path;
-    if (picked == null || path == null) return null; // User cancelled.
-    return validatePickedFile(path);
+    if (picked == null) return null; // User cancelled.
+    final path = picked.path;
+    if (path != null) return validatePickedFile(path);
+    // No local path: the file lives in the cloud (e.g. Google Drive)
+    // and the picker only hands us a content URI. Read its bytes
+    // through the picker and stage them in a temp file — otherwise
+    // the pick silently did nothing.
+    return validatePickedBytes(
+      name: picked.name,
+      readBytes: picked.readAsBytes,
+    );
+  }
+
+  /// Validates a picked file that has no local path (a cloud file):
+  /// reads its bytes and stages them in a temp file, then validates
+  /// that file. Exposed so the bytes path can be tested without the
+  /// platform picker.
+  ///
+  /// Throws [UnsupportedFormatException] or [CorruptedDocumentException].
+  Future<FileRef> validatePickedBytes({
+    required String name,
+    required Future<Uint8List> Function() readBytes,
+  }) async {
+    late final Uint8List bytes;
+    try {
+      bytes = await readBytes();
+    } on Object {
+      throw CorruptedDocumentException(fileName: name);
+    }
+    final directory = Directory(
+      p.join(
+        (await _temporaryDirectory()).path,
+        'si_buddy',
+        'picked',
+        '${DateTime.now().microsecondsSinceEpoch}',
+      ),
+    );
+    await directory.create(recursive: true);
+    // The staged file keeps the picked name (in its own timestamped
+    // folder, like the library copy) so the document title derived
+    // from it stays clean.
+    final stagedPath = p.join(directory.path, name);
+    await File(stagedPath).writeAsBytes(bytes, flush: true);
+    _tempPickedPaths.add(stagedPath);
+    try {
+      return await validatePickedFile(stagedPath);
+    } catch (_) {
+      // A failed pick leaves no staged file behind.
+      _tempPickedPaths.remove(stagedPath);
+      try {
+        await File(stagedPath).delete();
+      } on Object {
+        // Ignore: the OS cleans its cache directory.
+      }
+      rethrow;
+    }
   }
 
   /// Validates a picked file at [path] and builds its [FileRef]:
@@ -147,6 +208,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
           ),
         };
     final storedFile = await _copyIntoLibrary(file);
+    await _discardStagedPick(file.path);
     if (isCancelled()) return;
     emit(
       ExtractionUpdate(
@@ -156,7 +218,9 @@ class DocumentRepositoryImpl implements DocumentRepository {
       ),
     );
 
-    // Stage 2 — Extracting Text: one section per page/slide.
+    // Stage 2 — Extracting Text: one section per page/slide. PDF
+    // pages without a text layer are read with OCR; the extractor
+    // reports those pages so the progress line can say so.
     final sections = switch (file.format) {
       DocumentFormat.pdf => await _pdfExtractor.extractPageTexts(
         file.path,
@@ -166,6 +230,15 @@ class DocumentRepositoryImpl implements DocumentRepository {
             currentPage: index + 1,
             totalPages: total,
             fraction: 0.05 + 0.85 * (total == 0 ? 0 : index / total),
+          ),
+        ),
+        onOcrPageStart: (index, total) => emit(
+          ExtractionUpdate(
+            stage: ExtractionStage.extractingText,
+            currentPage: index + 1,
+            totalPages: total,
+            fraction: 0.05 + 0.85 * (total == 0 ? 0 : index / total),
+            ocrActive: true,
           ),
         ),
         isCancelled: isCancelled,
@@ -254,6 +327,17 @@ class DocumentRepositoryImpl implements DocumentRepository {
         document: extracted,
       ),
     );
+  }
+
+  /// Removes a staged cloud pick once the library holds its own copy.
+  /// Best-effort: a leftover staged file is just a cache file.
+  Future<void> _discardStagedPick(String path) async {
+    if (!_tempPickedPaths.remove(path)) return;
+    try {
+      await File(path).delete();
+    } on Object {
+      // Ignore: the OS cleans its cache directory.
+    }
   }
 
   /// Copies the picked file into the app documents directory, under

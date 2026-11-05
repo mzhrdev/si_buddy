@@ -13,6 +13,17 @@ import '../providers/documents_providers.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/selected_document_card.dart';
 
+/// Where a completed extraction continues: the extracted-text review,
+/// or the scanned-PDF screen when a PDF yielded no readable text even
+/// after OCR — the review would only show empty pages, so the user
+/// gets the explanation and a way to pick another file instead.
+String routeAfterExtraction(ExtractedDocument result) {
+  if (!result.hasText && result.document.format == DocumentFormat.pdf) {
+    return AppRoutes.ocr;
+  }
+  return AppRoutes.extractionReview;
+}
+
 /// Text extraction processing, implemented from the Figma frame
 /// "SI Buddy · Text extraction processing" (4:4971).
 ///
@@ -30,7 +41,17 @@ class TextExtractionProcessingScreen extends ConsumerWidget {
     ref.listen<ExtractionState>(extractionProvider, (previous, next) {
       if (previous?.status == next.status) return;
       if (next.status == ExtractionStatus.completed) {
-        context.push(AppRoutes.extractionReview);
+        final result = next.result;
+        if (result == null) return;
+        // The OCR screen replaces the processing screen: going back
+        // from it should leave the import flow, not return to a
+        // finished checklist. The review keeps the normal push.
+        final route = routeAfterExtraction(result);
+        if (route == AppRoutes.ocr) {
+          context.pushReplacement(route);
+        } else {
+          context.push(route);
+        }
       } else if (next.status == ExtractionStatus.failed) {
         final route = switch (next.error) {
           UnsupportedFormatException() => AppRoutes.unsupported,

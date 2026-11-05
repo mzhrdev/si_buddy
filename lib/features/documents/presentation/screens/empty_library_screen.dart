@@ -59,7 +59,7 @@ class EmptyLibraryScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'PDF, DOCX and PPTX supported',
+                          'PDF and PPTX supported',
                           style: AppTextStyles.body.copyWith(
                             fontSize: 12,
                             height: 18 / 12,

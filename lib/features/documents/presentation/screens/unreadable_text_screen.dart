@@ -43,7 +43,7 @@ class UnreadableTextScreen extends ConsumerWidget {
           Text('Export a readable version', style: AppTextStyles.itemTitle),
           const SizedBox(height: 8),
           Text(
-            'Export again from the original app as a text-based PDF or DOCX. Check that you can select and copy a sentence as readable text, then try that version.',
+            'Export again from the original app as a text-based PDF. Check that you can select and copy a sentence as readable text, then try that version.',
             style: AppTextStyles.muted.copyWith(height: 20 / 13),
           ),
         ],

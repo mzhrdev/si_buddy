@@ -169,7 +169,7 @@ class _DeviceBrowserCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('Supports PDF, DOCX and PPTX', style: AppTextStyles.greeting),
+          Text('Supports PDF and PPTX', style: AppTextStyles.greeting),
           const SizedBox(height: 14),
           ImportPrimaryButton(label: 'Browse files', onPressed: onBrowse),
           const SizedBox(height: 14),

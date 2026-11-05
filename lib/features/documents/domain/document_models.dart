@@ -189,6 +189,7 @@ class ExtractionUpdate {
     this.currentPage = 0,
     this.totalPages = 0,
     this.document,
+    this.ocrActive = false,
   });
 
   /// The stage currently in progress.
@@ -205,4 +206,9 @@ class ExtractionUpdate {
 
   /// The finished extraction; non-null only on the final event.
   final ExtractedDocument? document;
+
+  /// True while the current page is being read with OCR (a scanned,
+  /// image-only page), so the UI can say so instead of showing the
+  /// same "processing page" line while the slower OCR work runs.
+  final bool ocrActive;
 }

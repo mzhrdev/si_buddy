@@ -27,8 +27,9 @@ class HelpAboutScreen extends StatelessWidget {
     ),
     (
       'Why can’t I read a scanned PDF?',
-      'Image-only scans need OCR first. Import a text-based PDF or an '
-          'OCR-processed copy with selectable text.',
+      'Scanned, image-only PDFs are read automatically with on-device '
+          'OCR during import. If OCR finds no readable text, try a '
+          'clearer scan or a text-based version.',
     ),
   ];
 
@@ -48,7 +49,7 @@ class HelpAboutScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          for (final format in ['PDF', 'DOCX', 'PPTX']) ...[
+                          for (final format in ['PDF', 'PPTX']) ...[
                             if (format != 'PDF') const SizedBox(width: 8),
                             Container(
                               height: 30,

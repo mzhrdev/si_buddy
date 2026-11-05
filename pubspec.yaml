@@ -43,12 +43,10 @@ dependencies:
   go_router: ^16.0.0
   flutter_svg: ^2.0.0
   file_picker: ^13.1.0
-  # Pinned exactly: 0.5.0 is the LAST pdfrx_engine that works on Dart
-  # 3.12.2 / Flutter 3.44.x. 0.6.0+ requires Dart ^3.13.0 (Flutter 3.47+)
-  # via pdfium_dart 0.3.0+, so `flutter pub get` fails on Dart 3.12.2
-  # with `^0.6.0`/`^0.8.0`. If you upgrade Flutter to 3.47.9
-  # (Dart 3.13.7, what `flutter pub get` suggests), bump this back to
-  # ^0.8.0 and re-run `flutter pub get`.
+  # Pinned exactly: 0.8.0, set when the project moved to Flutter
+  # 3.47.9 / Dart 3.13.7 ("Flutter Upgrade 2.0"). 0.5.0 was the last
+  # version that worked on Dart 3.12.2 / Flutter 3.44.x; 0.6.0+
+  # requires Dart ^3.13.0 via pdfium_dart 0.3.0+.
   pdfrx_engine: 0.8.0
   archive: ^4.5.2
   xml: ^7.0.1
@@ -61,6 +59,11 @@ dependencies:
   # together deliberately.
   flutter_edge_ai: 2.5.2
   flutter_edge_ai_litertlm: 1.17.0
+  # On-device OCR for scanned (image-only) PDFs: ML Kit Latin text
+  # recognition, bundled on-device — no download, no internet.
+  # The PDF extractor renders text-less pages and reads them with
+  # this; minSdk 30 already satisfies ML Kit's requirement.
+  google_mlkit_text_recognition: ^0.17.1
 
 dev_dependencies:
   flutter_test:
