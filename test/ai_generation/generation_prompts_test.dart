@@ -53,6 +53,35 @@ void main() {
       expect(prompt, contains('Photosynthesis'));
     });
 
+    test('shows two example blocks and tells the model not to stop after the first', () {
+      // A 1B model shown a single example block tends to emit one
+      // item and stop, so a 10-question quiz came back with a single
+      // question. Every task now shows the repeat pattern.
+      for (final type in [
+        GenerationMaterialType.flashcards,
+        GenerationMaterialType.mcqs,
+        GenerationMaterialType.trueFalse,
+        GenerationMaterialType.shortAnswers,
+      ]) {
+        final prompt = buildGenerationPrompt(
+          source: sourceWith(cellText),
+          config: GenerationConfig(materialType: type, count: 10),
+        );
+        expect(prompt, contains('do not stop after the first one'), reason: '$type');
+        expect(prompt, contains('Create all 10'), reason: '$type');
+      }
+      final mcq = buildGenerationPrompt(
+        source: sourceWith(cellText),
+        config: const GenerationConfig(materialType: GenerationMaterialType.mcqs, count: 10),
+      );
+      expect(mcq, contains('2. <another question>'));
+      final cards = buildGenerationPrompt(
+        source: sourceWith(cellText),
+        config: const GenerationConfig(materialType: GenerationMaterialType.flashcards, count: 10),
+      );
+      expect(cards, contains('Q: <another question>'));
+    });
+
     test('requests the line format each parser consumes', () {
       String promptFor(GenerationMaterialType type) => buildGenerationPrompt(
         source: sourceWith(cellText),

@@ -95,49 +95,70 @@ String _explanationLine(GenerationConfig config) => config.includeExplanations
     : '';
 
 String _flashcardTask(GenerationConfig config) {
+  final e = _explanationLine(config);
   return 'Create exactly ${config.count} flashcards about '
-      '${_topic(config)}.\n'
+      '${_topic(config)}. Create all ${config.count} of them — do not '
+      'stop after the first one.\n'
       'Format — one flashcard per block, blocks separated by a blank '
-      'line:\n'
+      'line. Two examples:\n'
       'Q: <a question>\n'
       'A: <the answer>\n'
-      '${_explanationLine(config)}';
+      '${e}Q: <another question>\n'
+      'A: <another answer>\n'
+      '$e';
 }
 
 String _mcqTask(GenerationConfig config) {
+  final e = _explanationLine(config);
   return 'Create exactly ${config.count} multiple-choice questions '
-      'about ${_topic(config)}. Give each question four options and '
-      'mark the correct one.\n'
+      'about ${_topic(config)}. Create all ${config.count} of them — '
+      'do not stop after the first one. Give each question four '
+      'options and mark the correct one.\n'
       'Format — one question per block, blocks separated by a blank '
-      'line:\n'
+      'line. Two examples:\n'
       '1. <the question>\n'
       'A) <option>\n'
       'B) <option>\n'
       'C) <option>\n'
       'D) <option>\n'
       'ANSWER: <the letter of the correct option, A, B, C or D>\n'
-      '${_explanationLine(config)}';
+      '${e}2. <another question>\n'
+      'A) <option>\n'
+      'B) <option>\n'
+      'C) <option>\n'
+      'D) <option>\n'
+      'ANSWER: <the letter of the correct option, A, B, C or D>\n'
+      '$e';
 }
 
 String _trueFalseTask(GenerationConfig config) {
+  final e = _explanationLine(config);
   return 'Create exactly ${config.count} true/false statements '
-      'about ${_topic(config)}. Each statement must be clearly true or '
-      'clearly false according to the notes.\n'
+      'about ${_topic(config)}. Create all ${config.count} of them — '
+      'do not stop after the first one. Each statement must be '
+      'clearly true or clearly false according to the notes.\n'
       'Format — one statement per block, blocks separated by a blank '
-      'line:\n'
+      'line. Two examples:\n'
       '1. <a statement>\n'
       'ANSWER: <True or False>\n'
-      '${_explanationLine(config)}';
+      '${e}2. <another statement>\n'
+      'ANSWER: <True or False>\n'
+      '$e';
 }
 
 String _shortAnswerTask(GenerationConfig config) {
+  final e = _explanationLine(config);
   return 'Create exactly ${config.count} short-answer questions '
-      'about ${_topic(config)}. Each answer must be a few words only.\n'
+      'about ${_topic(config)}. Create all ${config.count} of them — '
+      'do not stop after the first one. Each answer must be a few '
+      'words only.\n'
       'Format — one question per block, blocks separated by a blank '
-      'line:\n'
+      'line. Two examples:\n'
       '1. <a question>\n'
       'ANSWER: <the expected short answer>\n'
-      '${_explanationLine(config)}';
+      '${e}2. <another question>\n'
+      'ANSWER: <the expected short answer>\n'
+      '$e';
 }
 
 String _summaryTask(GenerationConfig config) {

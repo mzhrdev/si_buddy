@@ -131,6 +131,37 @@ ANSWER: B
     test('garbage parses to empty', () {
       expect(parseMcqs('no structure here', maxCount: 5, includeExplanations: false), isEmpty);
     });
+
+    test('parses later questions the model left unnumbered', () {
+      // 1B models often number only the first item, then write the
+      // rest as bare questions. Those used to be silently dropped,
+      // so a 10-question quiz came back with a single question.
+      final questions = parseMcqs(
+        '1. Which organelle produces ATP?\n'
+        'A) Nucleus\n'
+        'B) Mitochondria\n'
+        'C) Ribosome\n'
+        'D) Golgi body\n'
+        'ANSWER: B\n\n'
+        'What does DNA store?\n'
+        'A) Energy\n'
+        'B) Genetic information\n'
+        'ANSWER: B\n\n'
+        'Which structure controls what enters a cell?\n'
+        'A) Nucleus\n'
+        'B) Cytoplasm\n'
+        'C) Cell membrane\n'
+        'D) Vacuole\n'
+        'ANSWER: C',
+        maxCount: 10,
+        includeExplanations: false,
+      );
+      expect(questions, hasLength(3));
+      expect(questions[1].prompt, 'What does DNA store?');
+      expect(questions[1].correctIndex, 1);
+      expect(questions[2].prompt, 'Which structure controls what enters a cell?');
+      expect(questions[2].correctIndex, 2);
+    });
   });
 
   group('parseTrueFalse', () {
@@ -156,6 +187,20 @@ ANSWER: B
       );
       expect(questions, isEmpty);
     });
+
+    test('parses later statements the model left unnumbered', () {
+      final questions = parseTrueFalse(
+        '1. The mitochondria produces ATP.\nANSWER: True\n\n'
+        'DNA is stored in the ribosome.\nANSWER: False\n\n'
+        'The cell membrane controls transport.\nANSWER: True',
+        maxCount: 10,
+        includeExplanations: false,
+      );
+      expect(questions, hasLength(3));
+      expect(questions[1].prompt, 'DNA is stored in the ribosome.');
+      expect(questions[1].correctIndex, 1);
+      expect(questions[2].correctIndex, 0);
+    });
   });
 
   group('parseShortAnswers', () {
@@ -178,6 +223,18 @@ ANSWER: B
         parseShortAnswers('1. Unanswered?', maxCount: 10, includeExplanations: false),
         isEmpty,
       );
+    });
+
+    test('parses later questions the model left unnumbered', () {
+      final questions = parseShortAnswers(
+        '1. Which organelle produces ATP?\nANSWER: The mitochondria\n\n'
+        'What does DNA store?\nANSWER: Genetic information',
+        maxCount: 10,
+        includeExplanations: false,
+      );
+      expect(questions, hasLength(2));
+      expect(questions[1].prompt, 'What does DNA store?');
+      expect(questions[1].expectedAnswer, 'Genetic information');
     });
   });
 

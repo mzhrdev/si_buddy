@@ -206,10 +206,35 @@ class _QuizBlock {
 List<_QuizBlock> _quizBlocks(String output) {
   final blocks = <_QuizBlock>[];
   _QuizBlock? current;
+
+  bool blockIsComplete(_QuizBlock block) =>
+      block.answerLetter != null ||
+      block.answerText != null ||
+      block.boolAnswer != null;
+
   for (final line in _lines(output)) {
     final numbered = _numbered.firstMatch(line);
     if (numbered != null) {
       current = _QuizBlock()..prompt = numbered.group(1)!;
+      current.openField = 1;
+      blocks.add(current);
+      continue;
+    }
+    // A plain line after a finished block starts the next question:
+    // 1B models often number only the first item, then write the
+    // rest as bare questions. Without this, everything after the
+    // first item is silently dropped and a 10-question quiz comes
+    // back with a single question. A stray block this creates (an
+    // explanation continuation mistaken for a question) is harmless:
+    // the parsers skip blocks without options and an answer.
+    if (current != null &&
+        blockIsComplete(current) &&
+        _answerLetter.firstMatch(line) == null &&
+        _answerText.firstMatch(line) == null &&
+        _answerBool.firstMatch(line) == null &&
+        _explanation.firstMatch(line) == null &&
+        _option.firstMatch(line) == null) {
+      current = _QuizBlock()..prompt = line;
       current.openField = 1;
       blocks.add(current);
       continue;
@@ -293,6 +318,16 @@ List<GeneratedQuizQuestion> parseTrueFalse(
     final e = _explanation.firstMatch(line);
     if (e != null && answer != null) {
       explanation = e.group(1)!;
+      continue;
+    }
+    // A plain line after a finished statement starts the next one:
+    // 1B models often number only the first statement, then write
+    // the rest bare. Without this, everything after the first is
+    // silently dropped. A stray line mistaken for a statement is
+    // harmless: flush() only keeps statements with an answer.
+    if (statement.isNotEmpty && answer != null) {
+      flush();
+      statement = line;
       continue;
     }
     // A continuation of the statement (multi-line statements wrap).
