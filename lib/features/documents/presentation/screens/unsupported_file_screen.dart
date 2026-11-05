@@ -81,7 +81,7 @@ class _PagesDocumentCard extends StatelessWidget {
   }
 }
 
-/// "Choose a supported format" heading, the PDF/DOCX/PPTX badges and
+/// "Choose a supported format" heading, the PDF/PPTX badges and
 /// the export instruction.
 class _SupportedFormatsGuidance extends StatelessWidget {
   const _SupportedFormatsGuidance();
@@ -96,7 +96,7 @@ class _SupportedFormatsGuidance extends StatelessWidget {
         Wrap(
           spacing: 8,
           children: [
-            for (final format in const ['PDF', 'DOCX', 'PPTX'])
+            for (final format in const ['PDF', 'PPTX'])
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,

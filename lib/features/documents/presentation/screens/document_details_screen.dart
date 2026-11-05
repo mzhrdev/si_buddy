@@ -81,7 +81,7 @@ class DocumentDetailsScreen extends ConsumerWidget {
         previewText: preview == null
             ? 'Loading extracted text…'
             : preview.isEmpty
-                ? 'No readable text was extracted from this document (for example, a scanned, image-only PDF — OCR is not implemented yet).'
+                ? 'No readable text was extracted from this document (for example, a scanned, image-only PDF — OCR did not find any readable text).'
                 : preview,
         onViewAll: extracted == null
             ? null

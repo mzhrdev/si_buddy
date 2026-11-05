@@ -61,6 +61,11 @@ dependencies:
   # together deliberately.
   flutter_edge_ai: 2.5.2
   flutter_edge_ai_litertlm: 1.17.0
+  # On-device OCR for scanned (image-only) PDFs: ML Kit Latin text
+  # recognition, bundled on-device — no download, no internet.
+  # The PDF extractor renders text-less pages and reads them with
+  # this; minSdk 30 already satisfies ML Kit's requirement.
+  google_mlkit_text_recognition: ^0.17.1
 
 dev_dependencies:
   flutter_test:

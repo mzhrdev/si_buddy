@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,7 @@ void main() {
     repository = DocumentRepositoryImpl(
       db: db,
       documentsDirectory: () async => storageRoot,
+      temporaryDirectory: () async => tempRoot,
     );
   });
 
@@ -84,6 +86,80 @@ void main() {
       expect(ref.pageCount, 2);
       expect(ref.sizeBytes, greaterThan(0));
     });
+  });
+
+  group('validatePickedBytes', () {
+    test('stages cloud-picked PPTX bytes into a temp file', () async {
+      final ref = await repository.validatePickedBytes(
+        name: 'Biology Deck.pptx',
+        readBytes: () async => Uint8List.fromList(deckBytes()),
+      );
+      expect(ref.name, 'Biology Deck.pptx');
+      expect(ref.format, DocumentFormat.pptx);
+      expect(ref.pageCount, 2);
+      expect(ref.sizeBytes, greaterThan(0));
+      // The staged file is a real copy of the picked bytes.
+      expect(File(ref.path).existsSync(), isTrue);
+      expect(File(ref.path).readAsBytesSync(), deckBytes());
+    });
+
+    test('rejects garbage bytes behind a .pptx name', () async {
+      await expectLater(
+        repository.validatePickedBytes(
+          name: 'broken.pptx',
+          readBytes: () async => Uint8List.fromList('not a zip'.codeUnits),
+        ),
+        throwsA(isA<CorruptedDocumentException>()),
+      );
+    });
+
+    test('rejects empty bytes', () async {
+      await expectLater(
+        repository.validatePickedBytes(
+          name: 'empty.pptx',
+          readBytes: () async => Uint8List(0),
+        ),
+        throwsA(isA<CorruptedDocumentException>()),
+      );
+    });
+
+    test('rejects a .docx name', () async {
+      await expectLater(
+        repository.validatePickedBytes(
+          name: 'notes.docx',
+          readBytes: () async => Uint8List.fromList(deckBytes()),
+        ),
+        throwsA(isA<UnsupportedFormatException>()),
+      );
+    });
+
+    test('a failed read is a corrupted document', () async {
+      await expectLater(
+        repository.validatePickedBytes(
+          name: 'gone.pptx',
+          readBytes: () async => throw StateError('cloud file gone'),
+        ),
+        throwsA(isA<CorruptedDocumentException>()),
+      );
+    });
+
+    test(
+      'extracting a staged pick persists it and discards the staged file',
+      () async {
+        final ref = await repository.validatePickedBytes(
+          name: 'Cell Biology.pptx',
+          readBytes: () async => Uint8List.fromList(deckBytes()),
+        );
+        final stagedPath = ref.path;
+        final updates = await repository.extractText(ref).toList();
+        final result = updates.last.document;
+        expect(result, isNotNull);
+        expect(result!.fullText, contains('Cells are the basic unit'));
+        expect(File(result.document.storedPath).existsSync(), isTrue);
+        // The staged temp file is gone once the library has its copy.
+        expect(File(stagedPath).existsSync(), isFalse);
+      },
+    );
   });
 
   group('extractText + library', () {
