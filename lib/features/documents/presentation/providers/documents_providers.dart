@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../data/document_repository_impl.dart';
+import '../widgets/library_documents.dart';
 import '../../domain/document_failures.dart';
 import '../../domain/document_models.dart';
 import '../../domain/document_repository.dart';
@@ -19,6 +20,104 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
   return DocumentRepositoryImpl(db: ref.watch(appDatabaseProvider));
 });
+
+// ---------------------------------------------------------------------------
+// Library: the live list of saved documents, and the document the
+// details screen is showing. The library screens watch this stream,
+// so an import that persists a document appears in the library
+// without any manual refresh.
+// ---------------------------------------------------------------------------
+
+/// Live list of saved documents, newest first (the repository's
+/// ordering), as an async value so library screens can render
+/// loading / error / empty states honestly.
+final documentsStreamProvider = StreamProvider<List<Document>>((ref) {
+  return ref.watch(documentRepositoryProvider).watchDocuments();
+});
+
+/// The library document id the details screen should show, or null
+/// when it was opened without a document (it then keeps the design's
+/// sample content, as before). Set by library/home taps before
+/// navigating to the details route.
+class SelectedDocumentNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void select(int? id) => state = id;
+  void clear() => state = null;
+}
+
+final selectedDocumentIdProvider =
+    NotifierProvider<SelectedDocumentNotifier, int?>(
+      SelectedDocumentNotifier.new,
+    );
+
+/// The selected library document, or null when none is selected or
+/// it is no longer in the library (e.g. it was deleted).
+final selectedDocumentProvider = Provider<Document?>((ref) {
+  final id = ref.watch(selectedDocumentIdProvider);
+  if (id == null) return null;
+  final documents = ref.watch(documentsStreamProvider).value;
+  if (documents == null) return null;
+  for (final document in documents) {
+    if (document.id == id) return document;
+  }
+  return null;
+});
+
+/// The selected document's extracted text, for the details screen's
+/// preview. Null while loading, when nothing is selected, or when
+/// the document has no saved extraction.
+final selectedExtractedDocumentProvider =
+    FutureProvider<ExtractedDocument?>((ref) async {
+      final id = ref.watch(selectedDocumentIdProvider);
+      if (id == null) return null;
+      return ref.watch(documentRepositoryProvider).getExtractedDocument(id);
+    });
+
+/// Formats a date the way the library cards do: `16 Oct 2026`.
+String formatLibraryDate(DateTime date) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${date.day} ${months[date.month - 1]} ${date.year}';
+}
+
+/// The name a saved document is shown under: its (possibly renamed)
+/// title, with the format extension re-attached when the title does
+/// not already carry it, so renaming stays visible in the library.
+String documentDisplayName(Document document) {
+  final title = document.title.trim();
+  if (title.isEmpty) return document.originalFileName;
+  final suffix = '.${document.format.extension}';
+  return title.toLowerCase().endsWith(suffix) ? title : '$title$suffix';
+}
+
+/// Maps a saved [Document] onto the library cards' item shape.
+/// Study-set counts are real in the only sense available today:
+/// no deck/quiz persistence exists yet, so every document honestly
+/// reports 0 study sets until that phase lands.
+LibraryDocumentItem documentToLibraryItem(Document document) {
+  return LibraryDocumentItem(
+    format: document.format.label,
+    title: documentDisplayName(document),
+    date: formatLibraryDate(document.createdAt),
+    studySets: '0 study sets',
+    subject:
+        'Saved on this device · ${document.pageCount} ${document.format.unitLabel}',
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Import job: the file the user picked, its editable title and subject,
@@ -323,6 +422,29 @@ class ExtractionNotifier extends Notifier<ExtractionState> {
   void reset() {
     _subscription?.cancel();
     state = const ExtractionState();
+  }
+
+  /// Shows an already-persisted extraction (e.g. opened from the
+  /// library details screen) in the review/success screens, which
+  /// otherwise only know the in-progress import job's result.
+  void loadExisting(ExtractedDocument extracted) {
+    _subscription?.cancel();
+    final document = extracted.document;
+    state = ExtractionState(
+      status: ExtractionStatus.completed,
+      file: FileRef(
+        path: document.storedPath,
+        name: document.originalFileName,
+        format: document.format,
+        sizeBytes: document.sizeBytes,
+        pageCount: document.pageCount,
+      ),
+      title: document.title,
+      currentStage: ExtractionStage.preparingContent,
+      totalPages: document.pageCount,
+      fraction: 1,
+      result: extracted,
+    );
   }
 }
 

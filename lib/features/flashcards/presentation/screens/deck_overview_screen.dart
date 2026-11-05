@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,15 +7,28 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/source_document_card.dart';
 
 /// Deck overview, implemented from the Figma frame
 /// "SI Buddy · Deck Overview" (5:2486).
-class DeckOverviewScreen extends StatelessWidget {
+///
+/// When a flashcards generation has completed this session, the
+/// title, language and card count come from that result and its
+/// config; opened without one it keeps the design's sample deck.
+class DeckOverviewScreen extends ConsumerWidget {
   const DeckOverviewScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final cards = result?.flashcards ?? const [];
+    final hasRealDeck = cards.isNotEmpty;
+    final cardCount = hasRealDeck ? cards.length : 20;
+    final title = hasRealDeck ? config.topic : 'Cell structures';
+    final language = hasRealDeck ? config.language : 'English';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -50,7 +64,7 @@ class DeckOverviewScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '20 flashcards · English',
+                                  '$cardCount flashcards · $language',
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 12,
                                     height: 18 / 12,
@@ -61,7 +75,7 @@ class DeckOverviewScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Cell structures',
+                              title,
                               style: AppTextStyles.display.copyWith(
                                 fontSize: 28,
                                 height: 34 / 28,
@@ -78,7 +92,7 @@ class DeckOverviewScreen extends StatelessWidget {
                             const SizedBox(height: 24),
                             const SourceDocumentCard(),
                             const SizedBox(height: 24),
-                            const _StudyProgressCard(),
+                            _StudyProgressCard(totalCards: cardCount),
                             const SizedBox(height: 24),
                             Text(
                               'A little recall goes a long way',
@@ -163,7 +177,10 @@ class DeckOverviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     FilledButton(
-                      onPressed: () => context.push(AppRoutes.cardFront),
+                      onPressed: () {
+                        ref.read(studyCardIndexProvider.notifier).reset();
+                        context.push(AppRoutes.cardFront);
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -195,7 +212,9 @@ class DeckOverviewScreen extends StatelessWidget {
 /// The "Your progress" card: reviewed count, an empty progress track
 /// and the Mastered / Learning / New cards metrics.
 class _StudyProgressCard extends StatelessWidget {
-  const _StudyProgressCard();
+  const _StudyProgressCard({required this.totalCards});
+
+  final int totalCards;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +240,7 @@ class _StudyProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '0 / 20 reviewed',
+                '0 / $totalCards reviewed',
                 style: AppTextStyles.muted.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
@@ -238,18 +257,21 @@ class _StudyProgressCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Row(
+          Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: _ProgressMetric(value: '0', label: 'Mastered'),
               ),
-              SizedBox(width: 12),
-              Expanded(
+              const SizedBox(width: 12),
+              const Expanded(
                 child: _ProgressMetric(value: '0', label: 'Learning'),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
-                child: _ProgressMetric(value: '20', label: 'New cards'),
+                child: _ProgressMetric(
+                  value: '$totalCards',
+                  label: 'New cards',
+                ),
               ),
             ],
           ),

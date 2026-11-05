@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../providers/home_providers.dart';
 import '../widgets/deck_card.dart';
 import '../widgets/document_tile.dart';
@@ -90,10 +91,23 @@ class HomeDashboardScreen extends ConsumerWidget {
               onAction: () => context.go(AppRoutes.list),
             ),
             const SizedBox(height: 6),
+            if (data.documents.isEmpty)
+              Text(
+                'Nothing imported yet.',
+                style: const TextStyle(color: AppColors.muted),
+              ),
             for (var i = 0; i < data.documents.length; i++)
               DocumentTile(
                 document: data.documents[i],
-                onTap: () => context.push(AppRoutes.details),
+                onTap: () {
+                  final id = data.documents[i].id;
+                  if (id != null) {
+                    ref
+                        .read(selectedDocumentIdProvider.notifier)
+                        .select(id);
+                  }
+                  context.push(AppRoutes.details);
+                },
               ),
             const SizedBox(height: 16),
             SectionHeader(
@@ -102,6 +116,11 @@ class HomeDashboardScreen extends ConsumerWidget {
               onAction: () => context.go(AppRoutes.studyLibrary),
             ),
             const SizedBox(height: 6),
+            if (data.decks.isEmpty)
+              const Text(
+                'No decks generated yet this session.',
+                style: TextStyle(color: AppColors.muted),
+              ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

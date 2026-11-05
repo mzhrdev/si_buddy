@@ -20,6 +20,11 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.12.2
+  # Minimum Flutter for the pinned set below (flutter_edge_ai needs
+  # >=3.44.0, file_picker/path_provider need >=3.38.0). Dart 3.12.2 ships
+  # with Flutter 3.44.2-3.44.9. Do NOT raise this to 3.47 without also
+  # un-pinning pdfrx_engine below.
+  flutter: '>=3.44.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -38,7 +43,13 @@ dependencies:
   go_router: ^16.0.0
   flutter_svg: ^2.0.0
   file_picker: ^13.1.0
-  pdfrx_engine: ^0.8.0
+  # Pinned exactly: 0.5.0 is the LAST pdfrx_engine that works on Dart
+  # 3.12.2 / Flutter 3.44.x. 0.6.0+ requires Dart ^3.13.0 (Flutter 3.47+)
+  # via pdfium_dart 0.3.0+, so `flutter pub get` fails on Dart 3.12.2
+  # with `^0.6.0`/`^0.8.0`. If you upgrade Flutter to 3.47.9
+  # (Dart 3.13.7, what `flutter pub get` suggests), bump this back to
+  # ^0.8.0 and re-run `flutter pub get`.
+  pdfrx_engine: 0.5.0
   archive: ^4.5.2
   xml: ^7.0.1
   drift: ^2.35.2
@@ -63,6 +74,33 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: ^2.35.1
   build_runner: ^2.16.2
+
+# Transitive pins for Dart 3.12.2 / Flutter 3.44.x (the SDK on the dev
+# machine). Each entry below is the LAST version whose SDK/Flutter
+# constraint still allows Dart 3.12.2 / Flutter 3.44.9 — the newer
+# versions the solver would otherwise pick all require Dart ^3.13.0
+# and/or Flutter >=3.47.0, so `flutter pub get` fails on Dart 3.12.2
+# with "version solving failed" for each of them in turn:
+#   analyzer 14.6.0 / _fe_analyzer_shared 110.0.0 (via build_runner,
+#     drift_dev — both accept >=14.3.0 <15.0.0 / >=13.0.0 <15.0.0)
+#   petitparser 7.1.0 (via xml 7.0.1, which requires ^7.0.2)
+#   web 1.1.2
+#   background_downloader 9.6.x (via flutter_edge_ai, which requires
+#     ^9.5.6, so 9.5.9 satisfies it)
+#   shared_preferences_foundation 2.6.x (via shared_preferences 2.5.6,
+#     which requires ^2.5.0, so 2.5.7 satisfies it)
+# These overrides only force the lockfile to the older, compatible
+# versions; they change no app code. When Flutter is upgraded to
+# 3.47.9 (Dart 3.13.7), DELETE this whole section, bump pdfrx_engine
+# back to ^0.8.0 above, delete pubspec.lock, and re-run
+# `flutter pub get`.
+dependency_overrides:
+  analyzer: 14.5.0
+  _fe_analyzer_shared: 109.0.0
+  petitparser: 7.0.2
+  web: 1.1.1
+  background_downloader: 9.5.9
+  shared_preferences_foundation: 2.5.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

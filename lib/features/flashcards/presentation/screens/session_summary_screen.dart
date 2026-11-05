@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,14 +7,26 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Session summary, implemented from the Figma frame
 /// "SI Buddy · Session Summary" (5:2761).
-class SessionSummaryScreen extends StatelessWidget {
+class SessionSummaryScreen extends ConsumerWidget {
   const SessionSummaryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final ratings = ref.watch(cardRatingsProvider);
+    final cards = result?.flashcards ?? const [];
+    final hasRealDeck = cards.isNotEmpty;
+    final total = hasRealDeck ? cards.length : 20;
+    final mastered = ratings.values.where((r) => r == 'Easy').length;
+    final learning = ratings.values.where((r) => r == 'Medium').length;
+    final difficult = ratings.values.where((r) => r == 'Hard').length;
+    final reviewed = hasRealDeck ? ratings.length : 20;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -64,7 +77,9 @@ class SessionSummaryScreen extends StatelessWidget {
                             SizedBox(
                               width: double.infinity,
                               child: Text(
-                                'Cell structures · 20 flashcards',
+                                hasRealDeck
+                                    ? '${config.topic} · $total flashcards'
+                                    : 'Cell structures · 20 flashcards',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.muted.copyWith(
                                   height: 20 / 13,
@@ -72,28 +87,28 @@ class SessionSummaryScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 22),
-                            const _SessionTotalsCard(),
+                            _SessionTotalsCard(reviewed: reviewed, total: total, hasRealDeck: hasRealDeck),
                             const SizedBox(height: 22),
-                            const _RatingRow(
+                            _RatingRow(
                               iconAsset:
                                   'assets/icons/figma/check_circle_2.svg',
                               title: 'Mastered',
                               subtitle: 'Rated Easy',
-                              value: '12',
+                              value: hasRealDeck ? '$mastered' : '12',
                             ),
                             const SizedBox(height: 18),
-                            const _RatingRow(
+                            _RatingRow(
                               iconAsset: 'assets/icons/figma/refresh_cw.svg',
                               title: 'Learning',
                               subtitle: 'Rated Medium',
-                              value: '5',
+                              value: hasRealDeck ? '$learning' : '5',
                             ),
                             const SizedBox(height: 18),
-                            const _RatingRow(
+                            _RatingRow(
                               iconAsset: 'assets/icons/figma/flag.svg',
                               title: 'Difficult',
                               subtitle: 'Rated Hard',
-                              value: '3',
+                              value: hasRealDeck ? '$difficult' : '3',
                             ),
                             const SizedBox(height: 22),
                             Container(
@@ -167,7 +182,15 @@ class SessionSummaryScreen extends StatelessWidget {
 /// The totals card: cards reviewed, duration, a full progress track
 /// and the "All cards reviewed this session" note.
 class _SessionTotalsCard extends StatelessWidget {
-  const _SessionTotalsCard();
+  const _SessionTotalsCard({
+    required this.reviewed,
+    required this.total,
+    required this.hasRealDeck,
+  });
+
+  final int reviewed;
+  final int total;
+  final bool hasRealDeck;
 
   @override
   Widget build(BuildContext context) {
@@ -181,14 +204,20 @@ class _SessionTotalsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Expanded(
-                child: _Total(value: '20 / 20', label: 'Cards reviewed'),
+                child: _Total(
+                  value: '$reviewed / $total',
+                  label: 'Cards reviewed',
+                ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
-                child: _Total(value: '6m 24s', label: 'Duration'),
+                child: _Total(
+                  value: hasRealDeck ? 'Not tracked' : '6m 24s',
+                  label: 'Duration',
+                ),
               ),
             ],
           ),
@@ -201,7 +230,7 @@ class _SessionTotalsCard extends StatelessWidget {
             ),
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
-              widthFactor: 1,
+              widthFactor: total == 0 ? 0 : (reviewed / total).clamp(0.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.primary,
@@ -212,7 +241,9 @@ class _SessionTotalsCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'All cards reviewed this session',
+            hasRealDeck && reviewed >= total
+                ? 'All cards reviewed this session'
+                : 'Ratings are tracked this session only.',
             style: AppTextStyles.caption.copyWith(color: AppColors.primary),
           ),
         ],

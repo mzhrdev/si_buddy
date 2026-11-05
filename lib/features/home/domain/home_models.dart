@@ -1,7 +1,7 @@
 /// Data models for the Home dashboard.
 ///
-/// Plain immutable classes; populated by providers today (mock data that
-/// mirrors the Figma design) and by repositories later.
+/// Plain immutable classes, populated by providers from the live
+/// library and the latest generation result where those exist.
 class StudyProgress {
   const StudyProgress({
     required this.cardsReviewed,
@@ -31,7 +31,10 @@ class DocumentSummary {
     required this.format,
     required this.title,
     required this.details,
+    this.id,
   });
+
+  /// Library id, when this summary comes from a saved document.
 
   /// File format badge, e.g. "PDF" or "PPTX".
   final String format;
@@ -39,6 +42,8 @@ class DocumentSummary {
 
   /// Pre-formatted metadata line, e.g. "PDF · 12 pages · Today".
   final String details;
+
+  final int? id;
 }
 
 /// A recently studied deck, as shown in "Pick up where you left off".
