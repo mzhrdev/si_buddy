@@ -76,9 +76,9 @@ import '../features/subscription/presentation/screens/purchase_confirmation_scre
 import '../features/subscription/presentation/screens/restore_purchases_screen.dart';
 import '../features/subscription/presentation/screens/upgrade_premium_screen.dart';
 
-/// Route paths for the whole app. These constants are unchanged from the
-/// original hand-rolled router; only the routing implementation moved to
-/// GoRouter (see [appRouter]).
+// Route paths for the whole app. These constants are unchanged from the
+// original hand-rolled router; only the routing implementation moved to
+// GoRouter (see [appRouter]).
 abstract final class AppRoutes {
   static const splash = '/splash';
   static const home = '/home';
