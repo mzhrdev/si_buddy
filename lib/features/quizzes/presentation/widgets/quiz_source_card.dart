@@ -4,10 +4,21 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 /// Source document card shown on the quiz setup and quiz history
-/// screens: a bordered "PDF" format box beside the document title
-/// and metadata, taken from the Figma quiz frames.
+/// screens: a bordered format box beside the document title and
+/// metadata. Callers pass the real document; with none, it renders
+/// an honest "no source document" card instead of the design's
+/// sample.
 class QuizSourceCard extends StatelessWidget {
-  const QuizSourceCard({super.key});
+  const QuizSourceCard({super.key, this.title, this.subtitle, this.formatLabel});
+
+  /// File name shown as the card's title; null renders the empty card.
+  final String? title;
+
+  /// Metadata line under the title.
+  final String? subtitle;
+
+  /// Short format label inside the file glyph.
+  final String? formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +40,10 @@ class QuizSourceCard extends StatelessWidget {
               border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text('PDF', style: AppTextStyles.badge),
+            child: Text(
+              formatLabel ?? '—',
+              style: AppTextStyles.badge,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -37,7 +51,7 @@ class QuizSourceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cell Biology - Chapter 4.pdf',
+                  title ?? 'No source document',
                   style: AppTextStyles.body.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -46,8 +60,8 @@ class QuizSourceCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Biology · 2.4 MB · 12 pages',
+                Text(
+                  subtitle ?? 'Import a document to generate a quiz from it',
                   style: AppTextStyles.caption,
                 ),
               ],

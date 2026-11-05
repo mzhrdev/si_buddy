@@ -23,24 +23,25 @@ String generationSourceSubtitle({
 /// a "PDF" format box, the file name and a metadata line. Shown at
 /// the top of every AI generation frame (setup, processing, errors).
 ///
-/// Defaults show the design's sample document; when a real document
-/// has been extracted, callers pass its title and metadata line.
+/// All three fields are nullable: a null title renders the honest
+/// "No source document" card instead of the design's sample
+/// document; a null subtitle hides the metadata line.
 class GenerationSourceCard extends StatelessWidget {
   const GenerationSourceCard({
     super.key,
-    this.title = 'Cell Biology - Chapter 4.pdf',
-    this.subtitle = 'Biology · 2.4 MB · 12 pages',
-    this.formatLabel = 'PDF',
+    this.title,
+    this.subtitle,
+    this.formatLabel,
   });
 
   /// File name shown as the card's title.
-  final String title;
+  final String? title;
 
   /// Metadata line under the title.
-  final String subtitle;
+  final String? subtitle;
 
   /// Short format label inside the file glyph.
-  final String formatLabel;
+  final String? formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,7 @@ class GenerationSourceCard extends StatelessWidget {
               border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(formatLabel, style: AppTextStyles.badge),
+            child: Text(formatLabel ?? '–', style: AppTextStyles.badge),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -70,18 +71,20 @@ class GenerationSourceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  title ?? 'No source document',
                   style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.caption,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    subtitle!,
+                    style: AppTextStyles.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
             ),
           ),

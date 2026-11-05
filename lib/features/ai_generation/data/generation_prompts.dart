@@ -29,7 +29,7 @@ String buildGenerationPrompt({
   );
   final header =
       'You are creating study material from a student\'s notes.\n'
-      'Topic: ${config.topic}\n'
+      'Topic: ${_topic(config)}\n'
       'Difficulty: ${config.difficulty.label}\n'
       'Write everything in ${config.language}.\n'
       'Base every item only on the notes below. Keep each item short '
@@ -83,13 +83,20 @@ String sampleSourceText(
   return sampled.join('\n\n');
 }
 
+/// The topic the prompt talks about: the user's chosen topic, or
+/// 'the notes' when none was picked yet (the topic picker is not
+/// built; the config's topic is empty until then). Prompts must
+/// never name the design's sample topic.
+String _topic(GenerationConfig config) =>
+    config.topic.isEmpty ? 'the notes' : config.topic;
+
 String _explanationLine(GenerationConfig config) => config.includeExplanations
     ? 'E: <one short sentence explaining the answer>\n'
     : '';
 
 String _flashcardTask(GenerationConfig config) {
   return 'Create exactly ${config.count} flashcards about '
-      '${config.topic}.\n'
+      '${_topic(config)}.\n'
       'Format — one flashcard per block, blocks separated by a blank '
       'line:\n'
       'Q: <a question>\n'
@@ -99,7 +106,7 @@ String _flashcardTask(GenerationConfig config) {
 
 String _mcqTask(GenerationConfig config) {
   return 'Create exactly ${config.count} multiple-choice questions '
-      'about ${config.topic}. Give each question four options and '
+      'about ${_topic(config)}. Give each question four options and '
       'mark the correct one.\n'
       'Format — one question per block, blocks separated by a blank '
       'line:\n'
@@ -114,7 +121,7 @@ String _mcqTask(GenerationConfig config) {
 
 String _trueFalseTask(GenerationConfig config) {
   return 'Create exactly ${config.count} true/false statements '
-      'about ${config.topic}. Each statement must be clearly true or '
+      'about ${_topic(config)}. Each statement must be clearly true or '
       'clearly false according to the notes.\n'
       'Format — one statement per block, blocks separated by a blank '
       'line:\n'
@@ -125,7 +132,7 @@ String _trueFalseTask(GenerationConfig config) {
 
 String _shortAnswerTask(GenerationConfig config) {
   return 'Create exactly ${config.count} short-answer questions '
-      'about ${config.topic}. Each answer must be a few words only.\n'
+      'about ${_topic(config)}. Each answer must be a few words only.\n'
       'Format — one question per block, blocks separated by a blank '
       'line:\n'
       '1. <a question>\n'
@@ -134,7 +141,7 @@ String _shortAnswerTask(GenerationConfig config) {
 }
 
 String _summaryTask(GenerationConfig config) {
-  return 'Write a study summary of the notes about ${config.topic}, '
+  return 'Write a study summary of the notes about ${_topic(config)}, '
       'covering the ${config.count} most important ideas. Use one '
       'section per idea.\n'
       'Format:\n'

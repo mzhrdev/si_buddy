@@ -7,11 +7,16 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Session summary, implemented from the Figma frame
 /// "SI Buddy · Session Summary" (5:2761).
+///
+/// The counts come from this session's ratings on the generated
+/// deck. Without a deck it shows an honest empty state — never the
+/// design's sample numbers.
 class SessionSummaryScreen extends ConsumerWidget {
   const SessionSummaryScreen({super.key});
 
@@ -19,14 +24,36 @@ class SessionSummaryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
     final ratings = ref.watch(cardRatingsProvider);
     final cards = result?.flashcards ?? const [];
-    final hasRealDeck = cards.isNotEmpty;
-    final total = hasRealDeck ? cards.length : 20;
+    if (cards.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Session summary', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.style_outlined,
+                  title: 'No study session yet',
+                  message:
+                      'Study a generated deck to see your session summary here.',
+                  actionLabel: 'Generate flashcards',
+                  onAction: () => context.push(AppRoutes.generationSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final total = cards.length;
     final mastered = ratings.values.where((r) => r == 'Easy').length;
     final learning = ratings.values.where((r) => r == 'Medium').length;
     final difficult = ratings.values.where((r) => r == 'Hard').length;
-    final reviewed = hasRealDeck ? ratings.length : 20;
+    final reviewed = ratings.length;
+    final toReview = learning + difficult;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -77,9 +104,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                             SizedBox(
                               width: double.infinity,
                               child: Text(
-                                hasRealDeck
-                                    ? '${config.topic} · $total flashcards'
-                                    : 'Cell structures · 20 flashcards',
+                                '${generatedMaterialTitle(config: config, documentName: job.source?.document.originalFileName)} · $total flashcards',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.muted.copyWith(
                                   height: 20 / 13,
@@ -87,58 +112,60 @@ class SessionSummaryScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 22),
-                            _SessionTotalsCard(reviewed: reviewed, total: total, hasRealDeck: hasRealDeck),
+                            _SessionTotalsCard(reviewed: reviewed, total: total),
                             const SizedBox(height: 22),
                             _RatingRow(
                               iconAsset:
                                   'assets/icons/figma/check_circle_2.svg',
                               title: 'Mastered',
                               subtitle: 'Rated Easy',
-                              value: hasRealDeck ? '$mastered' : '12',
+                              value: '$mastered',
                             ),
                             const SizedBox(height: 18),
                             _RatingRow(
                               iconAsset: 'assets/icons/figma/refresh_cw.svg',
                               title: 'Learning',
                               subtitle: 'Rated Medium',
-                              value: hasRealDeck ? '$learning' : '5',
+                              value: '$learning',
                             ),
                             const SizedBox(height: 18),
                             _RatingRow(
                               iconAsset: 'assets/icons/figma/flag.svg',
                               title: 'Difficult',
                               subtitle: 'Rated Hard',
-                              value: hasRealDeck ? '$difficult' : '3',
+                              value: '$difficult',
                             ),
-                            const SizedBox(height: 22),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Keep the momentum',
-                                    style: AppTextStyles.muted.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.text,
+                            if (toReview > 0) ...[
+                              const SizedBox(height: 22),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Keep the momentum',
+                                      style: AppTextStyles.muted.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.text,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    'Review the 8 learning and difficult cards again to make them stick.',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontSize: 12,
-                                      height: 18 / 12,
-                                      color: AppColors.muted,
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'Review the $toReview learning and difficult cards again to make them stick.',
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 12,
+                                        height: 18 / 12,
+                                        color: AppColors.muted,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
@@ -179,18 +206,14 @@ class SessionSummaryScreen extends ConsumerWidget {
   }
 }
 
-/// The totals card: cards reviewed, duration, a full progress track
-/// and the "All cards reviewed this session" note.
+/// The totals card: cards reviewed, duration, a progress track and
+/// the "All cards reviewed this session" note. Duration is not
+/// tracked yet, so it says so honestly instead of a sample time.
 class _SessionTotalsCard extends StatelessWidget {
-  const _SessionTotalsCard({
-    required this.reviewed,
-    required this.total,
-    required this.hasRealDeck,
-  });
+  const _SessionTotalsCard({required this.reviewed, required this.total});
 
   final int reviewed;
   final int total;
-  final bool hasRealDeck;
 
   @override
   Widget build(BuildContext context) {
@@ -213,11 +236,8 @@ class _SessionTotalsCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: _Total(
-                  value: hasRealDeck ? 'Not tracked' : '6m 24s',
-                  label: 'Duration',
-                ),
+              const Expanded(
+                child: _Total(value: 'Not tracked', label: 'Duration'),
               ),
             ],
           ),
@@ -241,7 +261,7 @@ class _SessionTotalsCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            hasRealDeck && reviewed >= total
+            reviewed >= total
                 ? 'All cards reviewed this session'
                 : 'Ratings are tracked this session only.',
             style: AppTextStyles.caption.copyWith(color: AppColors.primary),

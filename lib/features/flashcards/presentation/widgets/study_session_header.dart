@@ -6,15 +6,37 @@ import '../../../../app/theme/app_text_styles.dart';
 
 /// Shared header for the study-card screens: deck identity, session
 /// progress ("Card 4 of 20" · "3 reviewed · 15%") and the shuffle /
-/// bookmark tools row.
+/// bookmark tools row. All values are the real session state —
+/// callers pass the deck title, the card position and how many cards
+/// have been rated this session.
 class StudySessionHeader extends StatelessWidget {
   const StudySessionHeader({
+    required this.title,
+    required this.subtitle,
+    required this.index,
+    required this.total,
+    required this.reviewed,
     required this.shuffleOn,
     required this.bookmarked,
     required this.onShuffleTap,
     required this.onBookmarkTap,
     super.key,
   });
+
+  /// Deck title (the generation topic, or the source file name).
+  final String title;
+
+  /// Deck subtitle, e.g. 'English · 20 flashcards'.
+  final String subtitle;
+
+  /// Zero-based index of the card shown.
+  final int index;
+
+  /// Total cards in the deck.
+  final int total;
+
+  /// Cards rated this session.
+  final int reviewed;
 
   final bool shuffleOn;
   final bool bookmarked;
@@ -23,23 +45,25 @@ class StudySessionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fraction = total == 0 ? 0.0 : reviewed / total;
+    final percent = (fraction * 100).round();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Cell structures', style: AppTextStyles.screenTitle),
+        Text(title, style: AppTextStyles.screenTitle),
         const SizedBox(height: 3),
-        Text('Biology · 20 flashcards', style: AppTextStyles.caption),
+        Text(subtitle, style: AppTextStyles.caption),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: Text(
-                'Card 4 of 20',
+                'Card ${index + 1} of $total',
                 style: AppTextStyles.link.copyWith(height: 16 / 12),
               ),
             ),
             Text(
-              '3 reviewed · 15%',
+              '$reviewed reviewed · $percent%',
               style: AppTextStyles.body.copyWith(
                 fontSize: 12,
                 height: 18 / 12,
@@ -57,7 +81,7 @@ class StudySessionHeader extends StatelessWidget {
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
-            widthFactor: 0.15,
+            widthFactor: fraction.clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.primary,

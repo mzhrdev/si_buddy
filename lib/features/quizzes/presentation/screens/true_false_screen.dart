@@ -6,6 +6,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../widgets/answer_option_tile.dart';
 import '../widgets/quiz_bottom_bar.dart';
 import '../widgets/quiz_progress.dart';
@@ -14,8 +15,11 @@ import '../../../ai_generation/presentation/providers/generation_providers.dart'
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Quiz question — True/False, implemented from the Figma frame
-/// "SI Buddy · Quiz Question — True/False" (5:6006). The selected
-/// option matches the design ("False") and can be changed locally.
+/// "SI Buddy · Quiz Question — True/False" (5:6006).
+///
+/// With a generated quiz this session, the statement comes from the
+/// current true/false question; otherwise an honest empty state
+/// shows — never the design's sample statement.
 class QuizTrueFalseScreen extends ConsumerStatefulWidget {
   const QuizTrueFalseScreen({super.key});
 
@@ -24,38 +28,53 @@ class QuizTrueFalseScreen extends ConsumerStatefulWidget {
 }
 
 class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
-  static const _options = [('T', 'True'), ('F', 'False')];
-
-  String _selected = 'F';
-
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.trueFalse)
         .toList();
     final question = questions.isEmpty ? null : questions.first;
+    if (question == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Quiz', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.quiz_outlined,
+                  title: 'No quiz questions yet',
+                  message:
+                      'Generate a quiz from a document to answer questions here.',
+                  actionLabel: 'Generate a quiz',
+                  onAction: () => context.push(AppRoutes.quizSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final answers = ref.watch(quizAnswersProvider);
-    final answeredCount = result == null
-        ? 5
-        : (result.questions
-                .where((q) =>
-                    answers.containsKey(q.prompt) ||
-                    ref.watch(quizShortAnswersProvider).containsKey(q.prompt))
-                .length);
-    final total = questions.isEmpty ? 10 : questions.length;
-    final options = question == null
-        ? _options
-        : [
-            for (var i = 0; i < question.options.length; i++)
-              (i == 0 ? 'T' : 'F', question.options[i]),
-          ];
-    final selected = question == null
-        ? _selected
-        : (answers[question.prompt] == null
-            ? null
-            : (answers[question.prompt] == 0 ? 'T' : 'F'));
+    final answeredCount = result!.questions
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              ref.watch(quizShortAnswersProvider).containsKey(q.prompt),
+        )
+        .length;
+    final total = questions.length;
+    final options = [
+      for (var i = 0; i < question.options.length; i++)
+        (i == 0 ? 'T' : 'F', question.options[i]),
+    ];
+    final selected = answers[question.prompt] == null
+        ? null
+        : (answers[question.prompt] == 0 ? 'T' : 'F');
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -69,27 +88,19 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     QuizIdentity(
-                      title: question == null ? 'Cell structures' : config.topic,
-                      meta: question == null
-                          ? 'Biology · 10 questions · Medium · Mixed'
-                          : '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName:
+                            job.source?.document.originalFileName,
+                      ),
+                      meta:
+                          '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: question == null
-                          ? 'Question 5 of 10'
-                          : 'Question 1 of $total',
-                      rightLabel: question == null
-                          ? '5 / 10 answered'
-                          : '$answeredCount / $total answered',
-                      fraction: question == null
-                          ? 0.5
-                          : (total == 0 ? 0 : answeredCount / total),
-                    ),
-                    const SizedBox(height: 16),
-                    const QuizTopicTimerRow(
-                      topic: 'Organelles',
-                      timeLeft: '07:11 left',
+                      leftLabel: 'Question 1 of $total',
+                      rightLabel: '$answeredCount / $total answered',
+                      fraction: total == 0 ? 0 : answeredCount / total,
                     ),
                     const SizedBox(height: 16),
                     Expanded(
@@ -112,12 +123,12 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text(question == null ? '05 / 10' : '01 / $total', style: AppTextStyles.caption),
+                                Text('01 / $total', style: AppTextStyles.caption),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              question?.prompt ?? 'All cells have a nucleus.',
+                              question.prompt,
                               style: AppTextStyles.screenTitle,
                             ),
                             const SizedBox(height: 20),
@@ -137,13 +148,9 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                                 label: options[i].$2,
                                 selected: selected == options[i].$1,
                                 onTap: () {
-                                  if (question == null) {
-                                    setState(() => _selected = options[i].$1);
-                                  } else {
-                                    ref
-                                        .read(quizAnswersProvider.notifier)
-                                        .answer(question.prompt, i);
-                                  }
+                                  ref
+                                      .read(quizAnswersProvider.notifier)
+                                      .answer(question.prompt, i);
                                 },
                               ),
                             ],

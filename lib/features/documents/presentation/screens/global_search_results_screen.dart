@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,31 +7,36 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../domain/document_models.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/global_search_field.dart';
 
 /// Global search results, implemented from the Figma frame
 /// "SI Buddy · Global Search Results" (4:11763). The category row filters
 /// the result groups locally; the query field is editable with a clear
 /// button.
-class GlobalSearchResultsScreen extends StatefulWidget {
+///
+/// The results are real: documents come from the library stream and
+/// are matched by file name; flashcards and quiz questions come from
+/// this session's generation and are matched by their text. There is
+/// no summaries category — summaries do not exist yet, so there is
+/// nothing to search in. An empty query or no matches shows an
+/// honest empty state, never the design's sample results.
+class GlobalSearchResultsScreen extends ConsumerStatefulWidget {
   const GlobalSearchResultsScreen({super.key});
 
   @override
-  State<GlobalSearchResultsScreen> createState() =>
+  ConsumerState<GlobalSearchResultsScreen> createState() =>
       _GlobalSearchResultsScreenState();
 }
 
-class _GlobalSearchResultsScreenState extends State<GlobalSearchResultsScreen> {
-  static const _categories = [
-    'All 5',
-    'Docs 2',
-    'Cards 1',
-    'Quizzes 1',
-    'Summaries 1',
-  ];
-
-  final _controller = TextEditingController(text: 'cell');
+class _GlobalSearchResultsScreenState
+    extends ConsumerState<GlobalSearchResultsScreen> {
+  final _controller = TextEditingController();
   int _category = 0;
+  String _query = '';
 
   @override
   void dispose() {
@@ -41,10 +47,57 @@ class _GlobalSearchResultsScreenState extends State<GlobalSearchResultsScreen> {
   bool get _showDocuments => _category == 0 || _category == 1;
   bool get _showFlashcards => _category == 0 || _category == 2;
   bool get _showQuizzes => _category == 0 || _category == 3;
-  bool get _showSummaries => _category == 0 || _category == 4;
 
   @override
   Widget build(BuildContext context) {
+    final documentsAsync = ref.watch(documentsStreamProvider);
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final query = _query.trim().toLowerCase();
+
+    final documents = documentsAsync.value ?? const <Document>[];
+    final matchingDocs = query.isEmpty
+        ? documents
+        : documents
+              .where(
+                (d) => d.originalFileName.toLowerCase().contains(query),
+              )
+              .toList();
+    final cards = result?.flashcards ?? const [];
+    final matchingCards = query.isEmpty
+        ? cards
+        : cards
+              .where(
+                (c) =>
+                    c.front.toLowerCase().contains(query) ||
+                    c.back.toLowerCase().contains(query),
+              )
+              .toList();
+    final questions = result?.questions ?? const [];
+    final matchingQuestions = query.isEmpty
+        ? questions
+        : questions
+              .where((q) => q.prompt.toLowerCase().contains(query))
+              .toList();
+
+    final categories = [
+      'All ${matchingDocs.length + matchingCards.length + matchingQuestions.length}',
+      'Docs ${matchingDocs.length}',
+      'Cards ${matchingCards.length}',
+      'Quizzes ${matchingQuestions.length}',
+    ];
+    final total =
+        matchingDocs.length + matchingCards.length + matchingQuestions.length;
+    final sourceDoc = result == null
+        ? null
+        : documents
+              .where((d) => d.id == result.documentId)
+              .firstOrNull;
+    final setsTitle = generatedMaterialTitle(
+      config: config,
+      documentName: sourceDoc?.originalFileName,
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -55,16 +108,20 @@ class _GlobalSearchResultsScreenState extends State<GlobalSearchResultsScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
                 children: [
-                  GlobalSearchField(controller: _controller, focused: true),
+                  GlobalSearchField(
+                    controller: _controller,
+                    focused: true,
+                    onChanged: (value) => setState(() => _query = value),
+                  ),
                   const SizedBox(height: 13),
                   SizedBox(
                     height: 32,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        for (var i = 0; i < _categories.length; i++)
+                        for (var i = 0; i < categories.length; i++)
                           _CategoryItem(
-                            label: _categories[i],
+                            label: categories[i],
                             selected: _category == i,
                             onTap: () => setState(() => _category = i),
                           ),
@@ -72,86 +129,91 @@ class _GlobalSearchResultsScreenState extends State<GlobalSearchResultsScreen> {
                     ),
                   ),
                   const SizedBox(height: 13),
-                  Text(
-                    '5 results across your on-device study space',
-                    style: AppTextStyles.caption,
-                  ),
-                  if (_showDocuments) ...[
-                    const SizedBox(height: 13),
-                    _ResultGroup(
-                      heading: 'Documents · 2',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Column(
-                          children: [
-                            _DocumentResult(
-                              title: 'Cell Biology - Chapter 4.pdf',
-                              meta: 'PDF · 16 Oct 2026 · 2 study sets',
-                              snippet: 'Cells are the basic unit of life.',
-                              onTap: () => context.push(AppRoutes.details),
-                            ),
-                            Container(
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  top: BorderSide(color: AppColors.border),
+                  if (_query.trim().isEmpty)
+                    const EmptyState(
+                      icon: Icons.search,
+                      title: 'Search your study space',
+                      message:
+                          'Type a word to search your documents, flashcards and quizzes.',
+                    )
+                  else if (total == 0)
+                    EmptyState(
+                      icon: Icons.search_off_outlined,
+                      title: 'No results for \'${_query.trim()}\'',
+                      message:
+                          'Try a different word — only your documents and this session\'s study sets are searched.',
+                    )
+                  else ...[
+                    Text(
+                      '$total result${total == 1 ? '' : 's'} across your on-device study space',
+                      style: AppTextStyles.caption,
+                    ),
+                    if (_showDocuments && matchingDocs.isNotEmpty) ...[
+                      const SizedBox(height: 13),
+                      _ResultGroup(
+                        heading: 'Documents · ${matchingDocs.length}',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.border),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < matchingDocs.length; i++) ...[
+                                if (i > 0)
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      border: Border(
+                                        top: BorderSide(
+                                          color: AppColors.border,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                _DocumentResult(
+                                  document: matchingDocs[i],
+                                  onTap: () {
+                                    ref
+                                        .read(
+                                          selectedDocumentIdProvider.notifier,
+                                        )
+                                        .select(matchingDocs[i].id);
+                                    context.push(AppRoutes.details);
+                                  },
                                 ),
-                              ),
-                              child: _DocumentResult(
-                                title: 'Cell Membranes.pdf',
-                                meta: 'PDF · 10 Oct 2026 · 1 study set',
-                                snippet:
-                                    'The cell membrane controls transport.',
-                                onTap: () => context.push(AppRoutes.details),
-                              ),
-                            ),
-                          ],
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  if (_showFlashcards) ...[
-                    const SizedBox(height: 13),
-                    _ResultGroup(
-                      heading: 'Flashcards · 1',
-                      child: _TypedResult(
-                        iconAsset:
-                            'assets/icons/figma/gallery_vertical_end.svg',
-                        title: 'Cell structures',
-                        meta: '20 flashcards · Biology',
-                        snippet: 'What is the role of the cell nucleus?',
-                        onTap: () => context.push(AppRoutes.deck),
+                    ],
+                    if (_showFlashcards && matchingCards.isNotEmpty) ...[
+                      const SizedBox(height: 13),
+                      _ResultGroup(
+                        heading: 'Flashcards · ${matchingCards.length}',
+                        child: _TypedResult(
+                          iconAsset:
+                              'assets/icons/figma/gallery_vertical_end.svg',
+                          title: setsTitle,
+                          meta: '${cards.length} flashcards',
+                          snippet: matchingCards.first.front,
+                          onTap: () => context.push(AppRoutes.deck),
+                        ),
                       ),
-                    ),
-                  ],
-                  if (_showQuizzes) ...[
-                    const SizedBox(height: 13),
-                    _ResultGroup(
-                      heading: 'Quizzes · 1',
-                      child: _TypedResult(
-                        iconAsset: 'assets/icons/figma/list_checks.svg',
-                        title: 'Cell structures',
-                        meta: '10 questions · Biology',
-                        snippet: 'Test your knowledge of cell structures.',
-                        onTap: () => context.push(AppRoutes.quizSetup),
+                    ],
+                    if (_showQuizzes && matchingQuestions.isNotEmpty) ...[
+                      const SizedBox(height: 13),
+                      _ResultGroup(
+                        heading: 'Quizzes · ${matchingQuestions.length}',
+                        child: _TypedResult(
+                          iconAsset: 'assets/icons/figma/list_checks.svg',
+                          title: setsTitle,
+                          meta: '${questions.length} questions',
+                          snippet: matchingQuestions.first.prompt,
+                          onTap: () => context.push(AppRoutes.mcq),
+                        ),
                       ),
-                    ),
-                  ],
-                  if (_showSummaries) ...[
-                    const SizedBox(height: 13),
-                    _ResultGroup(
-                      heading: 'Summaries · 1',
-                      child: _TypedResult(
-                        iconAsset: 'assets/icons/figma/align_left.svg',
-                        title: 'Cell membrane transport',
-                        meta: 'Summary · Cell Membranes.pdf',
-                        snippet: 'How substances enter and leave a cell.',
-                        // TODO(backend): summary detail destination.
-                        onTap: () {},
-                      ),
-                    ),
+                    ],
                   ],
                 ],
               ),
@@ -236,16 +298,9 @@ TextStyle get _metaStyle => const TextStyle(
 
 /// One document row inside the grouped "Matching documents" card.
 class _DocumentResult extends StatelessWidget {
-  const _DocumentResult({
-    required this.title,
-    required this.meta,
-    required this.snippet,
-    required this.onTap,
-  });
+  const _DocumentResult({required this.document, required this.onTap});
 
-  final String title;
-  final String meta;
-  final String snippet;
+  final Document document;
   final VoidCallback onTap;
 
   @override
@@ -264,7 +319,10 @@ class _DocumentResult extends StatelessWidget {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text('PDF', style: AppTextStyles.badge),
+              child: Text(
+                document.format.label,
+                style: AppTextStyles.badge,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -272,7 +330,7 @@ class _DocumentResult extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    documentDisplayName(document),
                     style: AppTextStyles.itemTitle.copyWith(
                       fontSize: 12,
                       height: 16 / 12,
@@ -282,14 +340,7 @@ class _DocumentResult extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    meta,
-                    style: _metaStyle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    snippet,
+                    '${document.format.label} · ${formatFileSize(document.sizeBytes)} · ${document.pageCount} ${document.format.unitLabel}',
                     style: _metaStyle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -304,7 +355,7 @@ class _DocumentResult extends StatelessWidget {
   }
 }
 
-/// A flashcard / quiz / summary result card: surface type-identity box
+/// A flashcard / quiz result card: surface type-identity box
 /// with an icon, then title, accent meta and snippet lines.
 class _TypedResult extends StatelessWidget {
   const _TypedResult({

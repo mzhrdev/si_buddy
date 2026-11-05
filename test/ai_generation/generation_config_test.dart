@@ -12,7 +12,9 @@ void main() {
       expect(config.materialType, GenerationMaterialType.flashcards);
       expect(config.count, 20);
       expect(config.difficulty, GenerationDifficulty.medium);
-      expect(config.topic, 'Cell structures');
+      // No topic is pre-filled: the design's sample topic used to leak
+      // into prompts and titles, so the default is empty.
+      expect(config.topic, isEmpty);
       expect(config.language, 'English');
       expect(config.includeExplanations, isTrue);
       expect(config.documentId, isNull);

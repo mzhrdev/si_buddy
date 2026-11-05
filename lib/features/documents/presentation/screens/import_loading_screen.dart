@@ -1,24 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../providers/documents_providers.dart';
 import '../widgets/import_action_buttons.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/selected_document_card.dart';
 import '../widgets/state_message.dart';
 
 /// Import progress, implemented from the Figma frame
-/// "SI Buddy · Import loading" (4:3399): the selected document, a
-/// circular reading indicator at 60%, a linear progress card and a
-/// safe-cancel action. Values are static, as designed.
-class ImportLoadingScreen extends StatelessWidget {
+/// "SI Buddy · Import loading" (4:3399): the picked document, a
+/// reading indicator, a progress card and a safe-cancel action.
+///
+/// The card shows the real picked file from [importJobProvider].
+/// Progress is indeterminate — the import job exposes no fraction,
+/// so no percentage or page number is shown. Opened with no file
+/// it shows an honest empty state, never the design's sample
+/// document at a static 60%.
+class ImportLoadingScreen extends ConsumerWidget {
   const ImportLoadingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final job = ref.watch(importJobProvider);
+    final file = job.file;
+    if (file == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(
+                title: 'Importing document',
+                onBack: () => context.pop(),
+              ),
+              const Expanded(
+                child: EmptyState(
+                  icon: Icons.upload_file_outlined,
+                  title: 'Nothing is importing',
+                  message: 'Pick a document first — its import progress will appear here.',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -34,12 +66,14 @@ class ImportLoadingScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SelectedDocumentCard(
-                          title: 'Cell Biology - Chapter 4.pdf',
-                          subtitle: 'PDF · 2.4 MB · 12 pages',
+                        SelectedDocumentCard(
+                          title: job.displayFileName,
+                          subtitle:
+                              '${file.format.label} · ${file.sizeLabel}${file.pageCount == null ? '' : ' · ${file.pageCount} ${file.format.unitLabel}'}',
+                          formatLabel: file.format.label,
                         ),
                         const SizedBox(height: 24),
-                        const _ReadingIllustration(),
+                        _ReadingIllustration(formatLabel: file.format.label),
                         const SizedBox(height: 20),
                         const StateMessage(
                           headline: 'Getting your notes ready.',
@@ -63,7 +97,7 @@ class ImportLoadingScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              'Next: save to Biology in your library',
+                              'Next: save to ${job.subject} in your library',
                               style: AppTextStyles.greeting,
                             ),
                           ],
@@ -100,10 +134,13 @@ class ImportLoadingScreen extends StatelessWidget {
   }
 }
 
-/// Circular progress ring (60%) with the miniature reading document
-/// centred over it, from the Figma reading illustration.
+/// Circular progress ring (indeterminate — no fraction is known)
+/// with the miniature reading document centred over it, from the
+/// Figma reading illustration.
 class _ReadingIllustration extends StatelessWidget {
-  const _ReadingIllustration();
+  const _ReadingIllustration({required this.formatLabel});
+
+  final String formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -113,14 +150,13 @@ class _ReadingIllustration extends StatelessWidget {
         height: 156,
         child: Stack(
           children: [
-            Positioned(
+            const Positioned(
               left: 15,
               top: 13,
               child: SizedBox(
                 width: 130,
                 height: 130,
                 child: CircularProgressIndicator(
-                  value: 0.6,
                   strokeWidth: 8,
                   backgroundColor: AppColors.border,
                   color: AppColors.primary,
@@ -153,7 +189,7 @@ class _ReadingIllustration extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'PDF',
+                      formatLabel,
                       style: AppTextStyles.badge.copyWith(
                         color: AppColors.primary,
                       ),
@@ -169,8 +205,9 @@ class _ReadingIllustration extends StatelessWidget {
   }
 }
 
-/// White card with the "Reading text · 60%" label row, the linear
-/// progress track and the current page note.
+/// White card with the "Reading text" label row and an
+/// indeterminate progress track. No percentage or page number is
+/// shown — neither is known while importing.
 class _ProgressDetailsCard extends StatelessWidget {
   const _ProgressDetailsCard();
 
@@ -186,30 +223,18 @@ class _ProgressDetailsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Reading text', style: AppTextStyles.itemTitle),
-              Text(
-                '60%',
-                style: AppTextStyles.itemTitle.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
+          Text('Reading text', style: AppTextStyles.itemTitle),
           const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: const LinearProgressIndicator(
-              value: 0.6,
+          const ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(100)),
+            child: LinearProgressIndicator(
               minHeight: 6,
               backgroundColor: AppColors.border,
               color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 12),
-          Text('Reading page 7 of 12', style: AppTextStyles.greeting),
+          Text('Reading your document…', style: AppTextStyles.greeting),
         ],
       ),
     );

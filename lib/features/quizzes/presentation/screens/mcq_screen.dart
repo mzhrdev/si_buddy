@@ -6,6 +6,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../widgets/answer_option_tile.dart';
 import '../widgets/quiz_bottom_bar.dart';
 import '../widgets/quiz_progress.dart';
@@ -14,9 +15,12 @@ import '../../../ai_generation/presentation/providers/generation_providers.dart'
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
 /// Quiz question — multiple choice, implemented from the Figma
-/// frame "SI Buddy · Quiz Question — MCQ" (5:5927). The selected
-/// option matches the design ("A tissue") and can be changed
-/// locally; answers are presented as saved between questions.
+/// frame "SI Buddy · Quiz Question — MCQ" (5:5927).
+///
+/// With a generated quiz this session, the question comes from the
+/// current MCQ; otherwise an honest empty state shows — never the
+/// design's sample question. Answers are presented as saved between
+/// questions.
 class QuizMcqScreen extends ConsumerStatefulWidget {
   const QuizMcqScreen({super.key});
 
@@ -25,44 +29,55 @@ class QuizMcqScreen extends ConsumerStatefulWidget {
 }
 
 class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
-  static const _options = [
-    ('A', 'An organ'),
-    ('B', 'A tissue'),
-    ('C', 'The cell'),
-    ('D', 'An organ system'),
-  ];
-
-  String _selected = 'B';
-
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.mcq)
         .toList();
     final question = questions.isEmpty ? null : questions.first;
+    if (question == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Quiz', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.quiz_outlined,
+                  title: 'No quiz questions yet',
+                  message:
+                      'Generate a quiz from a document to answer questions here.',
+                  actionLabel: 'Generate a quiz',
+                  onAction: () => context.push(AppRoutes.quizSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final answers = ref.watch(quizAnswersProvider);
-    final answeredCount = result == null
-        ? 3
-        : (result.questions
-                .where((q) =>
-                    answers.containsKey(q.prompt) ||
-                    ref.watch(quizShortAnswersProvider).containsKey(q.prompt))
-                .length);
-    final total = questions.isEmpty ? 10 : questions.length;
-    final options = question == null
-        ? _options
-        : [
-            for (var i = 0; i < question.options.length; i++)
-              (String.fromCharCode('A'.codeUnitAt(0) + i), question.options[i]),
-          ];
-    final selected = question == null
-        ? _selected
-        : (answers[question.prompt] == null
-            ? null
-            : String.fromCharCode(
-                'A'.codeUnitAt(0) + answers[question.prompt]!));
+    final answeredCount = result!.questions
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              ref.watch(quizShortAnswersProvider).containsKey(q.prompt),
+        )
+        .length;
+    final total = questions.length;
+    final options = [
+      for (var i = 0; i < question.options.length; i++)
+        (String.fromCharCode('A'.codeUnitAt(0) + i), question.options[i]),
+    ];
+    final selected = answers[question.prompt] == null
+        ? null
+        : String.fromCharCode(
+            'A'.codeUnitAt(0) + answers[question.prompt]!,
+          );
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -76,27 +91,19 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     QuizIdentity(
-                      title: question == null ? 'Cell structures' : config.topic,
-                      meta: question == null
-                          ? 'Biology · 10 questions · Medium · Mixed'
-                          : '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName:
+                            job.source?.document.originalFileName,
+                      ),
+                      meta:
+                          '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: question == null
-                          ? 'Question 3 of 10'
-                          : 'Question 1 of $total',
-                      rightLabel: question == null
-                          ? '3 / 10 answered'
-                          : '$answeredCount / $total answered',
-                      fraction: question == null
-                          ? 0.3
-                          : (total == 0 ? 0 : answeredCount / total),
-                    ),
-                    const SizedBox(height: 16),
-                    const QuizTopicTimerRow(
-                      topic: 'Cell basics',
-                      timeLeft: '08:42 left',
+                      leftLabel: 'Question 1 of $total',
+                      rightLabel: '$answeredCount / $total answered',
+                      fraction: total == 0 ? 0 : answeredCount / total,
                     ),
                     const SizedBox(height: 16),
                     Expanded(
@@ -119,12 +126,12 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text(question == null ? '03 / 10' : '01 / $total', style: AppTextStyles.caption),
+                                Text('01 / $total', style: AppTextStyles.caption),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              question?.prompt ?? 'What is the basic unit of life?',
+                              question.prompt,
                               style: AppTextStyles.screenTitle,
                             ),
                             const SizedBox(height: 20),
@@ -144,13 +151,9 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                                 label: options[i].$2,
                                 selected: selected == options[i].$1,
                                 onTap: () {
-                                  if (question == null) {
-                                    setState(() => _selected = options[i].$1);
-                                  } else {
-                                    ref
-                                        .read(quizAnswersProvider.notifier)
-                                        .answer(question.prompt, i);
-                                  }
+                                  ref
+                                      .read(quizAnswersProvider.notifier)
+                                      .answer(question.prompt, i);
                                 },
                               ),
                             ],

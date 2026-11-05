@@ -4,9 +4,20 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 /// The source-document row shown on the deck overview and card editor:
-/// a bordered "PDF" format chip plus the file name and metadata.
+/// a bordered format chip plus the file name and metadata. Callers
+/// pass the real document; with none, it renders an honest "no
+/// source document" row instead of the design's sample.
 class SourceDocumentCard extends StatelessWidget {
-  const SourceDocumentCard({super.key});
+  const SourceDocumentCard({super.key, this.title, this.subtitle, this.formatLabel});
+
+  /// File name shown as the card's title; null renders the empty row.
+  final String? title;
+
+  /// Metadata line under the title.
+  final String? subtitle;
+
+  /// Short format label inside the file glyph.
+  final String? formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +39,10 @@ class SourceDocumentCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             alignment: Alignment.center,
-            child: Text('PDF', style: AppTextStyles.badge),
+            child: Text(
+              formatLabel ?? '—',
+              style: AppTextStyles.badge,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -36,7 +50,7 @@ class SourceDocumentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cell Biology - Chapter 4.pdf',
+                  title ?? 'No source document',
                   style: AppTextStyles.captionStrong.copyWith(
                     fontSize: 12,
                     color: AppColors.text,
@@ -44,7 +58,7 @@ class SourceDocumentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Biology · 2.4 MB · 12 pages',
+                  subtitle ?? 'Import a document to generate from it',
                   style: AppTextStyles.caption,
                 ),
               ],

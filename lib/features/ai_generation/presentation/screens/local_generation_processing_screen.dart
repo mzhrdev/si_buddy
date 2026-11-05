@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../documents/domain/document_failures.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../domain/generation_config.dart';
@@ -25,9 +26,8 @@ import '../widgets/generation_source_card.dart';
 /// on completion to the generated material's screen, or on failure
 /// to the designed error screen for that failure (missing model,
 /// low memory, insufficient text, generation failure). Opened with
-/// no job, it keeps the design's static state: 40%, with the three
-/// generation stages (complete / active / upcoming) and the
-/// preserved selections from setup.
+/// no job, it shows an honest empty state — never the design's
+/// static 40% state with sample selections.
 class LocalGenerationProcessingScreen extends ConsumerStatefulWidget {
   const LocalGenerationProcessingScreen({super.key});
 
@@ -52,15 +52,16 @@ class _LocalGenerationProcessingScreenState
   }
 
   /// Where a failed job lands: the designed error screen for the
-  /// failure, or null for failures with no designed destination
-  /// (the screen then stays, showing the frozen progress).
-  String? _routeForError(Object? error) {
+  /// failure. Any failure without a designed destination routes to
+  /// the generation-failure screen — the job must never end on a
+  /// frozen progress screen with no explanation.
+  String _routeForError(Object? error) {
     return switch (error) {
       ModelNotInstalledFailure() => AppRoutes.missingModel,
       LowMemoryFailure() => AppRoutes.generationLowMemory,
       InsufficientTextException() => AppRoutes.insufficientText,
       GenerationFailure() => AppRoutes.generationFailure,
-      _ => null,
+      _ => AppRoutes.generationFailure,
     };
   }
 
@@ -81,7 +82,29 @@ class _LocalGenerationProcessingScreenState
 
     final job = ref.watch(generationJobProvider);
     final live = job.status != GenerationJobStatus.idle;
-    final jobSource = live ? job.source : null;
+    if (!live) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'AI generation', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.auto_awesome_outlined,
+                  title: 'No generation in progress',
+                  message:
+                      'Generate flashcards or a quiz from one of your documents to see progress here.',
+                  actionLabel: 'Import a document',
+                  onAction: () => context.push(AppRoutes.importFiles),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final jobSource = job.source;
     final config = job.config;
     final subject = ref.watch(extractionProvider).subject;
 
@@ -132,7 +155,7 @@ class _LocalGenerationProcessingScreenState
                           style: AppTextStyles.link.copyWith(height: 16 / 12),
                         ),
                         Text(
-                          live ? '${(job.fraction * 100).round()}%' : '40%',
+                          '${(job.fraction * 100).round()}%',
                           style: AppTextStyles.link.copyWith(height: 16 / 12),
                         ),
                       ],
@@ -141,7 +164,7 @@ class _LocalGenerationProcessingScreenState
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: LinearProgressIndicator(
-                        value: live ? job.fraction : 0.4,
+                        value: job.fraction,
                         minHeight: 6,
                         backgroundColor: AppColors.surface,
                         valueColor: const AlwaysStoppedAnimation<Color>(
@@ -158,14 +181,14 @@ class _LocalGenerationProcessingScreenState
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _GenerationStages(job: live ? job : null),
+                    _GenerationStages(job: job),
                     const SizedBox(height: 24),
-                    if (live && config != null)
+                    if (config != null)
                       GenerationSelections(
                         summaryLine:
                             '${config.count} ${_materialNoun(config.materialType)} · ${config.difficulty.label} · ${config.language}',
                         detailLine:
-                            '${config.topic} · Explanations ${config.includeExplanations ? 'on' : 'off'}',
+                            '${config.topic.isEmpty ? 'No topic set' : config.topic} · Explanations ${config.includeExplanations ? 'on' : 'off'}',
                       )
                     else
                       const GenerationSelections(),
@@ -191,11 +214,8 @@ class _LocalGenerationProcessingScreenState
                   OutlinedButton(
                     onPressed: () {
                       // Cancels the running job (the model stops
-                      // generating; nothing is saved); with no job
-                      // this simply leaves the design state.
-                      if (live) {
-                        ref.read(generationJobProvider.notifier).cancel();
-                      }
+                      // generating; nothing is saved).
+                      ref.read(generationJobProvider.notifier).cancel();
                       context.pop();
                     },
                     style: OutlinedButton.styleFrom(

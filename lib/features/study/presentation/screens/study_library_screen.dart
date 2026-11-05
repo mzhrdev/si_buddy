@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,10 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../widgets/study_destinations_bar.dart';
 import '../widgets/study_material_row.dart';
 import '../widgets/study_section_heading.dart';
@@ -14,20 +19,52 @@ import '../widgets/study_section_heading.dart';
 /// "SI Buddy · Study Library" (5:11311).
 ///
 /// Tab root of the Study branch: destinations bar, subject/progress
-/// filter chips, folder shortcuts, and the subject's study materials.
-class StudyLibraryScreen extends StatefulWidget {
+/// filter chips, and the study materials from this session's
+/// generation. Decks and quizzes are session-only until persistence
+/// lands, so only this session's generated materials appear; without
+/// any, the materials section shows an honest empty state. Folders
+/// are not shown: none can exist yet (no folder persistence).
+class StudyLibraryScreen extends ConsumerStatefulWidget {
   const StudyLibraryScreen({super.key});
 
   @override
-  State<StudyLibraryScreen> createState() => _StudyLibraryScreenState();
+  ConsumerState<StudyLibraryScreen> createState() => _StudyLibraryScreenState();
 }
 
-class _StudyLibraryScreenState extends State<StudyLibraryScreen> {
-  String _subject = 'Biology';
+class _StudyLibraryScreenState extends ConsumerState<StudyLibraryScreen> {
   String _progress = 'All progress';
 
   @override
   Widget build(BuildContext context) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final ratings = ref.watch(cardRatingsProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final shortAnswers = ref.watch(quizShortAnswersProvider);
+    final subject = ref.watch(extractionProvider).subject;
+    final cards = result?.flashcards ?? const [];
+    final questions = result?.questions ?? const [];
+    final title = generatedMaterialTitle(
+      config: config,
+      documentName: job.source?.document.originalFileName,
+    );
+    final mastered = ratings.values.where((r) => r == 'Easy').length;
+    final difficult = ratings.values.where((r) => r == 'Hard').length;
+    final reviewed = ratings.length;
+    final answered = questions
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false),
+        )
+        .length;
+    final correct = questions
+        .where((q) =>
+            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .length;
+    final subjectLabel = subject ?? 'All subjects';
+    final itemCount = (cards.isNotEmpty ? 1 : 0) + (questions.isNotEmpty ? 1 : 0);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -43,9 +80,9 @@ class _StudyLibraryScreenState extends State<StudyLibraryScreen> {
                     children: [
                       Builder(
                         builder: (chipContext) => _FilterChip(
-                          label: _subject,
+                          label: subjectLabel,
                           selected: true,
-                          onTap: () => _pickSubject(chipContext),
+                          onTap: () => _pickSubject(chipContext, subjectLabel),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -60,77 +97,53 @@ class _StudyLibraryScreenState extends State<StudyLibraryScreen> {
                   ),
                   const SizedBox(height: 16),
                   StudySectionHeading(
-                    title: 'Folders',
-                    actionLabel: '+ New folder',
-                    onAction: () => context.push(AppRoutes.createFolder),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _FolderCard(
-                          name: 'Semester 1',
-                          caption: '4 study items',
-                          // TODO(backend): open the folder's contents.
-                          onTap: () {},
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _FolderCard(
-                          name: 'Coursework',
-                          caption: 'No study items',
-                          // TODO(backend): open the folder's contents.
-                          onTap: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  StudySectionHeading(
-                    title: 'Biology materials',
+                    title: subject == null ? 'Your materials' : '$subject materials',
                     actionLabel: 'View subject →',
                     onAction: () => context.push(AppRoutes.subject),
                   ),
                   const SizedBox(height: 2),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/layers.svg',
-                    typeLabel: 'DECK',
-                    title: 'Cell structures',
-                    meta: '20 cards · 12 mastered · 3 difficult',
-                    status: 'Reviewed today',
-                    onTap: () => context.push(AppRoutes.deck),
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/list_checks.svg',
-                    typeLabel: 'QUIZ',
-                    title: 'Cell structures',
-                    meta: '10 questions · Latest score 7/10',
-                    status: '3 attempts · 70% latest',
-                    onTap: () => context.push(AppRoutes.history),
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/file_text.svg',
-                    typeLabel: 'SUMMARY',
-                    title: 'Cell Biology · Chapter 4',
-                    meta: '5 key sections · Biology',
-                    status: 'Read 3 of 5 sections',
-                    // TODO(backend): open the generated summary.
-                    onTap: () {},
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/bookmark.svg',
-                    typeLabel: 'SAVED QUESTIONS',
-                    title: 'Membranes & organelles',
-                    meta: '4 questions · Biology',
-                    status: '2 of 4 reviewed',
-                    onTap: () => context.push(AppRoutes.revision),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'All 4 items saved locally · Available offline',
-                    style: AppTextStyles.caption,
-                  ),
+                  if (cards.isNotEmpty)
+                    StudyMaterialRow(
+                      iconAsset: 'assets/icons/figma/layers.svg',
+                      typeLabel: 'DECK',
+                      title: title,
+                      meta:
+                          '${cards.length} cards · $mastered mastered · $difficult difficult',
+                      status: reviewed > 0
+                          ? 'Reviewed today'
+                          : 'Not reviewed yet',
+                      onTap: () => context.push(AppRoutes.deck),
+                    ),
+                  if (questions.isNotEmpty)
+                    StudyMaterialRow(
+                      iconAsset: 'assets/icons/figma/list_checks.svg',
+                      typeLabel: 'QUIZ',
+                      title: title,
+                      meta: answered > 0
+                          ? '${questions.length} questions · Latest score $correct/${questions.length}'
+                          : '${questions.length} questions · Not taken yet',
+                      status: answered > 0
+                          ? '$answered of ${questions.length} answered'
+                          : 'Not started',
+                      onTap: () => context.push(AppRoutes.history),
+                    ),
+                  if (itemCount == 0)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: EmptyState(
+                        icon: Icons.school_outlined,
+                        title: 'No study materials yet',
+                        message:
+                            'Generate flashcards or a quiz from a document to see them here.',
+                      ),
+                    )
+                  else ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '$itemCount item${itemCount == 1 ? '' : 's'} saved locally · Available offline',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -140,9 +153,9 @@ class _StudyLibraryScreenState extends State<StudyLibraryScreen> {
     );
   }
 
-  Future<void> _pickSubject(BuildContext context) async {
-    final value = await _showFilterMenu(context, _subject, const ['Biology']);
-    if (value != null) setState(() => _subject = value);
+  Future<void> _pickSubject(BuildContext context, String current) async {
+    final value = await _showFilterMenu(context, current, [current]);
+    if (value != null) setState(() {});
   }
 
   Future<void> _pickProgress(BuildContext context) async {
@@ -240,74 +253,3 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-/// A folder shortcut card with a primary folder icon, name, and a
-/// bold muted item-count caption.
-class _FolderCard extends StatelessWidget {
-  const _FolderCard({
-    required this.name,
-    required this.caption,
-    required this.onTap,
-  });
-
-  final String name;
-  final String caption;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
-          height: 58,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/figma/folder.svg',
-                width: 20,
-                height: 20,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        height: 16 / 12,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      caption,
-                      style: AppTextStyles.badge.copyWith(
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

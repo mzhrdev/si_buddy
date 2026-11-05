@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
 import '../widgets/import_action_buttons.dart';
@@ -22,7 +23,9 @@ import '../widgets/state_message.dart';
 /// in [importJobProvider]; renaming and subject changes are written
 /// back to it. "Import document" starts extraction and continues to
 /// the processing screen. When the screen is opened without a picked
-/// file it keeps the design's sample content and flow.
+/// file it shows an honest empty state. The first-page preview is a
+/// neutral document illustration — the text is not extracted yet, so
+/// it never shows the design's sample page content.
 class SelectedFilePreviewScreen extends ConsumerStatefulWidget {
   const SelectedFilePreviewScreen({super.key});
 
@@ -92,8 +95,8 @@ class _SelectedFilePreviewScreenState
     final job = ref.read(importJobProvider);
     final file = job.file;
     if (file == null) {
-      // Opened without a picked file: keep the design's sample flow.
-      context.push(AppRoutes.importLoading);
+      // No file to import (the empty state has no import button, so
+      // this only happens if the job is cleared mid-screen).
       return;
     }
     ref
@@ -106,19 +109,33 @@ class _SelectedFilePreviewScreenState
   Widget build(BuildContext context) {
     final job = ref.watch(importJobProvider);
     final file = job.file;
-    final filename = file == null
-        ? 'Cell Biology - Chapter 4.pdf'
-        : job.displayFileName;
-    final meta = file == null
-        ? const ['PDF document', '2.4 MB', '12 pages']
-        : <String>[
-            file.format == DocumentFormat.pdf
-                ? 'PDF document'
-                : 'PPTX document',
-            file.sizeLabel,
-            if (file.pageCount != null)
-              '${file.pageCount} ${file.format.unitLabel}',
-          ];
+    if (file == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Review document', onBack: () => context.pop()),
+              const Expanded(
+                child: EmptyState(
+                  icon: Icons.description_outlined,
+                  title: 'No document selected',
+                  message:
+                      'Pick a PDF or PPTX first — its preview and details will appear here.',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final filename = job.displayFileName;
+    final meta = <String>[
+      file.format == DocumentFormat.pdf ? 'PDF document' : 'PPTX document',
+      file.sizeLabel,
+      if (file.pageCount != null)
+        '${file.pageCount} ${file.format.unitLabel}',
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -140,7 +157,10 @@ class _SelectedFilePreviewScreenState
                           body: 'Check your document and choose a subject.',
                         ),
                         const SizedBox(height: 22),
-                        _DocumentPreview(pageCount: file?.pageCount ?? 12),
+                        _DocumentPreview(
+                          filename: filename,
+                          pageCount: file.pageCount,
+                        ),
                         const SizedBox(height: 22),
                         _FileDetails(
                           filename: filename,
@@ -187,10 +207,15 @@ class _SelectedFilePreviewScreenState
 
 /// Bordered preview card holding a miniature first page and the
 /// "Page 1 of N" caption.
+/// Neutral first-page illustration for the picked file: the file
+/// icon and name, with the page count when it is known. The text is
+/// not extracted yet, so no page content is shown (and never the
+/// design's sample page).
 class _DocumentPreview extends StatelessWidget {
-  const _DocumentPreview({required this.pageCount});
+  const _DocumentPreview({required this.filename, required this.pageCount});
 
-  final int pageCount;
+  final String filename;
+  final int? pageCount;
 
   @override
   Widget build(BuildContext context) {
@@ -214,34 +239,34 @@ class _DocumentPreview extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'CHAPTER 4',
-                  style: AppTextStyles.badge.copyWith(color: AppColors.primary),
-                ),
-                const SizedBox(height: 7),
-                Text('Cell Biology', style: AppTextStyles.itemTitle),
-                const SizedBox(height: 7),
-                Text(
-                  'The building blocks of life',
-                  style: AppTextStyles.badge.copyWith(color: AppColors.text),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  'Cells are the basic unit of life. Each cell contains structures that work together to support its functions.',
-                  style: AppTextStyles.badge.copyWith(
-                    color: AppColors.muted,
-                    fontWeight: FontWeight.w700,
+                SvgPicture.asset(
+                  'assets/icons/figma/file_text.svg',
+                  width: 32,
+                  height: 38,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary,
+                    BlendMode.srcIn,
                   ),
                 ),
-                const Spacer(),
-                Container(height: 2, color: AppColors.surface),
+                const SizedBox(height: 10),
+                Text(
+                  filename,
+                  style: AppTextStyles.caption,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          Text('Page 1 of $pageCount', style: AppTextStyles.caption),
+          Text(
+            pageCount == null ? 'Page 1' : 'Page 1 of $pageCount',
+            style: AppTextStyles.caption,
+          ),
         ],
       ),
     );

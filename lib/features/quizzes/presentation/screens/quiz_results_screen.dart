@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 
@@ -14,23 +15,44 @@ import '../../../ai_generation/presentation/providers/study_session_providers.da
 /// "SI Buddy · Quiz Results" (5:6216): score summary card, topic
 /// performance bars and the follow-up actions. All actions are
 /// primary buttons, matching the design.
+///
+/// The score comes from this session's answers on the generated
+/// quiz. Without a quiz it shows an honest empty state — never the
+/// design's sample score and topics. Duration is not tracked yet,
+/// so it says so instead of a sample time.
 class QuizResultsScreen extends ConsumerWidget {
   const QuizResultsScreen({super.key});
-
-  static const _topics = [
-    ('Cell basics', '3 / 4 correct · 75%', 0.75),
-    ('Organelles', '3 / 4 correct · 75%', 0.75),
-    ('Membranes', '1 / 2 correct · 50%', 0.5),
-  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
     final answers = ref.watch(quizAnswersProvider);
     final shortAnswers = ref.watch(quizShortAnswersProvider);
-    final hasRealResult = result != null && result.questions.isNotEmpty;
     final questions = result?.questions ?? const [];
+    if (questions.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Quiz results', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.quiz_outlined,
+                  title: 'No quiz results yet',
+                  message:
+                      'Take a generated quiz to see your score and review here.',
+                  actionLabel: 'Generate a quiz',
+                  onAction: () => context.push(AppRoutes.quizSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final correct = questions
         .where((q) =>
             q.correctIndex != null && answers[q.prompt] == q.correctIndex)
@@ -40,21 +62,22 @@ class QuizResultsScreen extends ConsumerWidget {
             answers.containsKey(q.prompt) ||
             (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false))
         .length;
-    final total = hasRealResult ? questions.length : 10;
-    final correctCount = hasRealResult ? correct : 7;
+    final total = questions.length;
+    final correctCount = correct;
     final incorrectCount = total - correctCount;
-    final unanswered = hasRealResult ? total - answered : 2;
+    final unanswered = total - answered;
     final percent = total == 0 ? 0 : (correctCount * 100 ~/ total);
     final fraction = total == 0 ? 0.0 : correctCount / total;
-    final topics = hasRealResult
-        ? [
-            (
-              config.topic,
-              '$correctCount / $total correct · $percent%',
-              fraction,
-            ),
-          ]
-        : _topics;
+    final topics = [
+      (
+        generatedMaterialTitle(
+          config: config,
+          documentName: job.source?.document.originalFileName,
+        ),
+        '$correctCount / $total correct · $percent%',
+        fraction,
+      ),
+    ];
     final actionStyle = FilledButton.styleFrom(
       minimumSize: const Size.fromHeight(48),
       textStyle: AppTextStyles.button,
@@ -78,9 +101,7 @@ class QuizResultsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      hasRealResult
-                          ? '${config.topic} · $total questions · ${config.difficulty.label}'
-                          : 'Cell structures · 10 questions · Medium',
+                      '${generatedMaterialTitle(config: config, documentName: job.source?.document.originalFileName)} · $total questions · ${config.difficulty.label}',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.body.copyWith(
                         fontSize: 12,
@@ -127,9 +148,7 @@ class QuizResultsScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    hasRealResult
-                                        ? 'Duration · not tracked'
-                                        : 'Duration · 6m 24s',
+                                    'Duration · not tracked',
                                     style: _subStyle(),
                                   ),
                                 ],
@@ -164,9 +183,7 @@ class QuizResultsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            hasRealResult
-                                ? 'Includes $unanswered unanswered, counted as incorrect. Short answers are counted as answered, not scored.'
-                                : 'Includes 2 unanswered, counted as incorrect.',
+                            'Includes $unanswered unanswered, counted as incorrect. Short answers are counted as answered, not scored.',
                             style: AppTextStyles.caption,
                           ),
                         ],

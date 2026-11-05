@@ -8,6 +8,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
+import '../../../model_management/presentation/providers/model_providers.dart';
 import '../../domain/generation_config.dart';
 import '../providers/generation_providers.dart';
 import '../widgets/generation_source_card.dart';
@@ -28,6 +29,14 @@ class GenerationSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Probe the runtime once so the status line below reflects the
+    // real model state instead of claiming a model is installed.
+    Future.microtask(() => ref.read(modelProvider.notifier).refresh());
+  }
+
   /// The Generate action: with a ready model and an extracted
   /// document, start a real generation job and show its progress.
   /// Without them, route to the designed explainer for what is
@@ -61,6 +70,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
     final notifier = ref.read(generationConfigProvider.notifier);
     final extraction = ref.watch(extractionProvider);
     final source = extraction.result;
+    final modelReady = ref.watch(modelProvider).isReady;
     const materialTypes = GenerationMaterialType.values;
     const difficulties = GenerationDifficulty.values;
     return Scaffold(
@@ -76,19 +86,21 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // The most recently extracted document, once
-                    // one exists; the design's sample until then.
-                    GenerationSourceCard(
-                      title:
-                          source?.document.originalFileName ??
-                          'Cell Biology - Chapter 4.pdf',
-                      subtitle: source == null
-                          ? 'Biology · 2.4 MB · 12 pages'
-                          : generationSourceSubtitle(
-                              document: source.document,
-                              subject: extraction.subject,
-                            ),
-                      formatLabel: source?.document.format.label ?? 'PDF',
-                    ),
+                    // one exists; an honest empty card until then —
+                    // never the design's sample document.
+                    if (source == null)
+                      _NoSourceCard(
+                        onTap: () => context.push(AppRoutes.importFiles),
+                      )
+                    else
+                      GenerationSourceCard(
+                        title: source.document.originalFileName,
+                        subtitle: generationSourceSubtitle(
+                          document: source.document,
+                          subject: extraction.subject,
+                        ),
+                        formatLabel: source.document.format.label,
+                      ),
                     const SizedBox(height: 12),
                     Text(
                       'What would you like to create?',
@@ -207,7 +219,9 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         Expanded(
                           child: _SelectionField(
                             label: 'Topic',
-                            value: config.topic,
+                            value: config.topic.isEmpty
+                                ? 'Choose a topic'
+                                : config.topic,
                             onTap: () {
                               // TODO(backend): open the topic picker.
                             },
@@ -309,9 +323,13 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Model installed · AI ready offline',
+                        modelReady
+                            ? 'Model installed · AI ready offline'
+                            : 'No model installed · Download the model to generate',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.successText,
+                          color: modelReady
+                              ? AppColors.successText
+                              : AppColors.danger,
                         ),
                       ),
                     ],
@@ -505,6 +523,83 @@ class _SelectionField extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The source slot when no document has been extracted yet: an
+/// honest empty card that sends the user to import one, instead of
+/// the design's sample document.
+class _NoSourceCard extends StatelessWidget {
+  const _NoSourceCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icons/figma/file_text.svg',
+                  width: 16,
+                  height: 16,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.muted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'No document selected',
+                      style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Import a document to generate from it',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+              ),
+              SvgPicture.asset(
+                'assets/icons/figma/chevron_right.svg',
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.navInactive,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

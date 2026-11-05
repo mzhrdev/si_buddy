@@ -7,8 +7,11 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../ai_generation/presentation/widgets/generation_source_card.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../widgets/source_document_card.dart';
 
 /// Deck overview, implemented from the Figma frame
@@ -16,7 +19,9 @@ import '../widgets/source_document_card.dart';
 ///
 /// When a flashcards generation has completed this session, the
 /// title, language and card count come from that result and its
-/// config; opened without one it keeps the design's sample deck.
+/// config, and the progress metrics from this session's ratings.
+/// Opened without one it shows an honest empty state — never the
+/// design's sample deck.
 class DeckOverviewScreen extends ConsumerWidget {
   const DeckOverviewScreen({super.key});
 
@@ -24,11 +29,43 @@ class DeckOverviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final ratings = ref.watch(cardRatingsProvider);
     final cards = result?.flashcards ?? const [];
-    final hasRealDeck = cards.isNotEmpty;
-    final cardCount = hasRealDeck ? cards.length : 20;
-    final title = hasRealDeck ? config.topic : 'Cell structures';
-    final language = hasRealDeck ? config.language : 'English';
+    if (cards.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Flashcards', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.style_outlined,
+                  title: 'No flashcards yet',
+                  message:
+                      'Generate flashcards from a document to study them here.',
+                  actionLabel: 'Generate flashcards',
+                  onAction: () => context.push(AppRoutes.generationSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final source = job.source;
+    final subject = ref.watch(extractionProvider).subject;
+    final title = generatedMaterialTitle(
+      config: config,
+      documentName: source?.document.originalFileName,
+    );
+    final language = config.language;
+    final reviewed = ratings.length;
+    final mastered = ratings.values.where((r) => r == 'Easy').length;
+    final learning = ratings.values
+        .where((r) => r == 'Medium' || r == 'Hard')
+        .length;
+    final newCards = cards.length - reviewed;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -46,25 +83,27 @@ class DeckOverviewScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surface,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  child: Text(
-                                    'Biology',
-                                    style: AppTextStyles.tileLabel.copyWith(
-                                      color: AppColors.primary,
+                                if (subject != null && subject.isNotEmpty) ...[
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surface,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: Text(
+                                      subject,
+                                      style: AppTextStyles.tileLabel.copyWith(
+                                        color: AppColors.primary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
+                                  const SizedBox(width: 8),
+                                ],
                                 Text(
-                                  '$cardCount flashcards · $language',
+                                  '${cards.length} flashcards · $language',
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 12,
                                     height: 18 / 12,
@@ -90,9 +129,24 @@ class DeckOverviewScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            const SourceDocumentCard(),
+                            SourceDocumentCard(
+                              title: source?.document.originalFileName,
+                              subtitle: source == null
+                                  ? null
+                                  : generationSourceSubtitle(
+                                      document: source.document,
+                                      subject: subject,
+                                    ),
+                              formatLabel: source?.document.format.label,
+                            ),
                             const SizedBox(height: 24),
-                            _StudyProgressCard(totalCards: cardCount),
+                            _StudyProgressCard(
+                              totalCards: cards.length,
+                              reviewed: reviewed,
+                              mastered: mastered,
+                              learning: learning,
+                              newCards: newCards,
+                            ),
                             const SizedBox(height: 24),
                             Text(
                               'A little recall goes a long way',
@@ -209,12 +263,23 @@ class DeckOverviewScreen extends ConsumerWidget {
   }
 }
 
-/// The "Your progress" card: reviewed count, an empty progress track
-/// and the Mastered / Learning / New cards metrics.
+/// The "Your progress" card: reviewed count, the progress track
+/// and the Mastered / Learning / New cards metrics — all from this
+/// session's ratings (0s until cards are rated).
 class _StudyProgressCard extends StatelessWidget {
-  const _StudyProgressCard({required this.totalCards});
+  const _StudyProgressCard({
+    required this.totalCards,
+    required this.reviewed,
+    required this.mastered,
+    required this.learning,
+    required this.newCards,
+  });
 
   final int totalCards;
+  final int reviewed;
+  final int mastered;
+  final int learning;
+  final int newCards;
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +305,7 @@ class _StudyProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '0 / $totalCards reviewed',
+                '$reviewed / $totalCards reviewed',
                 style: AppTextStyles.muted.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
@@ -255,21 +320,33 @@ class _StudyProgressCard extends StatelessWidget {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(100),
             ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: totalCards == 0
+                  ? 0
+                  : (reviewed / totalCards).clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
-              const Expanded(
-                child: _ProgressMetric(value: '0', label: 'Mastered'),
+              Expanded(
+                child: _ProgressMetric(value: '$mastered', label: 'Mastered'),
               ),
               const SizedBox(width: 12),
-              const Expanded(
-                child: _ProgressMetric(value: '0', label: 'Learning'),
+              Expanded(
+                child: _ProgressMetric(value: '$learning', label: 'Learning'),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _ProgressMetric(
-                  value: '$totalCards',
+                  value: '$newCards',
                   label: 'New cards',
                 ),
               ),

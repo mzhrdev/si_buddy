@@ -6,19 +6,23 @@ import '../../../../app/theme/app_text_styles.dart';
 /// White bordered card showing the selected document: a "PDF" format
 /// box, the file name and a metadata line. Shared by the extraction
 /// processing, review and success screens.
+///
+/// All fields are nullable: a null title renders "No document" and
+/// a null subtitle hides the metadata line, instead of the design's
+/// sample document.
 class SelectedDocumentCard extends StatelessWidget {
   const SelectedDocumentCard({
-    required this.title,
-    required this.subtitle,
-    this.formatLabel = 'PDF',
+    this.title,
+    this.subtitle,
+    this.formatLabel,
     super.key,
   });
 
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
 
   /// The label inside the format box (`PDF`, `PPTX`).
-  final String formatLabel;
+  final String? formatLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +44,7 @@ class SelectedDocumentCard extends StatelessWidget {
               border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(formatLabel, style: AppTextStyles.badge),
+            child: Text(formatLabel ?? '–', style: AppTextStyles.badge),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -48,13 +52,15 @@ class SelectedDocumentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  title ?? 'No document',
                   style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
-                Text(subtitle, style: AppTextStyles.caption),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 5),
+                  Text(subtitle!, style: AppTextStyles.caption),
+                ],
               ],
             ),
           ),

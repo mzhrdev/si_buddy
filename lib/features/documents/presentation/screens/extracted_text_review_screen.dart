@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../providers/documents_providers.dart';
 
 /// Extracted text review, implemented from the Figma frame
@@ -18,8 +19,8 @@ import '../providers/documents_providers.dart';
 ///
 /// When an extraction job has completed, the reader shows the real
 /// extracted text (one card per page/slide) and the document's real
-/// name and page count; opened without a result it keeps the design's
-/// sample pages.
+/// name and page count; opened without a result it shows an honest
+/// empty state — never the design's sample pages.
 class ExtractedTextReviewScreen extends ConsumerStatefulWidget {
   const ExtractedTextReviewScreen({super.key});
 
@@ -49,10 +50,32 @@ class _ExtractedTextReviewScreenState
   Widget build(BuildContext context) {
     final extraction = ref.watch(extractionProvider);
     final result = extraction.result;
-    final totalPages = result?.document.pageCount ?? 12;
-    final fileName =
-        result?.document.originalFileName ?? 'Cell Biology - Chapter 4.pdf';
-    final subject = extraction.subject ?? 'Biology';
+    if (result == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(
+                title: 'Review extracted text',
+                onBack: () => context.pop(),
+              ),
+              const Expanded(
+                child: EmptyState(
+                  icon: Icons.description_outlined,
+                  title: 'No extracted text to review',
+                  message:
+                      'Import a document first — its extracted text will appear here for review.',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final totalPages = result.document.pageCount;
+    final fileName = result.document.originalFileName;
+    final subject = extraction.subject ?? 'No subject';
     final currentPage = _currentPage.clamp(1, totalPages);
 
     return Scaffold(
@@ -220,21 +243,15 @@ class _ExtractedTextReviewScreenState
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView(
-                        children: result == null
-                            ? const [_PageOneCard(), _PageTwoCard()]
-                            : [
-                                for (
-                                  var i = 0;
-                                  i < result.sections.length;
-                                  i++
-                                )
-                                  _ExtractedPageCard(
-                                    page: i + 1,
-                                    totalPages: totalPages,
-                                    text: result.sections[i],
-                                    isLast: i == result.sections.length - 1,
-                                  ),
-                              ],
+                        children: [
+                          for (var i = 0; i < result.sections.length; i++)
+                            _ExtractedPageCard(
+                              page: i + 1,
+                              totalPages: totalPages,
+                              text: result.sections[i],
+                              isLast: i == result.sections.length - 1,
+                            ),
+                        ],
                       ),
                     ),
                   ],
@@ -299,85 +316,6 @@ class _ExtractedTextReviewScreenState
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Page 1 of the extracted document, as shown in the design.
-class _PageOneCard extends StatelessWidget {
-  const _PageOneCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'CHAPTER 4',
-            style: AppTextStyles.badge.copyWith(color: AppColors.primary),
-          ),
-          const SizedBox(height: 14),
-          Text('Cell Biology', style: AppTextStyles.display),
-          const SizedBox(height: 14),
-          Text(
-            'The building blocks of life',
-            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'Cells are the basic unit of life. Each cell contains structures that work together to support its functions.',
-            style: AppTextStyles.body.copyWith(height: 22 / 14),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'The cell membrane controls what enters and leaves the cell. Inside, the cytoplasm holds organelles that carry out essential processes.',
-            style: AppTextStyles.body.copyWith(height: 22 / 14),
-          ),
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: AppColors.border),
-          const SizedBox(height: 14),
-          Center(child: Text('1 / 12', style: AppTextStyles.caption)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Page 2 of the extracted document, as shown in the design.
-class _PageTwoCard extends StatelessWidget {
-  const _PageTwoCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Page 2 of 12',
-            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
-          ),
-          const SizedBox(height: 12),
-          Text('Inside the cell', style: AppTextStyles.title),
-          const SizedBox(height: 12),
-          Text(
-            'The nucleus stores genetic information. Mitochondria release usable energy through cellular respiration.',
-            style: AppTextStyles.body.copyWith(height: 22 / 14),
-          ),
-        ],
       ),
     );
   }

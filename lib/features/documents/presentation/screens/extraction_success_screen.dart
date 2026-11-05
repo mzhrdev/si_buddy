@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../providers/documents_providers.dart';
 import '../widgets/privacy_reassurance.dart';
 import '../widgets/selected_document_card.dart';
@@ -17,7 +18,7 @@ import '../widgets/selected_document_card.dart';
 /// The document is saved locally; the next study step offers
 /// flashcards, a quiz, or viewing the document. When an extraction
 /// job has completed, the copy and document card show the real
-/// document; opened without one it keeps the design's sample content.
+/// document; opened without one it shows an honest empty state.
 class ExtractionSuccessScreen extends ConsumerWidget {
   const ExtractionSuccessScreen({super.key});
 
@@ -26,10 +27,29 @@ class ExtractionSuccessScreen extends ConsumerWidget {
     final extraction = ref.watch(extractionProvider);
     final result = extraction.result;
     final document = result?.document;
+    if (document == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Document ready', onBack: () => context.pop()),
+              const Expanded(
+                child: EmptyState(
+                  icon: Icons.check_circle_outline,
+                  title: 'No document was just imported',
+                  message:
+                      'Import a document first — this screen appears once its text is extracted.',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final subject = extraction.subject ?? 'Biology';
-    final body = document == null
-        ? 'All 12 pages are ready in your Biology library. Choose how you’d like to study next.'
-        : 'All ${document.pageCount} ${document.format.unitLabel} are ready in your $subject library. Choose how you’d like to study next.';
+    final body =
+        'All ${document.pageCount} ${document.format.unitLabel} are ready in your $subject library. Choose how you’d like to study next.';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -65,17 +85,12 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        document == null
-                            ? const SelectedDocumentCard(
-                                title: 'Cell Biology - Chapter 4.pdf',
-                                subtitle: 'Biology · 12 pages · Saved locally',
-                              )
-                            : SelectedDocumentCard(
-                                title: document.originalFileName,
-                                subtitle:
-                                    '$subject · ${document.pageCount} ${document.format.unitLabel} · Saved locally',
-                                formatLabel: document.format.label,
-                              ),
+                        SelectedDocumentCard(
+                          title: document.originalFileName,
+                          subtitle:
+                              '$subject · ${document.pageCount} ${document.format.unitLabel} · Saved locally',
+                          formatLabel: document.format.label,
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

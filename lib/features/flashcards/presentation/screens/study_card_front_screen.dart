@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/study_card_navigation.dart';
@@ -16,7 +17,8 @@ import '../widgets/study_session_header.dart';
 /// "SI Buddy · Study Card Front" (5:2558).
 ///
 /// With a generated deck this session, the question and counter come
-/// from the current card; otherwise the design's sample card shows.
+/// from the current card; otherwise an honest empty state shows —
+/// never the design's sample card.
 class StudyCardFrontScreen extends ConsumerStatefulWidget {
   const StudyCardFrontScreen({super.key});
 
@@ -32,13 +34,33 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
   @override
   Widget build(BuildContext context) {
     final cards = ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
-    final index = cards.isEmpty
-        ? 0
-        : ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
-    final question = cards.isEmpty
-        ? 'What is the basic unit of life?'
-        : cards[index].front;
-    final counter = cards.isEmpty ? '04 / 20' : '${index + 1} / ${cards.length}';
+    if (cards.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Study flashcards', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.style_outlined,
+                  title: 'No flashcards yet',
+                  message:
+                      'Generate flashcards from a document to study them here.',
+                  actionLabel: 'Generate flashcards',
+                  onAction: () => context.push(AppRoutes.generationSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final reviewed = ref.watch(cardRatingsProvider).length;
+    final index = ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
+    final question = cards[index].front;
+    final counter = '${index + 1} / ${cards.length}';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -50,6 +72,16 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                 child: Column(
                   children: [
                     StudySessionHeader(
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName:
+                            job.source?.document.originalFileName,
+                      ),
+                      subtitle:
+                          '${config.language} · ${cards.length} flashcards',
+                      index: index,
+                      total: cards.length,
+                      reviewed: reviewed,
                       shuffleOn: _shuffleOn,
                       bookmarked: _bookmarked,
                       onShuffleTap: () =>

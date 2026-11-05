@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/study_destinations_bar.dart';
 import '../widgets/study_progress_track.dart';
 import '../widgets/study_section_heading.dart';
@@ -11,18 +14,62 @@ import '../widgets/study_section_heading.dart';
 /// Study Planner, implemented from the Figma frame
 /// "SI Buddy · Study Planner" (5:11948): today's goal progress, the
 /// upcoming revision schedule, and the optional revision reminder.
-class StudyPlannerScreen extends StatefulWidget {
+///
+/// The daily goals are the design's targets (20 minutes, 30 cards,
+/// 1 quiz); the progress against them is this session's real state.
+/// Study time is not tracked yet, so that goal honestly reads
+/// "Not tracked". Upcoming revision lists only what is real: today's
+/// learning and difficult cards, when there are any.
+class StudyPlannerScreen extends ConsumerStatefulWidget {
   const StudyPlannerScreen({super.key});
 
   @override
-  State<StudyPlannerScreen> createState() => _StudyPlannerScreenState();
+  ConsumerState<StudyPlannerScreen> createState() => _StudyPlannerScreenState();
 }
 
-class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
+class _StudyPlannerScreenState extends ConsumerState<StudyPlannerScreen> {
   bool _reminderOn = false;
+
+  static const _months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final ratings = ref.watch(cardRatingsProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final shortAnswers = ref.watch(quizShortAnswersProvider);
+    final cards = result?.flashcards ?? const [];
+    final questions = result?.questions ?? const [];
+    final reviewed = ratings.length;
+    final quizDone = questions.any(
+      (q) =>
+          answers.containsKey(q.prompt) ||
+          (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false),
+    );
+    final learning = ratings.values.where((r) => r == 'Medium').length;
+    final difficult = ratings.values.where((r) => r == 'Hard').length;
+    final toReview = learning + difficult;
+    final completedGoals = (reviewed >= 30 ? 1 : 0) + (quizDone ? 1 : 0);
+    final now = DateTime.now();
+    final title = generatedMaterialTitle(
+      config: config,
+      documentName: job.source?.document.originalFileName,
+    );
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -35,18 +82,18 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                   const StudyDestinationsBar(currentIndex: 3),
                   const SizedBox(height: 12),
                   StudySectionHeading(
-                    title: 'Today, 16 October',
+                    title: 'Today, ${now.day} ${_months[now.month - 1]}',
                     actionLabel: 'Edit goals',
                     // TODO(backend): edit the daily goals.
                     onAction: () {},
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '1 of 3 goals complete · A little every day adds up.',
+                  Text(
+                    '$completedGoals of 3 goals complete · A little every day adds up.',
                     style: AppTextStyles.greeting,
                   ),
                   const SizedBox(height: 12),
-                  const _DailyGoalsCard(),
+                  _DailyGoalsCard(reviewed: reviewed, quizDone: quizDone),
                   const SizedBox(height: 12),
                   StudySectionHeading(
                     title: 'Upcoming revision',
@@ -55,16 +102,14 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     onAction: () {},
                   ),
                   const SizedBox(height: 10),
-                  const _PlannedRevision(
+                  _PlannedRevision(
                     day: 'Today',
-                    title: 'Cell structures',
-                    meta: '8 learning & difficult cards · ~5 min',
-                  ),
-                  const SizedBox(height: 10),
-                  const _PlannedRevision(
-                    day: 'Tomorrow',
-                    title: 'Membranes & organelles',
-                    meta: '4 saved questions · ~5 min',
+                    title: cards.isEmpty ? 'No deck yet' : title,
+                    meta: cards.isEmpty
+                        ? 'Generate flashcards to plan revision'
+                        : toReview > 0
+                            ? '$toReview learning & difficult cards'
+                            : 'Nothing due today',
                   ),
                   const SizedBox(height: 12),
                   _ReminderCard(
@@ -82,8 +127,16 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
 }
 
 /// White bordered card with the three daily goals and their progress.
+/// Study time is not tracked yet; the other two goals read this
+/// session's real progress.
 class _DailyGoalsCard extends StatelessWidget {
-  const _DailyGoalsCard();
+  const _DailyGoalsCard({required this.reviewed, required this.quizDone});
+
+  /// Cards rated this session.
+  final int reviewed;
+
+  /// Whether any quiz question was answered this session.
+  final bool quizDone;
 
   @override
   Widget build(BuildContext context) {
@@ -111,28 +164,23 @@ class _DailyGoalsCard extends StatelessWidget {
           const SizedBox(height: 14),
           const _DailyGoal(
             label: 'Study time',
-            value: '15 / 20 min',
-            fraction: 0.75,
+            value: 'Not tracked',
+            fraction: 0,
             complete: false,
           ),
           const SizedBox(height: 14),
-          const _DailyGoal(
+          _DailyGoal(
             label: 'Review flashcards',
-            value: '24 / 30 cards',
-            fraction: 0.8,
-            complete: false,
+            value: '$reviewed / 30 cards',
+            fraction: (reviewed / 30).clamp(0.0, 1.0),
+            complete: reviewed >= 30,
           ),
           const SizedBox(height: 14),
-          const _DailyGoal(
+          _DailyGoal(
             label: 'Complete a quiz',
-            value: '1 / 1 quiz',
-            fraction: 1,
-            complete: true,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            '5 more minutes to reach your daily study goal.',
-            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+            value: quizDone ? '1 / 1 quiz' : '0 / 1 quiz',
+            fraction: quizDone ? 1 : 0,
+            complete: quizDone,
           ),
         ],
       ),

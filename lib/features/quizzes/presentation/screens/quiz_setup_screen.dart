@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,11 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../ai_generation/domain/generation_config.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/widgets/generation_source_card.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
+import '../../../model_management/presentation/providers/model_providers.dart';
 import '../widgets/quiz_source_card.dart';
 
 /// Quiz setup, implemented from the Figma frame
@@ -13,14 +19,22 @@ import '../widgets/quiz_source_card.dart';
 /// difficulty, question type, topics and an optional timer for the
 /// source document. All controls work locally; the defaults match
 /// the design (10 questions, Medium, Mixed, timer on, 10 minutes).
-class QuizSetupScreen extends StatefulWidget {
+///
+/// Generate is wired to the real generation pipeline, exactly like
+/// the flashcards setup: it maps the chosen type/count/difficulty
+/// onto the shared [GenerationConfig], checks the model and the
+/// source document, starts a job and shows its progress. Mixed
+/// generates MCQs (there is no mixed-question generation yet); the
+/// timer setting is kept for the quiz session and is not part of
+/// generation.
+class QuizSetupScreen extends ConsumerStatefulWidget {
   const QuizSetupScreen({super.key});
 
   @override
-  State<QuizSetupScreen> createState() => _QuizSetupScreenState();
+  ConsumerState<QuizSetupScreen> createState() => _QuizSetupScreenState();
 }
 
-class _QuizSetupScreenState extends State<QuizSetupScreen> {
+class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
   static const _difficulties = ['Easy', 'Medium', 'Hard'];
   static const _types = ['MCQ', 'True/False', 'Short Answer', 'Mixed'];
 
@@ -30,7 +44,56 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   bool _timerEnabled = true;
 
   @override
+  void initState() {
+    super.initState();
+    // Probe the runtime once so the status line below reflects the
+    // real model state instead of claiming a model is installed.
+    Future.microtask(() => ref.read(modelProvider.notifier).refresh());
+  }
+
+  /// The Generate action: with a ready model and an extracted
+  /// document, start a real quiz generation job and show its
+  /// progress. Without them, route to the designed explainer for
+  /// what is missing.
+  Future<void> _onGenerate() async {
+    final repository = ref.read(boundGenerationRepositoryProvider);
+    if (repository == null || !await repository.isModelReady()) {
+      if (mounted) context.push(AppRoutes.missingModel);
+      return;
+    }
+    final source = ref.read(extractionProvider).result;
+    if (source == null || !source.hasText) {
+      if (mounted) context.push(AppRoutes.insufficientText);
+      return;
+    }
+    final materialType = switch (_type) {
+      'True/False' => GenerationMaterialType.trueFalse,
+      'Short Answer' => GenerationMaterialType.shortAnswers,
+      _ => GenerationMaterialType.mcqs,
+    };
+    final difficulty = switch (_difficulty) {
+      'Easy' => GenerationDifficulty.easy,
+      'Hard' => GenerationDifficulty.hard,
+      _ => GenerationDifficulty.medium,
+    };
+    final configNotifier = ref.read(generationConfigProvider.notifier);
+    configNotifier.setMaterialType(materialType);
+    configNotifier.setDifficulty(difficulty);
+    configNotifier.setCount(_count);
+    configNotifier.setDocumentId(source.document.id);
+    final config = ref.read(generationConfigProvider);
+    ref
+        .read(generationJobProvider.notifier)
+        .start(source: source, config: config);
+    if (mounted) context.push(AppRoutes.generationProcessing);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final extraction = ref.watch(extractionProvider);
+    final source = extraction.result;
+    final config = ref.watch(generationConfigProvider);
+    final modelReady = ref.watch(modelProvider).isReady;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -43,7 +106,19 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const QuizSourceCard(),
+                    // The most recently extracted document, once
+                    // one exists; an honest empty card until then —
+                    // never the design's sample document.
+                    QuizSourceCard(
+                      title: source?.document.originalFileName,
+                      subtitle: source == null
+                          ? null
+                          : generationSourceSubtitle(
+                              document: source.document,
+                              subject: extraction.subject,
+                            ),
+                      formatLabel: source?.document.format.label,
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,7 +211,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Cell basics · Organelles · Membranes',
+                              config.topic.isEmpty
+                                  ? 'No topics set'
+                                  : config.topic,
                               style: AppTextStyles.body.copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
@@ -238,15 +315,19 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    '● Model installed · AI ready offline',
+                    modelReady
+                        ? '● Model installed · AI ready offline'
+                        : '● No model installed · Download the model to generate',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.successText,
+                      color: modelReady
+                          ? AppColors.successText
+                          : AppColors.danger,
                     ),
                   ),
                   const SizedBox(height: 10),
                   FilledButton(
-                    onPressed: () => context.push(AppRoutes.mcq),
+                    onPressed: _onGenerate,
                     child: const Text('Generate Quiz'),
                   ),
                 ],

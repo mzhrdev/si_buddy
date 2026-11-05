@@ -56,7 +56,14 @@ final homeDashboardProvider = Provider<HomeDashboardData>((ref) {
     decks: result != null && result.flashcards.isNotEmpty
         ? [
             DeckSummary(
-              title: config.topic,
+              title: generatedMaterialTitle(
+                config: config,
+                documentName: ref
+                    .watch(generationJobProvider)
+                    .source
+                    ?.document
+                    .originalFileName,
+              ),
               cardCount: result.flashcards.length,
               dueCount: result.flashcards.length,
               lastStudied: 'Just generated',

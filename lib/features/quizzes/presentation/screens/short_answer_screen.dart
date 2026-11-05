@@ -6,6 +6,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../widgets/quiz_bottom_bar.dart';
 import '../widgets/quiz_progress.dart';
 import '../../../ai_generation/domain/generation_models.dart';
@@ -14,8 +15,12 @@ import '../../../ai_generation/presentation/providers/study_session_providers.da
 
 /// Quiz question — short answer, implemented from the Figma frame
 /// "SI Buddy · Quiz Question — Short Answer" (5:6077). The answer
-/// field is pre-filled with the design's answer text and is fully
-/// editable; its border uses the primary colour as in the design.
+/// field starts empty and is fully editable; its border uses the
+/// primary colour as in the design.
+///
+/// With a generated quiz this session, the question comes from the
+/// current short-answer question; otherwise an honest empty state
+/// shows — never the design's sample question and answer.
 class QuizShortAnswerScreen extends ConsumerStatefulWidget {
   const QuizShortAnswerScreen({super.key});
 
@@ -24,11 +29,7 @@ class QuizShortAnswerScreen extends ConsumerStatefulWidget {
 }
 
 class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
-  final _controller = TextEditingController(
-    text:
-        'It controls what enters and leaves the cell, helping maintain '
-        'a stable internal environment.',
-  );
+  final _controller = TextEditingController();
   String? _boundPrompt;
 
   @override
@@ -41,21 +42,44 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
   Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.shortAnswer)
         .toList();
     final question = questions.isEmpty ? null : questions.first;
+    if (question == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Quiz', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.quiz_outlined,
+                  title: 'No quiz questions yet',
+                  message:
+                      'Generate a quiz from a document to answer questions here.',
+                  actionLabel: 'Generate a quiz',
+                  onAction: () => context.push(AppRoutes.quizSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final answers = ref.watch(quizAnswersProvider);
     final shortAnswers = ref.watch(quizShortAnswersProvider);
-    final answeredCount = result == null
-        ? 8
-        : (result.questions
-                .where((q) =>
-                    answers.containsKey(q.prompt) ||
-                    shortAnswers.containsKey(q.prompt))
-                .length);
-    final total = questions.isEmpty ? 10 : questions.length;
-    if (question != null && _boundPrompt != question.prompt) {
+    final answeredCount = result!.questions
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              shortAnswers.containsKey(q.prompt),
+        )
+        .length;
+    final total = questions.length;
+    if (_boundPrompt != question.prompt) {
       _boundPrompt = question.prompt;
       _controller.text = shortAnswers[question.prompt] ?? '';
     }
@@ -72,27 +96,19 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     QuizIdentity(
-                      title: question == null ? 'Cell structures' : config.topic,
-                      meta: question == null
-                          ? 'Biology · 10 questions · Medium · Mixed'
-                          : '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName:
+                            job.source?.document.originalFileName,
+                      ),
+                      meta:
+                          '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: question == null
-                          ? 'Question 8 of 10'
-                          : 'Question 1 of $total',
-                      rightLabel: question == null
-                          ? '8 / 10 answered'
-                          : '$answeredCount / $total answered',
-                      fraction: question == null
-                          ? 0.8
-                          : (total == 0 ? 0 : answeredCount / total),
-                    ),
-                    const SizedBox(height: 16),
-                    const QuizTopicTimerRow(
-                      topic: 'Membranes',
-                      timeLeft: '04:10 left',
+                      leftLabel: 'Question 1 of $total',
+                      rightLabel: '$answeredCount / $total answered',
+                      fraction: total == 0 ? 0 : answeredCount / total,
                     ),
                     const SizedBox(height: 16),
                     Expanded(
@@ -115,13 +131,12 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text(question == null ? '08 / 10' : '01 / $total', style: AppTextStyles.caption),
+                                Text('01 / $total', style: AppTextStyles.caption),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              question?.prompt ??
-                                  'What is the main function of the cell membrane?',
+                              question.prompt,
                               style: AppTextStyles.screenTitle,
                             ),
                             const SizedBox(height: 20),
@@ -137,11 +152,9 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                             TextField(
                               controller: _controller,
                               onChanged: (value) {
-                                if (question != null) {
-                                  ref
-                                      .read(quizShortAnswersProvider.notifier)
-                                      .answer(question.prompt, value);
-                                }
+                                ref
+                                    .read(quizShortAnswersProvider.notifier)
+                                    .answer(question.prompt, value);
                               },
                               maxLines: null,
                               minLines: 6,

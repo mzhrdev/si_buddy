@@ -16,19 +16,17 @@ class UnreadableTextScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // When the user lands here from a failed import, the card shows
-    // the file that failed; otherwise it keeps the design's sample.
+    // the file that failed; opened directly, it says there is no
+    // document instead of the design's sample.
     final file = ref.watch(importJobProvider).file;
     return ImportIssueLayout(
-      documentCard: file == null
-          ? const SelectedDocumentCard(
-              title: 'Cell Biology - Chapter 4.pdf',
-              subtitle: 'PDF · 2.4 MB',
-            )
-          : SelectedDocumentCard(
-              title: file.name,
-              subtitle: '${file.format.label} · ${file.sizeLabel}',
-              formatLabel: file.format.label,
-            ),
+      documentCard: SelectedDocumentCard(
+        title: file?.name,
+        subtitle: file == null
+            ? null
+            : '${file.format.label} · ${file.sizeLabel}',
+        formatLabel: file?.format.label,
+      ),
       iconAsset: 'assets/icons/figma/text_cursor_input.svg',
       // Figma: warning-text
       iconColor: AppColors.warningText,

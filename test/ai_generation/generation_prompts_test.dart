@@ -36,11 +36,21 @@ void main() {
           source: sourceWith(cellText),
           config: GenerationConfig(materialType: type, count: 3),
         );
-        expect(prompt, contains('Cell structures'), reason: '$type topic');
+        // No topic is set, so the prompt refers to the notes rather
+        // than the design's sample topic.
+        expect(prompt, contains('the notes'), reason: '$type topic');
         expect(prompt, contains('Medium'), reason: '$type difficulty');
         expect(prompt, contains('English'), reason: '$type language');
         expect(prompt, contains('mitochondria'), reason: '$type source');
       }
+    });
+
+    test('embeds a set topic instead of the notes fallback', () {
+      final prompt = buildGenerationPrompt(
+        source: sourceWith(cellText),
+        config: const GenerationConfig(topic: 'Photosynthesis', count: 3),
+      );
+      expect(prompt, contains('Photosynthesis'));
     });
 
     test('requests the line format each parser consumes', () {

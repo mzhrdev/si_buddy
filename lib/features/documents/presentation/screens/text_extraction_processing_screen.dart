@@ -7,6 +7,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../domain/document_failures.dart';
 import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
@@ -31,8 +32,8 @@ String routeAfterExtraction(ExtractedDocument result) {
 /// the three-stage checklist are driven live by [extractionProvider];
 /// completion continues to the extracted-text review and a failure
 /// routes to its designed error screen. Opened without a job, the
-/// screen shows the design's static progress state (60%, page 7 of
-/// 12, with the three processing stages complete / active / upcoming).
+/// screen shows an honest empty state — never the design's static
+/// progress state (60%, page 7 of 12).
 class TextExtractionProcessingScreen extends ConsumerWidget {
   const TextExtractionProcessingScreen({super.key});
 
@@ -82,41 +83,17 @@ class TextExtractionProcessingScreen extends ConsumerWidget {
                           context.pop();
                         },
                       )
-                    : _StaticBody(onCancel: () => context.pop()),
+                    : const EmptyState(
+                        icon: Icons.description_outlined,
+                        title: 'No extraction in progress',
+                        message:
+                            'Import a document first — its text extraction will appear here.',
+                      ),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-/// The design's static progress state, shown when no job is running.
-class _StaticBody extends StatelessWidget {
-  const _StaticBody({required this.onCancel});
-
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          children: [
-            const SelectedDocumentCard(
-              title: 'Cell Biology - Chapter 4.pdf',
-              subtitle: 'PDF · 2.4 MB · 12 pages',
-            ),
-            const SizedBox(height: 22),
-            const _CurrentProgress(),
-            const SizedBox(height: 22),
-            const _ProcessingStages(),
-          ],
-        ),
-        _BottomBlock(onCancel: onCancel),
-      ],
     );
   }
 }
@@ -253,60 +230,6 @@ class _CurrentProgress extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
-    );
-  }
-}
-
-/// The stage checklist card in the design's static state.
-class _ProcessingStages extends StatelessWidget {
-  const _ProcessingStages();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        children: [
-          _StageRow(
-            indicator: _completeStageIndicator(),
-            title: 'Reading Document',
-            subtitle: 'Complete · 12 pages found',
-          ),
-          const SizedBox(height: 20),
-          Column(
-            children: [
-              _StageRow(
-                indicator: _activeStageIndicator(),
-                title: 'Extracting Text',
-                subtitle: 'Processing page 7 of 12',
-                subtitleColor: AppColors.primary,
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: const LinearProgressIndicator(
-                  value: 0.6,
-                  minHeight: 5,
-                  backgroundColor: AppColors.border,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _StageRow(
-            indicator: _upcomingStageIndicator(),
-            title: 'Preparing Content',
-            subtitle: 'Up next · organize text for review',
-            muted: true,
-          ),
-        ],
-      ),
     );
   }
 }

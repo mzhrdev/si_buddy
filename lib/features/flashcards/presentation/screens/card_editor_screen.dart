@@ -1,35 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../ai_generation/presentation/widgets/generation_source_card.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../widgets/source_document_card.dart';
 
 /// Card editor, implemented from the Figma frame
 /// "SI Buddy · Card Editor" (5:2702).
-class CardEditorScreen extends StatefulWidget {
+///
+/// Edits the current card of this session's generated deck (the
+/// card the study flow is on). Without a deck it shows an honest
+/// empty state — never the design's sample card. Save updates the
+/// card in the session result; nothing is persisted yet, so the edit
+/// resets when the app restarts.
+class CardEditorScreen extends ConsumerStatefulWidget {
   const CardEditorScreen({super.key});
 
   @override
-  State<CardEditorScreen> createState() => _CardEditorScreenState();
+  ConsumerState<CardEditorScreen> createState() => _CardEditorScreenState();
 }
 
-class _CardEditorScreenState extends State<CardEditorScreen> {
+class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
   late final TextEditingController _questionController;
   late final TextEditingController _answerController;
+  int _index = 0;
+  String? _explanation;
 
   @override
   void initState() {
     super.initState();
-    _questionController = TextEditingController(
-      text: 'What is the basic unit of life?',
-    );
-    _answerController = TextEditingController(
-      text:
-          'The cell.\n\nEach cell contains structures that work together to support its functions.',
-    );
+    final cards =
+        ref.read(lastGenerationResultProvider)?.flashcards ?? const [];
+    _index = cards.isEmpty
+        ? 0
+        : ref.read(studyCardIndexProvider).clamp(0, cards.length - 1);
+    final card = cards.isEmpty ? null : cards[_index];
+    _questionController = TextEditingController(text: card?.front ?? '');
+    _answerController = TextEditingController(text: card?.back ?? '');
+    _explanation = card?.explanation;
     _questionController.addListener(_refresh);
     _answerController.addListener(_refresh);
   }
@@ -43,8 +60,48 @@ class _CardEditorScreenState extends State<CardEditorScreen> {
 
   void _refresh() => setState(() {});
 
+  void _save() {
+    ref
+        .read(generationJobProvider.notifier)
+        .updateFlashcard(
+          _index,
+          _questionController.text,
+          _answerController.text,
+        );
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cards =
+        ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
+    if (cards.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Edit card', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.style_outlined,
+                  title: 'No cards to edit',
+                  message:
+                      'Generate flashcards from a document to edit them here.',
+                  actionLabel: 'Generate flashcards',
+                  onAction: () => context.push(AppRoutes.generationSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final source = job.source;
+    // The controllers were bound to _index in initState; the counter
+    // shows that same card.
+    final index = _index.clamp(0, cards.length - 1);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -61,12 +118,16 @@ class _CardEditorScreenState extends State<CardEditorScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Cell structures',
+                              generatedMaterialTitle(
+                                config: config,
+                                documentName:
+                                    source?.document.originalFileName,
+                              ),
                               style: AppTextStyles.screenTitle,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Card 4 of 20 · Flashcards',
+                              'Card ${index + 1} of ${cards.length} · Flashcards',
                               style: AppTextStyles.body.copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
@@ -74,7 +135,18 @@ class _CardEditorScreenState extends State<CardEditorScreen> {
                               ),
                             ),
                             const SizedBox(height: 18),
-                            const SourceDocumentCard(),
+                            SourceDocumentCard(
+                              title: source?.document.originalFileName,
+                              subtitle: source == null
+                                  ? null
+                                  : generationSourceSubtitle(
+                                      document: source.document,
+                                      subject: ref
+                                          .watch(extractionProvider)
+                                          .subject,
+                                    ),
+                              formatLabel: source?.document.format.label,
+                            ),
                             const SizedBox(height: 18),
                             _EditableField(
                               label: 'Question',
@@ -87,9 +159,17 @@ class _CardEditorScreenState extends State<CardEditorScreen> {
                               controller: _answerController,
                               height: 180,
                             ),
+                            if (_explanation != null &&
+                                _explanation!.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                'Explanation: $_explanation',
+                                style: AppTextStyles.caption,
+                              ),
+                            ],
                             const SizedBox(height: 18),
                             Text(
-                              'Source: page 1 · Changes apply to this card only. Your original document stays unchanged.',
+                              'Changes apply to this card only. Your original document stays unchanged.',
                               style: AppTextStyles.caption,
                             ),
                           ],
@@ -98,8 +178,7 @@ class _CardEditorScreenState extends State<CardEditorScreen> {
                     ),
                     const SizedBox(height: 12),
                     FilledButton(
-                      // TODO(backend): save the edited card.
-                      onPressed: () => context.pop(),
+                      onPressed: _save,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

@@ -188,7 +188,9 @@ class GenerationJobState {
       },
       JobStageStatus.active => switch (stage) {
         GenerationStage.sourceTextReady => 'Preparing your reviewed text',
-        GenerationStage.localGeneration => 'Building $noun about $topic',
+        GenerationStage.localGeneration => topic.isEmpty
+            ? 'Building $noun'
+            : 'Building $noun about $topic',
         GenerationStage.checkAndSave => 'Checking and saving your material',
       },
       JobStageStatus.upcoming => switch (stage) {
@@ -294,6 +296,33 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     return true;
   }
 
+  /// Replaces one flashcard in the completed result (the card
+  /// editor's Save). Session-only: the edit lives until the app
+  /// restarts, like the rest of the session result. Returns false
+  /// when there is no completed result or the index is out of range.
+  bool updateFlashcard(int index, String front, String back) {
+    final result = state.result;
+    if (result == null ||
+        index < 0 ||
+        index >= result.flashcards.length) {
+      return false;
+    }
+    final cards = List<GeneratedFlashcard>.of(result.flashcards);
+    cards[index] = GeneratedFlashcard(
+      front: front,
+      back: back,
+      explanation: cards[index].explanation,
+    );
+    state = state.copyWith(
+      result: GenerationResult(
+        documentId: result.documentId,
+        flashcards: cards,
+        questions: result.questions,
+      ),
+    );
+    return true;
+  }
+
   void reset() {
     _subscription?.cancel();
     state = const GenerationJobState();
@@ -304,6 +333,20 @@ final generationJobProvider =
     NotifierProvider<GenerationJobNotifier, GenerationJobState>(
       GenerationJobNotifier.new,
     );
+
+/// The title for a generated deck or quiz: the user's topic when
+/// one was picked, otherwise the source document's file name,
+/// otherwise a neutral label — never the design's sample topic.
+String generatedMaterialTitle({
+  required GenerationConfig config,
+  String? documentName,
+}) {
+  if (config.topic.isNotEmpty) return config.topic;
+  if (documentName != null && documentName.isNotEmpty) {
+    return documentName;
+  }
+  return 'Generated material';
+}
 
 /// The most recent completed generation result, held for the
 /// results screens. Consumption (deck/quiz persistence and display)

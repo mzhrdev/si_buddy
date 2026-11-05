@@ -17,7 +17,7 @@ import '../widgets/selected_document_card.dart';
 /// show empty pages, so the user gets the explanation and a way to
 /// pick another file instead. The document card shows the real
 /// imported file when the screen was reached from an extraction job,
-/// and keeps the design's sample otherwise.
+/// and says there is no document when opened directly.
 class ScannedPdfOcrScreen extends ConsumerWidget {
   const ScannedPdfOcrScreen({super.key});
 
@@ -26,16 +26,11 @@ class ScannedPdfOcrScreen extends ConsumerWidget {
     final state = ref.watch(extractionProvider);
     final hasJob = state.file != null;
     return ImportIssueLayout(
-      documentCard: hasJob
-          ? SelectedDocumentCard(
-              title: state.documentTitle,
-              subtitle: state.documentSubtitle,
-              formatLabel: state.file!.format.label,
-            )
-          : const SelectedDocumentCard(
-              title: 'Cell Biology - Chapter 4.pdf',
-              subtitle: 'PDF · 2.4 MB',
-            ),
+      documentCard: SelectedDocumentCard(
+        title: hasJob ? state.documentTitle : null,
+        subtitle: hasJob ? state.documentSubtitle : null,
+        formatLabel: state.file?.format.label,
+      ),
       iconAsset: 'assets/icons/figma/scan_text.svg',
       iconColor: AppColors.primary,
       surfaceColor: AppColors.surface,

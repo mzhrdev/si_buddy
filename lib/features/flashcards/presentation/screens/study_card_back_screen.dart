@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../widgets/study_card_navigation.dart';
@@ -13,6 +15,10 @@ import '../widgets/study_session_header.dart';
 
 /// Study card back (answer face), implemented from the Figma frame
 /// "SI Buddy · Study Card Back" (5:2624).
+///
+/// With a generated deck this session, the answer comes from the
+/// current card; otherwise an honest empty state shows — never the
+/// design's sample card.
 class StudyCardBackScreen extends ConsumerStatefulWidget {
   const StudyCardBackScreen({super.key});
 
@@ -28,11 +34,33 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
   @override
   Widget build(BuildContext context) {
     final cards = ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
-    final index = cards.isEmpty
-        ? 0
-        : ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
-    final card = cards.isEmpty ? null : cards[index];
-    final counter = cards.isEmpty ? '04 / 20' : '${index + 1} / ${cards.length}';
+    if (cards.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Study flashcards', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.style_outlined,
+                  title: 'No flashcards yet',
+                  message:
+                      'Generate flashcards from a document to study them here.',
+                  actionLabel: 'Generate flashcards',
+                  onAction: () => context.push(AppRoutes.generationSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final reviewed = ref.watch(cardRatingsProvider).length;
+    final index = ref.watch(studyCardIndexProvider).clamp(0, cards.length - 1);
+    final card = cards[index];
+    final counter = '${index + 1} / ${cards.length}';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -44,6 +72,16 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                 child: Column(
                   children: [
                     StudySessionHeader(
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName:
+                            job.source?.document.originalFileName,
+                      ),
+                      subtitle:
+                          '${config.language} · ${cards.length} flashcards',
+                      index: index,
+                      total: cards.length,
+                      reviewed: reviewed,
                       shuffleOn: _shuffleOn,
                       bookmarked: _bookmarked,
                       onShuffleTap: () =>
@@ -54,11 +92,9 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: _AnswerCard(
-                        question: card?.front ??
-                            'What is the basic unit of life?',
-                        answer: card?.back ?? 'The cell.',
-                        explanation: card?.explanation ??
-                            'Each cell contains structures that work together to support its functions.',
+                        question: card.front,
+                        answer: card.back,
+                        explanation: card.explanation ?? '',
                         counter: counter,
                         onShowQuestion: () => context.pop(),
                       ),

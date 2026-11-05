@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,11 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../ai_generation/presentation/widgets/generation_source_card.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../widgets/quiz_progress.dart';
 import '../widgets/quiz_source_card.dart';
 
@@ -13,35 +19,57 @@ import '../widgets/quiz_source_card.dart';
 /// "SI Buddy · Quiz History" (5:6367): the quiz and its source
 /// document, followed by the previous attempts with review and
 /// retry actions for each attempt.
-class QuizHistoryScreen extends StatelessWidget {
+///
+/// Quiz attempts are not persisted yet, so the only attempt shown
+/// is this session's quiz, scored from its real answers. Without
+/// a quiz it shows an honest empty state — never sample attempts.
+class QuizHistoryScreen extends ConsumerWidget {
   const QuizHistoryScreen({super.key});
 
-  static const _attempts = [
-    _Attempt(
-      date: '16 Oct 2026 · 9:41 AM',
-      latest: true,
-      score: '7 / 10',
-      percent: '70%',
-      duration: '6m 24s',
-    ),
-    _Attempt(
-      date: '15 Oct 2026 · 6:20 PM',
-      latest: false,
-      score: '6 / 10',
-      percent: '60%',
-      duration: '7m 12s',
-    ),
-    _Attempt(
-      date: '14 Oct 2026 · 8:05 PM',
-      latest: false,
-      score: '5 / 10',
-      percent: '50%',
-      duration: '8m 03s',
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final questions = result?.questions ?? const [];
+    if (questions.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: 'Quiz history', onBack: () => context.pop()),
+              Expanded(
+                child: EmptyState(
+                  icon: Icons.history_outlined,
+                  title: 'No quiz history yet',
+                  message:
+                      'Take a generated quiz to see your attempts and scores here.',
+                  actionLabel: 'Generate a quiz',
+                  onAction: () => context.push(AppRoutes.quizSetup),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final correct = questions
+        .where((q) =>
+            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .length;
+    final total = questions.length;
+    final percent = total == 0 ? 0 : (correct * 100 ~/ total);
+    final source = job.source;
+    final subject = ref.watch(extractionProvider).subject;
+    final attempt = _Attempt(
+      date: 'This session',
+      latest: true,
+      score: '$correct / $total',
+      percent: '$percent%',
+      duration: 'Not tracked',
+    );
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -54,13 +82,26 @@ class QuizHistoryScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const QuizIdentity(
-                      title: 'Cell structures',
-                      meta: 'Biology · 10 questions · Medium · Mixed',
+                    QuizIdentity(
+                      title: generatedMaterialTitle(
+                        config: config,
+                        documentName: source?.document.originalFileName,
+                      ),
+                      meta:
+                          '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
                       titleStyle: AppTextStyles.display,
                     ),
                     const SizedBox(height: 16),
-                    const QuizSourceCard(),
+                    QuizSourceCard(
+                      title: source?.document.originalFileName,
+                      subtitle: source == null
+                          ? null
+                          : generationSourceSubtitle(
+                              document: source.document,
+                              subject: subject,
+                            ),
+                      formatLabel: source?.document.format.label,
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -73,7 +114,7 @@ class QuizHistoryScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '3 attempts',
+                          '1 attempt',
                           style: AppTextStyles.body.copyWith(
                             fontSize: 12,
                             height: 18 / 12,
@@ -83,10 +124,7 @@ class QuizHistoryScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    for (var i = 0; i < _attempts.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 12),
-                      _AttemptCard(attempt: _attempts[i]),
-                    ],
+                    _AttemptCard(attempt: attempt),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +158,8 @@ class QuizHistoryScreen extends StatelessWidget {
   }
 }
 
-/// Mock data for one previous quiz attempt.
+/// One quiz attempt: this session's quiz, scored from its real
+/// answers. Duration is not tracked yet, so it says so.
 class _Attempt {
   const _Attempt({
     required this.date,

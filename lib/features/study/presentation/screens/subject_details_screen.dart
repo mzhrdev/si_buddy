@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,10 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../widgets/study_material_row.dart';
 import '../widgets/study_progress_track.dart';
 
@@ -13,11 +18,46 @@ import '../widgets/study_progress_track.dart';
 /// "SI Buddy · Subject Details" (5:11584): subject identity, the
 /// flashcard mastery card, study shortcuts, and the subject's
 /// materials.
-class SubjectDetailsScreen extends StatelessWidget {
+///
+/// The materials are this session's generated deck and quiz, with
+/// mastery from this session's ratings. Without any, the materials
+/// section shows an honest empty state — never the design's sample
+/// rows.
+class SubjectDetailsScreen extends ConsumerWidget {
   const SubjectDetailsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(lastGenerationResultProvider);
+    final config = ref.watch(generationConfigProvider);
+    final job = ref.watch(generationJobProvider);
+    final ratings = ref.watch(cardRatingsProvider);
+    final answers = ref.watch(quizAnswersProvider);
+    final shortAnswers = ref.watch(quizShortAnswersProvider);
+    final subject = ref.watch(extractionProvider).subject;
+    final cards = result?.flashcards ?? const [];
+    final questions = result?.questions ?? const [];
+    final title = generatedMaterialTitle(
+      config: config,
+      documentName: job.source?.document.originalFileName,
+    );
+    final mastered = ratings.values.where((r) => r == 'Easy').length;
+    final learning = ratings.values.where((r) => r == 'Medium').length;
+    final difficult = ratings.values.where((r) => r == 'Hard').length;
+    final reviewed = ratings.length;
+    final toReview = cards.length - mastered;
+    final answered = questions
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false),
+        )
+        .length;
+    final correct = questions
+        .where((q) =>
+            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .length;
+    final itemCount = (cards.isNotEmpty ? 1 : 0) + (questions.isNotEmpty ? 1 : 0);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -27,9 +67,9 @@ class SubjectDetailsScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
                 children: [
-                  const Text(
-                    'Biology',
-                    style: TextStyle(
+                  Text(
+                    subject ?? 'All subjects',
+                    style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -39,12 +79,19 @@ class SubjectDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '4 study materials · Semester 1',
+                  Text(
+                    '$itemCount study material${itemCount == 1 ? '' : 's'}',
                     style: AppTextStyles.greeting,
                   ),
                   const SizedBox(height: 16),
-                  const _MasteryCard(),
+                  _MasteryCard(
+                    total: cards.length,
+                    mastered: mastered,
+                    learning: learning,
+                    difficult: difficult,
+                    reviewed: reviewed,
+                    title: title,
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -64,7 +111,11 @@ class SubjectDetailsScreen extends StatelessWidget {
                           style: FilledButton.styleFrom(
                             minimumSize: const Size.fromHeight(48),
                           ),
-                          child: const Text('Review 8 cards'),
+                          child: Text(
+                            toReview > 0
+                                ? 'Review $toReview cards'
+                                : 'Review cards',
+                          ),
                         ),
                       ),
                     ],
@@ -78,64 +129,64 @@ class SubjectDetailsScreen extends StatelessWidget {
                           style: AppTextStyles.title,
                         ),
                       ),
-                      Text('4 items', style: AppTextStyles.link),
+                      Text('$itemCount items', style: AppTextStyles.link),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/layers.svg',
-                    typeLabel: 'DECK',
-                    title: 'Cell structures',
-                    meta: '20 cards · 12 mastered · 3 difficult',
-                    verticalPadding: 7,
-                    onTap: () => context.push(AppRoutes.deck),
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/list_checks.svg',
-                    typeLabel: 'QUIZ',
-                    title: 'Cell structures',
-                    meta: '10 questions · Latest score 7/10',
-                    verticalPadding: 7,
-                    onTap: () => context.push(AppRoutes.history),
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/file_text.svg',
-                    typeLabel: 'SUMMARY',
-                    title: 'Cell Biology · Chapter 4',
-                    meta: 'Read 3 of 5 sections',
-                    verticalPadding: 7,
-                    // TODO(backend): open the generated summary.
-                    onTap: () {},
-                  ),
-                  StudyMaterialRow(
-                    iconAsset: 'assets/icons/figma/bookmark.svg',
-                    typeLabel: 'SAVED QUESTIONS',
-                    title: 'Membranes & organelles',
-                    meta: '4 questions · 2 reviewed',
-                    verticalPadding: 7,
-                    onTap: () => context.push(AppRoutes.revision),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/figma/circle_check.svg',
-                        width: 14,
-                        height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.primary,
-                          BlendMode.srcIn,
-                        ),
+                  if (cards.isNotEmpty)
+                    StudyMaterialRow(
+                      iconAsset: 'assets/icons/figma/layers.svg',
+                      typeLabel: 'DECK',
+                      title: title,
+                      meta:
+                          '${cards.length} cards · $mastered mastered · $difficult difficult',
+                      verticalPadding: 7,
+                      onTap: () => context.push(AppRoutes.deck),
+                    ),
+                  if (questions.isNotEmpty)
+                    StudyMaterialRow(
+                      iconAsset: 'assets/icons/figma/list_checks.svg',
+                      typeLabel: 'QUIZ',
+                      title: title,
+                      meta: answered > 0
+                          ? '${questions.length} questions · Latest score $correct/${questions.length}'
+                          : '${questions.length} questions · Not taken yet',
+                      verticalPadding: 7,
+                      onTap: () => context.push(AppRoutes.history),
+                    ),
+                  if (itemCount == 0)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: EmptyState(
+                        icon: Icons.school_outlined,
+                        title: 'No study materials yet',
+                        message:
+                            'Generate flashcards or a quiz from a document to see them here.',
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Saved on this device · Available offline',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.primary,
+                    ),
+                  if (itemCount > 0) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/figma/circle_check.svg',
+                          width: 14,
+                          height: 14,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Saved on this device · Available offline',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -148,9 +199,24 @@ class SubjectDetailsScreen extends StatelessWidget {
 
 /// White bordered card with the flashcard mastery progress: heading,
 /// progress track, the mastered/learning/difficult breakdown, and a
-/// footnote about the last session.
+/// footnote about this session's reviews — all from this session's
+/// ratings.
 class _MasteryCard extends StatelessWidget {
-  const _MasteryCard();
+  const _MasteryCard({
+    required this.total,
+    required this.mastered,
+    required this.learning,
+    required this.difficult,
+    required this.reviewed,
+    required this.title,
+  });
+
+  final int total;
+  final int mastered;
+  final int learning;
+  final int difficult;
+  final int reviewed;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -172,28 +238,32 @@ class _MasteryCard extends StatelessWidget {
                   style: AppTextStyles.itemTitle,
                 ),
               ),
-              Text('12 / 20 mastered', style: AppTextStyles.link),
+              Text('$mastered / $total mastered', style: AppTextStyles.link),
             ],
           ),
           const SizedBox(height: 10),
-          const StudyProgressTrack(fraction: 12 / 20),
+          StudyProgressTrack(
+            fraction: total == 0 ? 0 : mastered / total,
+          ),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             children: [
               Expanded(
-                child: _MasteryMetric(value: '12', label: 'Mastered'),
+                child: _MasteryMetric(value: '$mastered', label: 'Mastered'),
               ),
               Expanded(
-                child: _MasteryMetric(value: '5', label: 'Learning'),
+                child: _MasteryMetric(value: '$learning', label: 'Learning'),
               ),
               Expanded(
-                child: _MasteryMetric(value: '3', label: 'Difficult'),
+                child: _MasteryMetric(value: '$difficult', label: 'Difficult'),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Cell structures · 20/20 reviewed last session',
+          Text(
+            total == 0
+                ? 'No deck generated yet'
+                : '$title · $reviewed/$total reviewed this session',
             style: AppTextStyles.caption,
           ),
         ],

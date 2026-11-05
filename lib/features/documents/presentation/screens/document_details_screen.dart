@@ -7,6 +7,8 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
 import '../widgets/privacy_reassurance.dart';
@@ -19,9 +21,10 @@ import '../widgets/privacy_reassurance.dart';
 /// (Rename / Export / Delete).
 ///
 /// When opened from the library with a selected document, every
-/// field comes from the saved record and its saved extraction;
-/// study sets honestly read 0 until deck/quiz persistence exists.
-/// Opened without a selection it keeps the design's sample content.
+/// field comes from the saved record and its saved extraction; the
+/// study-set rows show only this session's generation for this
+/// document. Opened without a selection it shows an honest empty
+/// state — never the design's sample content.
 class DocumentDetailsScreen extends ConsumerWidget {
   const DocumentDetailsScreen({super.key});
 
@@ -69,6 +72,13 @@ class DocumentDetailsScreen extends ConsumerWidget {
         (section) => section.trim().isNotEmpty,
         orElse: () => '',
       );
+      // This session's study sets for this document, when the last
+      // generation was from it; otherwise none (persistence does not
+      // exist yet, so sets from earlier sessions are not known).
+      final result = ref.watch(lastGenerationResultProvider);
+      final config = ref.watch(generationConfigProvider);
+      final setsForThisDoc =
+          result != null && result.documentId == document.id;
       return _DetailsScaffold(
         title: documentDisplayName(document),
         subjectChip: 'Saved on this device',
@@ -83,6 +93,12 @@ class DocumentDetailsScreen extends ConsumerWidget {
             : preview.isEmpty
                 ? 'No readable text was extracted from this document (for example, a scanned, image-only PDF — OCR did not find any readable text).'
                 : preview,
+        deckCount: setsForThisDoc ? result.flashcards.length : 0,
+        quizCount: setsForThisDoc ? result.questions.length : 0,
+        setsTitle: generatedMaterialTitle(
+          config: config,
+          documentName: document.originalFileName,
+        ),
         onViewAll: extracted == null
             ? null
             : () {
@@ -114,21 +130,25 @@ class DocumentDetailsScreen extends ConsumerWidget {
         },
       );
     }
-    return _DetailsScaffold(
-      title: 'Cell Biology - Chapter 4.pdf',
-      subjectChip: 'Biology',
-      originalFormat: 'PDF',
-      originalMeta: 'PDF · 2.4 MB · 12 pages',
-      previewTitle: 'Cell Biology',
-      previewPageLabel: 'Page 1 of 12',
-      previewText:
-          'Cells are the basic unit of life. Each cell contains structures that work together to support its functions.',
-      onViewAll: () => context.push(AppRoutes.extractionReview),
-      onRename: () {},
-      onExport: () {},
-      onDelete: () => context.push(AppRoutes.deleteFile),
-      onOpenOriginal: () {},
-      sampleStudySets: true,
+    // Opened without a selection (only reachable by opening the
+    // route directly): an honest empty state, never the design's
+    // sample document.
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            AppHeader(title: 'Document details', onBack: () => context.pop()),
+            const Expanded(
+              child: EmptyState(
+                icon: Icons.description_outlined,
+                title: 'No document selected',
+                message: 'Choose a document in the library to see its details.',
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -167,8 +187,8 @@ class DocumentDetailsScreen extends ConsumerWidget {
   }
 }
 
-/// Shared details layout, parameterised so the sample (no-selection)
-/// and real-document renderings stay visually identical.
+/// Shared details layout, parameterised so the real-document
+/// rendering shows its fields and its study sets.
 class _DetailsScaffold extends StatelessWidget {
   const _DetailsScaffold({
     required this.title,
@@ -183,7 +203,9 @@ class _DetailsScaffold extends StatelessWidget {
     required this.onExport,
     required this.onDelete,
     required this.onOpenOriginal,
-    this.sampleStudySets = false,
+    this.deckCount = 0,
+    this.quizCount = 0,
+    this.setsTitle = '',
   });
 
   final String title;
@@ -198,7 +220,16 @@ class _DetailsScaffold extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onDelete;
   final VoidCallback onOpenOriginal;
-  final bool sampleStudySets;
+
+  /// Flashcards generated from this document this session (0 when
+  /// none were, or when the last generation was from another file).
+  final int deckCount;
+
+  /// Quiz questions generated from this document this session.
+  final int quizCount;
+
+  /// Title for the study-set rows (topic, or the file name).
+  final String setsTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -303,27 +334,30 @@ class _DetailsScaffold extends StatelessWidget {
                     children: [
                       Text('Associated study sets', style: AppTextStyles.title),
                       Text(
-                        sampleStudySets ? '2 sets' : '0 sets',
+                        '${(deckCount > 0 ? 1 : 0) + (quizCount > 0 ? 1 : 0)} sets',
                         style: AppTextStyles.caption,
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  if (sampleStudySets) ...[
+                  if (deckCount > 0) ...[
                     _StudySetRow(
                       iconAsset: 'assets/icons/figma/gallery_vertical_end.svg',
-                      title: 'Cell structures',
-                      subtitle: '20 flashcards · Studied 20 min ago',
+                      title: setsTitle,
+                      subtitle: '$deckCount flashcards',
                       onTap: () => context.push(AppRoutes.deck),
                     ),
                     const SizedBox(height: 10),
+                  ],
+                  if (quizCount > 0) ...[
                     _StudySetRow(
                       iconAsset: 'assets/icons/figma/list_checks.svg',
-                      title: 'Cell structures',
-                      subtitle: '10-question quiz · Created yesterday',
+                      title: setsTitle,
+                      subtitle: '$quizCount-question quiz',
                       onTap: () => context.push(AppRoutes.history),
                     ),
-                  ] else
+                  ],
+                  if (deckCount == 0 && quizCount == 0)
                     Text(
                       'No study sets generated yet for this document.',
                       style: AppTextStyles.muted,

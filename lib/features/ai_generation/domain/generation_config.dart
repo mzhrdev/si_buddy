@@ -18,6 +18,16 @@ enum GenerationMaterialType {
   /// The chip label as shown on the setup screen.
   final String label;
 
+  /// The countable noun for sentences ('20 flashcards',
+  /// '20 MCQs', '20 true/false questions', …).
+  String get materialNoun => switch (this) {
+    GenerationMaterialType.flashcards => 'flashcards',
+    GenerationMaterialType.mcqs => 'MCQs',
+    GenerationMaterialType.trueFalse => 'true/false questions',
+    GenerationMaterialType.shortAnswers => 'short answers',
+    GenerationMaterialType.summaries => 'summaries',
+  };
+
   /// Whether this type produces quiz questions (routed to
   /// `GenerationRepository.generateQuiz`) rather than flashcards.
   bool get isQuiz =>
@@ -41,8 +51,11 @@ enum GenerationDifficulty {
 /// Immutable generation configuration: exactly the state of the
 /// generation setup screen.
 ///
-/// Defaults are the design's defaults — Flashcards, 20 items, Medium,
-/// topic "Cell structures", language "English", explanations on.
+/// Defaults are the design's defaults — Flashcards, 20 items,
+/// Medium, language "English", explanations on. The topic has no
+/// default: the topic picker is not built yet, so it stays empty
+/// until the user picks one (it used to default to the design's
+/// sample topic, which leaked sample data into prompts and titles).
 class GenerationConfig {
   const GenerationConfig({
     this.materialType = GenerationMaterialType.flashcards,
@@ -62,8 +75,8 @@ class GenerationConfig {
   /// The design's default count.
   static const int defaultCount = 20;
 
-  /// The design's default topic.
-  static const String defaultTopic = 'Cell structures';
+  /// No topic chosen yet (the topic picker is not built).
+  static const String defaultTopic = '';
 
   /// The design's default language.
   static const String defaultLanguage = 'English';

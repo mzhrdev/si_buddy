@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Session-only study state for a generation result. Nothing here
 /// is persisted: decks, cards and quiz answers live for this app
-/// session only, until deck/quiz persistence lands. Screens fall
-/// back to their design sample content when no result exists.
+/// session only, until deck/quiz persistence lands. Screens show an
+/// honest empty state when no result exists.
 
 /// Index of the flashcard currently shown by the study card
 /// screens, into the latest generation's flashcards list.
