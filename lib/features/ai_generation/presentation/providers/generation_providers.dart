@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../documents/domain/document_models.dart';
+import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../../study/presentation/providers/study_providers.dart';
 import '../../data/edge_ai_engine.dart';
 import '../../data/flutter_edge_ai_engine.dart';
@@ -10,6 +11,7 @@ import '../../data/generation_repository_impl.dart';
 import '../../domain/generation_config.dart';
 import '../../domain/generation_models.dart';
 import '../../domain/generation_repository.dart';
+import 'study_session_providers.dart';
 
 /// The on-device AI runtime seam the whole app runs on.
 ///
@@ -196,9 +198,8 @@ class GenerationJobState {
       },
       JobStageStatus.active => switch (stage) {
         GenerationStage.sourceTextReady => 'Preparing your reviewed text',
-        GenerationStage.localGeneration => topic.isEmpty
-            ? 'Building $noun'
-            : 'Building $noun about $topic',
+        GenerationStage.localGeneration =>
+          topic.isEmpty ? 'Building $noun' : 'Building $noun about $topic',
         GenerationStage.checkAndSave => 'Checking and saving your material',
       },
       JobStageStatus.upcoming => switch (stage) {
@@ -343,15 +344,82 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     return true;
   }
 
+  /// Loads a persisted deck as the current session result, so the
+  /// deck overview, study cards and quiz screens — which all read
+  /// the session result — can open any deck from the library or
+  /// Home, not just the one generated this session. Returns false
+  /// when the deck (or its document's extracted text) no longer
+  /// exists.
+  ///
+  /// With [resume] true, an unfinished quiz attempt's recorded
+  /// answers are restored into the session, so Continue resumes
+  /// where the user left off; otherwise the session starts clean.
+  Future<bool> loadDeck(int deckId, {bool resume = false}) async {
+    final studyRepository = ref.read(studyRepositoryProvider);
+    final deck = await studyRepository.getDeck(deckId);
+    if (deck == null) return false;
+    final source = await ref
+        .read(documentRepositoryProvider)
+        .getExtractedDocument(deck.documentId);
+    if (source == null) return false;
+    final flashcards = await studyRepository.getFlashcards(deckId);
+    final questions = await studyRepository.getQuestions(deckId);
+    final result = GenerationResult(
+      documentId: deck.documentId,
+      flashcards: [for (final card in flashcards) card.asGenerated],
+      questions: [for (final question in questions) question.asGenerated],
+    );
+    final config = GenerationConfig(
+      materialType: deck.materialType,
+      count: deck.totalItems,
+      documentId: deck.documentId,
+    );
+    // Reset the session to the deck's start; resume restores the
+    // unfinished attempt's answers instead.
+    ref.read(studyCardIndexProvider.notifier).reset();
+    ref.read(reviewIndexProvider.notifier).reset();
+    ref.read(cardRatingsProvider.notifier).clear();
+    ref.read(quizAnswersProvider.notifier).clear();
+    ref.read(quizShortAnswersProvider.notifier).clear();
+    if (resume) {
+      final attempt = await studyRepository.getIncompleteAttempt(deckId);
+      if (attempt != null) {
+        final answers = await studyRepository.getAnswers(attempt.id);
+        final questionsById = {
+          for (final question in questions) question.id: question,
+        };
+        for (final answer in answers) {
+          final question = questionsById[answer.questionId];
+          if (question == null) continue;
+          if (answer.selectedIndex != null) {
+            ref
+                .read(quizAnswersProvider.notifier)
+                .answer(question.prompt, answer.selectedIndex!);
+          } else if (answer.answerText != null) {
+            ref
+                .read(quizShortAnswersProvider.notifier)
+                .answer(question.prompt, answer.answerText!);
+          }
+        }
+      }
+    }
+    state = GenerationJobState(
+      status: GenerationJobStatus.completed,
+      config: config,
+      source: source,
+      result: result,
+      deckId: deckId,
+    );
+    return true;
+  }
+
   /// Replaces one flashcard in the completed result (the card
   /// editor's Save), and writes the same edit to the persisted
   /// deck when the result was saved. Returns false when there is
   /// no completed result or the index is out of range.
   bool updateFlashcard(int index, String front, String back) {
     final result = state.result;
-    if (result == null ||
-        index < 0 ||
-        index >= result.flashcards.length) {
+    if (result == null || index < 0 || index >= result.flashcards.length) {
       return false;
     }
     final cards = List<GeneratedFlashcard>.of(result.flashcards);

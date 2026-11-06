@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../../model_management/presentation/providers/model_providers.dart';
+import '../../../study/domain/study_models.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../../domain/home_models.dart';
 
 /// Time-aware greeting shown above the dashboard headline,
@@ -17,58 +18,74 @@ final greetingProvider = Provider<String>((ref) {
   return '$part, study buddy';
 });
 
-/// Dashboard content, built from live sources where they exist.
+/// Dashboard content, built from live sources only.
 ///
-/// - Recent documents: the real library stream, newest first.
-/// - "Pick up where you left off": the most recent generation's
-///   flashcards, when one exists this session. Decks ARE persisted
-///   now (schema v2), but this provider still reads the session
-///   result — Phase 3 wires Home to the persisted deck stream.
-/// - Study progress: study sessions, minutes and streaks are now
-///   tracked in the database (see `studyStatsProvider`), but this
-///   provider still reports 0 until Phase 3 wires Home to it.
 /// - Model status: the model provider's last known state. It is
 ///   probed once at startup and on every resume (see `MyApp`), so
 ///   a cold start reads the real state instead of "not installed".
+/// - Recent documents: the real library stream, newest first.
+/// - "Pick up where you left off": the most recent unfinished
+///   persisted deck (an open quiz attempt first, otherwise the
+///   newest unstudied or partly reviewed deck).
+/// - Study progress: genuine persisted statistics — cards reviewed,
+///   minutes studied today, streak — and the persisted daily goal.
+/// - History: the newest finished quiz attempts.
+///
+/// The state machine ([deriveHomeState]) decides which sections the
+/// screen shows; the provider only assembles the data.
 final homeDashboardProvider = Provider<HomeDashboardData>((ref) {
-  final documents = ref.watch(documentsStreamProvider).value ?? const [];
-  final result = ref.watch(lastGenerationResultProvider);
-  final config = ref.watch(generationConfigProvider);
   final modelReady = ref.watch(modelProvider).isReady;
+  final documents = ref.watch(documentsStreamProvider).value ?? const [];
+  final decks = ref.watch(decksStreamProvider).value ?? const [];
+  final stats = ref.watch(studyStatsProvider).value ?? StudyStats.empty;
+  final dailyGoal = ref.watch(dailyGoalMinutesProvider).value ?? 20;
+  final incomplete = ref.watch(incompleteActivityProvider).value;
+  final completed = ref.watch(completedAttemptsProvider).value ?? const [];
+
+  final summaries = [
+    for (final document in documents)
+      DocumentSummary(
+        id: document.id,
+        format: document.format.label,
+        title: documentDisplayName(document),
+        details:
+            '${document.format.label} · ${document.pageCount} ${document.format.unitLabel} · ${formatLibraryDate(document.createdAt)}',
+      ),
+  ];
   return HomeDashboardData(
+    state: deriveHomeState(
+      modelReady: modelReady,
+      documentCount: documents.length,
+      deckCount: decks.length,
+      incomplete: incomplete,
+      hasCompletedActivity:
+          stats.cardsReviewed > 0 || stats.quizzesCompleted > 0,
+    ),
     progress: StudyProgress(
-      cardsReviewed: 0,
-      minutesStudied: 0,
-      dailyGoalMinutes: 20,
-      streakDays: 0,
+      cardsReviewed: stats.cardsReviewed,
+      minutesStudied: stats.studiedTodayMinutes,
+      dailyGoalMinutes: dailyGoal,
+      streakDays: stats.streakDays,
       modelReady: modelReady,
     ),
-    documents: [
-      for (final document in documents)
-        DocumentSummary(
-          id: document.id,
-          format: document.format.label,
-          title: documentDisplayName(document),
-          details:
-              '${document.format.label} · ${document.pageCount} ${document.format.unitLabel} · ${formatLibraryDate(document.createdAt)}',
+    documents: summaries,
+    pickUp: incomplete == null
+        ? null
+        : PickUpItem(
+            deckId: incomplete.deck.id,
+            title: incomplete.deck.title,
+            isQuiz: incomplete.deck.isQuiz,
+            currentIndex: incomplete.currentIndex,
+            totalItems: incomplete.totalItems,
+          ),
+    history: [
+      for (final attempt in completed)
+        HistoryItem(
+          title: attempt.deckTitle,
+          subtitle:
+              '${attempt.attempt.score ?? 0}/${attempt.attempt.totalQuestions} · ${formatLibraryDate(attempt.attempt.completedAt ?? attempt.attempt.startedAt)}',
         ),
     ],
-    decks: result != null && result.flashcards.isNotEmpty
-        ? [
-            DeckSummary(
-              title: generatedMaterialTitle(
-                config: config,
-                documentName: ref
-                    .watch(generationJobProvider)
-                    .source
-                    ?.document
-                    .originalFileName,
-              ),
-              cardCount: result.flashcards.length,
-              dueCount: result.flashcards.length,
-              lastStudied: 'Just generated',
-            ),
-          ]
-        : const [],
+    nextStepDocument: summaries.isEmpty ? null : summaries.first,
   );
 });

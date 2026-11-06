@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -9,6 +10,8 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
+import '../../../study/domain/study_models.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
 import '../widgets/privacy_reassurance.dart';
@@ -22,9 +25,9 @@ import '../widgets/privacy_reassurance.dart';
 ///
 /// When opened from the library with a selected document, every
 /// field comes from the saved record and its saved extraction; the
-/// study-set rows show only this session's generation for this
-/// document. Opened without a selection it shows an honest empty
-/// state — never the design's sample content.
+/// study-set rows are the document's real persisted decks,
+/// clickable to study them. Opened without a selection it shows an
+/// honest empty state — never the design's sample content.
 class DocumentDetailsScreen extends ConsumerWidget {
   const DocumentDetailsScreen({super.key});
 
@@ -35,10 +38,9 @@ class DocumentDetailsScreen extends ConsumerWidget {
       final documentsAsync = ref.watch(documentsStreamProvider);
       final document = ref.watch(selectedDocumentProvider);
       final extractedAsync = ref.watch(selectedExtractedDocumentProvider);
+      final decksAsync = ref.watch(documentDecksProvider(selectedId));
       if (documentsAsync.isLoading) {
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
       if (document == null) {
         return Scaffold(
@@ -72,62 +74,38 @@ class DocumentDetailsScreen extends ConsumerWidget {
         (section) => section.trim().isNotEmpty,
         orElse: () => '',
       );
-      // This session's study sets for this document, when the last
-      // generation was from it; otherwise none (persistence does not
-      // exist yet, so sets from earlier sessions are not known).
-      final result = ref.watch(lastGenerationResultProvider);
-      final config = ref.watch(generationConfigProvider);
-      final setsForThisDoc =
-          result != null && result.documentId == document.id;
+      final decks = decksAsync.value ?? const [];
+      final allDocuments = documentsAsync.value ?? const [];
       return _DetailsScaffold(
         title: documentDisplayName(document),
         subjectChip: 'Saved on this device',
         originalFormat: document.format.label,
         originalMeta:
-            '${document.format.label} · ${formatFileSize(document.sizeBytes)} · ${document.pageCount} ${document.format.unitLabel}',
+            '${document.format.label} · ${formatFileSize(document.sizeBytes)} · ${document.pageCount} ${document.format.unitLabel} · Imported ${formatLibraryDate(document.createdAt)}',
         previewTitle: document.title,
         previewPageLabel:
             '${document.format == DocumentFormat.pdf ? 'Page' : 'Slide'} 1 of ${document.pageCount}',
         previewText: preview == null
             ? 'Loading extracted text…'
             : preview.isEmpty
-                ? 'No readable text was extracted from this document (for example, a scanned, image-only PDF — OCR did not find any readable text).'
-                : preview,
-        deckCount: setsForThisDoc ? result.flashcards.length : 0,
-        quizCount: setsForThisDoc ? result.questions.length : 0,
-        setsTitle: generatedMaterialTitle(
-          config: config,
-          documentName: document.originalFileName,
-        ),
+            ? 'No readable text was extracted from this document (for example, a scanned, image-only PDF — OCR did not find any readable text).'
+            : preview,
+        studySets: decks,
+        decksLoading: decksAsync.isLoading,
         onViewAll: extracted == null
             ? null
             : () {
-                ref
-                    .read(extractionProvider.notifier)
-                    .loadExisting(extracted);
+                ref.read(extractionProvider.notifier).loadExisting(extracted);
                 context.push(AppRoutes.extractionReview);
               },
-        onRename: () => _rename(context, ref, document),
-        onExport: () async {
-          final path = await ref
-              .read(documentRepositoryProvider)
-              .export(document.id);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Original saved on this device at $path'),
-              ),
-            );
-          }
-        },
-        onDelete: () => context.push(AppRoutes.deleteFile),
-        onOpenOriginal: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Original saved at ${document.storedPath}'),
-            ),
-          );
-        },
+        onOpenStudySet: (deck) => _openStudySet(context, ref, deck),
+        onGenerateFlashcards: () =>
+            _generateFromDocument(context, ref, document.id),
+        onGenerateQuiz: () =>
+            _generateQuizFromDocument(context, ref, document.id),
+        onRename: () => _rename(context, ref, document, allDocuments),
+        onExport: () => _export(context, ref, document),
+        onDelete: () => _delete(context, ref, document, decks.length),
       );
     }
     // Opened without a selection (only reachable by opening the
@@ -152,38 +130,195 @@ class DocumentDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _rename(
+  /// Opens a persisted deck in the study screens: loads it as the
+  /// current session result, then navigates to the deck overview
+  /// (flashcards) or the quiz (quiz decks).
+  static Future<void> _openStudySet(
+    BuildContext context,
+    WidgetRef ref,
+    StudyDeck deck,
+  ) async {
+    final loaded = await ref
+        .read(generationJobProvider.notifier)
+        .loadDeck(deck.id);
+    if (!context.mounted) return;
+    if (!loaded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('That study set is no longer available.')),
+      );
+      return;
+    }
+    context.push(deck.isQuiz ? AppRoutes.mcq : AppRoutes.deck);
+  }
+
+  static Future<void> _generateFromDocument(
+    BuildContext context,
+    WidgetRef ref,
+    int documentId,
+  ) async {
+    final bound = await bindDocumentAsGenerationSource(ref, documentId);
+    if (!context.mounted) return;
+    if (bound) {
+      context.push(AppRoutes.generationSetup);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This document has no readable text to generate from.'),
+        ),
+      );
+    }
+  }
+
+  static Future<void> _generateQuizFromDocument(
+    BuildContext context,
+    WidgetRef ref,
+    int documentId,
+  ) async {
+    final bound = await bindDocumentAsGenerationSource(ref, documentId);
+    if (!context.mounted) return;
+    if (bound) {
+      context.push(AppRoutes.quizSetup);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This document has no readable text to generate from.'),
+        ),
+      );
+    }
+  }
+
+  static Future<void> _rename(
+    BuildContext context,
+    WidgetRef ref,
+    Document document,
+    List<Document> allDocuments,
+  ) async {
+    final controller = TextEditingController(text: document.title);
+    String? error;
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Rename document'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Document title',
+              errorText: error,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final value = controller.text.trim();
+                if (value.isEmpty) {
+                  setState(() => error = 'Enter a title.');
+                  return;
+                }
+                if (value.toLowerCase() ==
+                    document.title.trim().toLowerCase()) {
+                  // Unchanged: close without writing.
+                  Navigator.of(dialogContext).pop();
+                  return;
+                }
+                final duplicate = allDocuments.any(
+                  (other) =>
+                      other.id != document.id &&
+                      other.title.trim().toLowerCase() == value.toLowerCase(),
+                );
+                if (duplicate) {
+                  setState(
+                    () => error = 'Another document already has this title.',
+                  );
+                  return;
+                }
+                Navigator.of(dialogContext).pop(value);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    if (newTitle == null || newTitle.isEmpty) {
+      return;
+    }
+    await ref.read(documentRepositoryProvider).rename(document.id, newTitle);
+  }
+
+  /// Shares the original file through the Android share sheet.
+  /// The internal storage path is never shown to the user.
+  static Future<void> _export(
     BuildContext context,
     WidgetRef ref,
     Document document,
   ) async {
-    final controller = TextEditingController(text: document.title);
-    final newTitle = await showDialog<String>(
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(document.storedPath)],
+          subject: document.originalFileName,
+        ),
+      );
+      if (!context.mounted) return;
+      if (result.status == ShareResultStatus.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Shared ${documentDisplayName(document)}')),
+        );
+      }
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Couldn\'t share ${documentDisplayName(document)}. Try again.',
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Deletes the document, its extracted text and its study sets
+  /// (the repository cascades the decks and removes the stored
+  /// file), after a confirmation dialog that says exactly what goes.
+  static Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Document document,
+    int studySetCount,
+  ) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Rename document'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Document title'),
+        title: const Text('Delete document?'),
+        content: Text(
+          'This deletes ${documentDisplayName(document)}, its extracted '
+          'text${studySetCount == 0 ? '' : ' and $studySetCount study set${studySetCount == 1 ? '' : 's'}'}. '
+          'This can\'t be undone.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text('Save'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Delete'),
           ),
         ],
       ),
     );
-    controller.dispose();
-    if (newTitle == null || newTitle.isEmpty || newTitle == document.title) {
-      return;
-    }
-    await ref.read(documentRepositoryProvider).rename(document.id, newTitle);
+    if (confirmed != true) return;
+    await ref.read(documentRepositoryProvider).delete(document.id);
+    ref.read(selectedDocumentIdProvider.notifier).clear();
+    if (context.mounted) context.pop();
   }
 }
 
@@ -202,10 +337,11 @@ class _DetailsScaffold extends StatelessWidget {
     required this.onRename,
     required this.onExport,
     required this.onDelete,
-    required this.onOpenOriginal,
-    this.deckCount = 0,
-    this.quizCount = 0,
-    this.setsTitle = '',
+    required this.studySets,
+    required this.decksLoading,
+    required this.onOpenStudySet,
+    required this.onGenerateFlashcards,
+    required this.onGenerateQuiz,
   });
 
   final String title;
@@ -219,17 +355,16 @@ class _DetailsScaffold extends StatelessWidget {
   final VoidCallback onRename;
   final VoidCallback onExport;
   final VoidCallback onDelete;
-  final VoidCallback onOpenOriginal;
 
-  /// Flashcards generated from this document this session (0 when
-  /// none were, or when the last generation was from another file).
-  final int deckCount;
+  /// The document's persisted decks, newest first.
+  final List<StudyDeck> studySets;
 
-  /// Quiz questions generated from this document this session.
-  final int quizCount;
+  /// True while the decks are still loading.
+  final bool decksLoading;
 
-  /// Title for the study-set rows (topic, or the file name).
-  final String setsTitle;
+  final void Function(StudyDeck deck) onOpenStudySet;
+  final VoidCallback onGenerateFlashcards;
+  final VoidCallback onGenerateQuiz;
 
   @override
   Widget build(BuildContext context) {
@@ -263,19 +398,10 @@ class _DetailsScaffold extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Saved on this device',
-                        style: AppTextStyles.caption,
-                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _OriginalFileCard(
-                    format: originalFormat,
-                    meta: originalMeta,
-                    onOpenOriginal: onOpenOriginal,
-                  ),
+                  _OriginalFileCard(format: originalFormat, meta: originalMeta),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -321,9 +447,7 @@ class _DetailsScaffold extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           previewText,
-                          style: AppTextStyles.muted.copyWith(
-                            height: 20 / 13,
-                          ),
+                          style: AppTextStyles.muted.copyWith(height: 20 / 13),
                         ),
                       ],
                     ),
@@ -334,34 +458,54 @@ class _DetailsScaffold extends StatelessWidget {
                     children: [
                       Text('Associated study sets', style: AppTextStyles.title),
                       Text(
-                        '${(deckCount > 0 ? 1 : 0) + (quizCount > 0 ? 1 : 0)} sets',
+                        '${studySets.length} set${studySets.length == 1 ? '' : 's'}',
                         style: AppTextStyles.caption,
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  if (deckCount > 0) ...[
-                    _StudySetRow(
-                      iconAsset: 'assets/icons/figma/gallery_vertical_end.svg',
-                      title: setsTitle,
-                      subtitle: '$deckCount flashcards',
-                      onTap: () => context.push(AppRoutes.deck),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  if (quizCount > 0) ...[
-                    _StudySetRow(
-                      iconAsset: 'assets/icons/figma/list_checks.svg',
-                      title: setsTitle,
-                      subtitle: '$quizCount-question quiz',
-                      onTap: () => context.push(AppRoutes.history),
-                    ),
-                  ],
-                  if (deckCount == 0 && quizCount == 0)
+                  if (decksLoading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (studySets.isEmpty) ...[
                     Text(
                       'No study sets generated yet for this document.',
                       style: AppTextStyles.muted,
                     ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: onGenerateFlashcards,
+                            child: const Text('Generate flashcards'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: onGenerateQuiz,
+                            child: const Text('Create quiz'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else
+                    for (final deck in studySets) ...[
+                      _StudySetRow(
+                        iconAsset: deck.isQuiz
+                            ? 'assets/icons/figma/list_checks.svg'
+                            : 'assets/icons/figma/gallery_vertical_end.svg',
+                        title: deck.title,
+                        subtitle: deck.isQuiz
+                            ? '${deck.totalItems}-question quiz'
+                            : '${deck.totalItems} flashcards',
+                        onTap: () => onOpenStudySet(deck),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                 ],
               ),
             ),
@@ -412,17 +556,13 @@ class _DetailsScaffold extends StatelessWidget {
   }
 }
 
-/// Card for the original file with its "Open original" action row.
+/// Card for the original file with its format, size, page count
+/// and import date. The internal storage path is never shown.
 class _OriginalFileCard extends StatelessWidget {
-  const _OriginalFileCard({
-    required this.format,
-    required this.meta,
-    required this.onOpenOriginal,
-  });
+  const _OriginalFileCard({required this.format, required this.meta});
 
   final String format;
   final String meta;
-  final VoidCallback onOpenOriginal;
 
   @override
   Widget build(BuildContext context) {
@@ -433,68 +573,42 @@ class _OriginalFileCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(format, style: AppTextStyles.badge),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Original file',
-                      style: AppTextStyles.body.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      meta,
-                      style: AppTextStyles.muted.copyWith(fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              SvgPicture.asset(
-                'assets/icons/figma/file_text.svg',
-                width: 18,
-                height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ],
+          Container(
+            width: 40,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(format, style: AppTextStyles.badge),
           ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: onOpenOriginal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Open original', style: AppTextStyles.link),
-                SvgPicture.asset(
-                  'assets/icons/figma/arrow_up_right.svg',
-                  width: 15,
-                  height: 15,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
+                Text(
+                  'Original file',
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 5),
+                Text(meta, style: AppTextStyles.muted.copyWith(fontSize: 12)),
               ],
+            ),
+          ),
+          SvgPicture.asset(
+            'assets/icons/figma/file_text.svg',
+            width: 18,
+            height: 18,
+            colorFilter: const ColorFilter.mode(
+              AppColors.primary,
+              BlendMode.srcIn,
             ),
           ),
         ],

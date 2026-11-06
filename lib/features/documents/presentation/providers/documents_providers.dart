@@ -68,12 +68,13 @@ final selectedDocumentProvider = Provider<Document?>((ref) {
 /// The selected document's extracted text, for the details screen's
 /// preview. Null while loading, when nothing is selected, or when
 /// the document has no saved extraction.
-final selectedExtractedDocumentProvider =
-    FutureProvider<ExtractedDocument?>((ref) async {
-      final id = ref.watch(selectedDocumentIdProvider);
-      if (id == null) return null;
-      return ref.watch(documentRepositoryProvider).getExtractedDocument(id);
-    });
+final selectedExtractedDocumentProvider = FutureProvider<ExtractedDocument?>((
+  ref,
+) async {
+  final id = ref.watch(selectedDocumentIdProvider);
+  if (id == null) return null;
+  return ref.watch(documentRepositoryProvider).getExtractedDocument(id);
+});
 
 /// Formats a date the way the library cards do: `16 Oct 2026`.
 String formatLibraryDate(DateTime date) {
@@ -319,15 +320,15 @@ class ExtractionState {
     final unit = file?.format.unitLabel ?? 'pages';
     return switch (statusOf(stage)) {
       StageStatus.complete => switch (stage) {
-        ExtractionStage.readingDocument =>
-          'Complete · $totalPages $unit found',
+        ExtractionStage.readingDocument => 'Complete · $totalPages $unit found',
         _ => 'Complete',
       },
       StageStatus.active => switch (stage) {
         ExtractionStage.readingDocument => 'Reading your document',
-        ExtractionStage.extractingText => ocrActive
-            ? 'Reading scanned page $currentPage of $totalPages'
-            : 'Processing page $currentPage of $totalPages',
+        ExtractionStage.extractingText =>
+          ocrActive
+              ? 'Reading scanned page $currentPage of $totalPages'
+              : 'Processing page $currentPage of $totalPages',
         ExtractionStage.preparingContent => 'Organizing text for review',
       },
       StageStatus.upcoming => switch (stage) {
@@ -463,3 +464,22 @@ final extractionProvider =
     NotifierProvider<ExtractionNotifier, ExtractionState>(
       ExtractionNotifier.new,
     );
+
+/// Loads a library document's saved extracted text as the
+/// generation source (the generation setup and quiz setup screens
+/// read it from [extractionProvider]), so any document can be the
+/// generation entry point — Home's next step, the details screen's
+/// generate actions, and Import's Recent Imports. Returns false
+/// when the document has no readable extracted text, in which case
+/// the caller should route to the document details instead.
+Future<bool> bindDocumentAsGenerationSource(
+  WidgetRef ref,
+  int documentId,
+) async {
+  final extracted = await ref
+      .read(documentRepositoryProvider)
+      .getExtractedDocument(documentId);
+  if (extracted == null || !extracted.hasText) return false;
+  ref.read(extractionProvider.notifier).loadExisting(extracted);
+  return true;
+}

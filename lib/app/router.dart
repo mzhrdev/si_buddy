@@ -33,7 +33,6 @@ import '../features/flashcards/presentation/screens/deck_overview_screen.dart';
 import '../features/flashcards/presentation/screens/session_summary_screen.dart';
 import '../features/flashcards/presentation/screens/study_card_back_screen.dart';
 import '../features/flashcards/presentation/screens/study_card_front_screen.dart';
-import '../features/home/presentation/screens/empty_home_screen.dart';
 import '../features/home/presentation/screens/home_dashboard_screen.dart';
 import '../features/model_management/presentation/screens/delete_model_confirmation_screen.dart';
 import '../features/model_management/presentation/screens/download_failed_screen.dart';
@@ -86,7 +85,6 @@ abstract final class AppRoutes {
   static const onboardingImport = '/onboarding/import';
   static const onboardingAi = '/onboarding/ai';
   static const onboardingPrivate = '/onboarding/private';
-  static const emptyHome = '/home/empty';
   static const importFiles = '/documents/import';
   static const selectedPreview = '/documents/preview';
   static const importLoading = '/documents/import-loading';
@@ -175,10 +173,7 @@ final appRouter = GoRouter(
       branches: [
         // Tab 0 · Home
         StatefulShellBranch(
-          routes: [
-            _route(AppRoutes.home, const HomeDashboardScreen()),
-            _route(AppRoutes.emptyHome, const EmptyHomeScreen()),
-          ],
+          routes: [_route(AppRoutes.home, const HomeDashboardScreen())],
         ),
         // Tab 1 · Library
         StatefulShellBranch(

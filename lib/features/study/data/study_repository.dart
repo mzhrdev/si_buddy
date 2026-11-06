@@ -55,10 +55,7 @@ abstract class StudyRepository {
   // -- Quiz attempts ----------------------------------------------
 
   /// Starts an attempt on a quiz deck and returns its id.
-  Future<int> startAttempt({
-    required int deckId,
-    required int totalQuestions,
-  });
+  Future<int> startAttempt({required int deckId, required int totalQuestions});
 
   /// Records (or replaces) one answer inside an attempt. Answers
   /// are written as the user gives them, so an interrupted quiz
@@ -89,10 +86,7 @@ abstract class StudyRepository {
   // -- Card reviews -------------------------------------------------
 
   /// Records one self-rating (Easy / Medium / Hard) on a flashcard.
-  Future<void> recordReview({
-    required int cardId,
-    required String rating,
-  });
+  Future<void> recordReview({required int cardId, required String rating});
 
   // -- Study sessions ----------------------------------------------
 
@@ -139,6 +133,16 @@ abstract class StudyRepository {
 
   /// Genuine study statistics computed from persisted rows only.
   Future<StudyStats> getStats();
+
+  /// The most recent unfinished study work, for "Pick up where you
+  /// left off": an unfinished quiz attempt first (the most recent
+  /// one), otherwise the most recent deck that was never studied.
+  /// Null when there is no unfinished work.
+  Future<IncompleteActivity?> getLatestIncompleteActivity();
+
+  /// Finished quiz attempts, newest first, with their deck titles —
+  /// the study history. Limited to [limit] entries.
+  Future<List<CompletedAttempt>> listCompletedAttempts({int limit = 5});
 }
 
 class StudyRepositoryImpl implements StudyRepository {
@@ -154,11 +158,8 @@ class StudyRepositoryImpl implements StudyRepository {
         orElse: () => GenerationMaterialType.flashcards,
       );
 
-  static QuizQuestionType _questionType(String name) =>
-      QuizQuestionType.values.firstWhere(
-        (e) => e.name == name,
-        orElse: () => QuizQuestionType.mcq,
-      );
+  static QuizQuestionType _questionType(String name) => QuizQuestionType.values
+      .firstWhere((e) => e.name == name, orElse: () => QuizQuestionType.mcq);
 
   static StudyDeck _toDeck(DbDeck row) => StudyDeck(
     id: row.id,
@@ -196,16 +197,15 @@ class StudyRepositoryImpl implements StudyRepository {
     );
   }
 
-  static QuizAttemptRecord _toAttempt(DbQuizAttempt row) =>
-      QuizAttemptRecord(
-        id: row.id,
-        deckId: row.deckId,
-        startedAt: row.startedAt,
-        completedAt: row.completedAt,
-        score: row.score,
-        totalQuestions: row.totalQuestions,
-        currentIndex: row.currentIndex,
-      );
+  static QuizAttemptRecord _toAttempt(DbQuizAttempt row) => QuizAttemptRecord(
+    id: row.id,
+    deckId: row.deckId,
+    startedAt: row.startedAt,
+    completedAt: row.completedAt,
+    score: row.score,
+    totalQuestions: row.totalQuestions,
+    currentIndex: row.currentIndex,
+  );
 
   static QuestionAnswerRecord _toAnswer(DbQuestionAnswer row) =>
       QuestionAnswerRecord(
@@ -307,27 +307,29 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<StudyDeck?> getDeck(int deckId) async {
-    final row = await (db.select(db.dbDecks)
-          ..where((t) => t.id.equals(deckId)))
-        .getSingleOrNull();
+    final row = await (db.select(
+      db.dbDecks,
+    )..where((t) => t.id.equals(deckId))).getSingleOrNull();
     return row == null ? null : _toDeck(row);
   }
 
   @override
   Future<List<StudyFlashcard>> getFlashcards(int deckId) async {
-    final rows = await (db.select(db.dbFlashcards)
-          ..where((t) => t.deckId.equals(deckId))
-          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
-        .get();
+    final rows =
+        await (db.select(db.dbFlashcards)
+              ..where((t) => t.deckId.equals(deckId))
+              ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+            .get();
     return rows.map(_toFlashcard).toList();
   }
 
   @override
   Future<List<StudyQuestion>> getQuestions(int deckId) async {
-    final rows = await (db.select(db.dbQuizQuestions)
-          ..where((t) => t.deckId.equals(deckId))
-          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
-        .get();
+    final rows =
+        await (db.select(db.dbQuizQuestions)
+              ..where((t) => t.deckId.equals(deckId))
+              ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+            .get();
     return rows.map(_toQuestion).toList();
   }
 
@@ -338,10 +340,9 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> updateFlashcard(int cardId, String front, String back) async {
-    await (db.update(db.dbFlashcards)..where((t) => t.id.equals(cardId)))
-        .write(
-          DbFlashcardsCompanion(front: Value(front), back: Value(back)),
-        );
+    await (db.update(db.dbFlashcards)..where((t) => t.id.equals(cardId))).write(
+      DbFlashcardsCompanion(front: Value(front), back: Value(back)),
+    );
   }
 
   // -- Quiz attempts --------------------------------------------------
@@ -370,24 +371,24 @@ class StudyRepositoryImpl implements StudyRepository {
     String? answerText,
     bool? isCorrect,
   }) async {
-    final existing = await (db.select(db.dbQuestionAnswers)
-          ..where(
-            (t) =>
-                t.attemptId.equals(attemptId) &
-                t.questionId.equals(questionId),
-          ))
-        .getSingleOrNull();
+    final existing =
+        await (db.select(db.dbQuestionAnswers)..where(
+              (t) =>
+                  t.attemptId.equals(attemptId) &
+                  t.questionId.equals(questionId),
+            ))
+            .getSingleOrNull();
     if (existing != null) {
-      await (db.update(db.dbQuestionAnswers)
-            ..where((t) => t.id.equals(existing.id)))
-          .write(
-            DbQuestionAnswersCompanion(
-              selectedIndex: Value(selectedIndex),
-              answerText: Value(answerText),
-              isCorrect: Value(isCorrect),
-              answeredAt: Value(DateTime.now()),
-            ),
-          );
+      await (db.update(
+        db.dbQuestionAnswers,
+      )..where((t) => t.id.equals(existing.id))).write(
+        DbQuestionAnswersCompanion(
+          selectedIndex: Value(selectedIndex),
+          answerText: Value(answerText),
+          isCorrect: Value(isCorrect),
+          answeredAt: Value(DateTime.now()),
+        ),
+      );
     } else {
       await db
           .into(db.dbQuestionAnswers)
@@ -406,53 +407,50 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> updateAttemptProgress(int attemptId, int currentIndex) async {
-    await (db.update(db.dbQuizAttempts)
-          ..where((t) => t.id.equals(attemptId)))
-        .write(
-          DbQuizAttemptsCompanion(currentIndex: Value(currentIndex)),
-        );
+    await (db.update(db.dbQuizAttempts)..where((t) => t.id.equals(attemptId)))
+        .write(DbQuizAttemptsCompanion(currentIndex: Value(currentIndex)));
   }
 
   @override
   Future<void> completeAttempt(int attemptId, int score) async {
-    await (db.update(db.dbQuizAttempts)
-          ..where((t) => t.id.equals(attemptId)))
-        .write(
-          DbQuizAttemptsCompanion(
-            completedAt: Value(DateTime.now()),
-            score: Value(score),
-          ),
-        );
+    await (db.update(
+      db.dbQuizAttempts,
+    )..where((t) => t.id.equals(attemptId))).write(
+      DbQuizAttemptsCompanion(
+        completedAt: Value(DateTime.now()),
+        score: Value(score),
+      ),
+    );
   }
 
   @override
   Future<QuizAttemptRecord?> getIncompleteAttempt(int deckId) async {
-    final row = await (db.select(db.dbQuizAttempts)
-          ..where(
-            (t) =>
-                t.deckId.equals(deckId) & t.completedAt.isNull(),
-          )
-          ..orderBy([(t) => OrderingTerm.desc(t.startedAt)])
-          ..limit(1))
-        .getSingleOrNull();
+    final row =
+        await (db.select(db.dbQuizAttempts)
+              ..where((t) => t.deckId.equals(deckId) & t.completedAt.isNull())
+              ..orderBy([(t) => OrderingTerm.desc(t.startedAt)])
+              ..limit(1))
+            .getSingleOrNull();
     return row == null ? null : _toAttempt(row);
   }
 
   @override
   Future<List<QuizAttemptRecord>> listAttemptsForDeck(int deckId) async {
-    final rows = await (db.select(db.dbQuizAttempts)
-          ..where((t) => t.deckId.equals(deckId))
-          ..orderBy([(t) => OrderingTerm.desc(t.startedAt)]))
-        .get();
+    final rows =
+        await (db.select(db.dbQuizAttempts)
+              ..where((t) => t.deckId.equals(deckId))
+              ..orderBy([(t) => OrderingTerm.desc(t.startedAt)]))
+            .get();
     return rows.map(_toAttempt).toList();
   }
 
   @override
   Future<List<QuestionAnswerRecord>> getAnswers(int attemptId) async {
-    final rows = await (db.select(db.dbQuestionAnswers)
-          ..where((t) => t.attemptId.equals(attemptId))
-          ..orderBy([(t) => OrderingTerm.asc(t.answeredAt)]))
-        .get();
+    final rows =
+        await (db.select(db.dbQuestionAnswers)
+              ..where((t) => t.attemptId.equals(attemptId))
+              ..orderBy([(t) => OrderingTerm.asc(t.answeredAt)]))
+            .get();
     return rows.map(_toAnswer).toList();
   }
 
@@ -495,15 +493,15 @@ class StudyRepositoryImpl implements StudyRepository {
     required int durationSeconds,
     required int cardsReviewed,
   }) async {
-    await (db.update(db.dbStudySessions)
-          ..where((t) => t.id.equals(sessionId)))
-        .write(
-          DbStudySessionsCompanion(
-            endedAt: Value(DateTime.now()),
-            durationSeconds: Value(durationSeconds),
-            cardsReviewed: Value(cardsReviewed),
-          ),
-        );
+    await (db.update(
+      db.dbStudySessions,
+    )..where((t) => t.id.equals(sessionId))).write(
+      DbStudySessionsCompanion(
+        endedAt: Value(DateTime.now()),
+        durationSeconds: Value(durationSeconds),
+        cardsReviewed: Value(cardsReviewed),
+      ),
+    );
   }
 
   // -- Revisions -----------------------------------------------------------
@@ -535,28 +533,25 @@ class StudyRepositoryImpl implements StudyRepository {
     String? note,
     bool? reminderEnabled,
   }) async {
-    await (db.update(db.dbRevisions)
-          ..where((t) => t.id.equals(revisionId)))
-        .write(
-          DbRevisionsCompanion(
-            scheduledAt: scheduledAt == null
-                ? const Value.absent()
-                : Value(scheduledAt),
-            note: note == null ? const Value.absent() : Value(note),
-            reminderEnabled: reminderEnabled == null
-                ? const Value.absent()
-                : Value(reminderEnabled),
-          ),
-        );
+    await (db.update(
+      db.dbRevisions,
+    )..where((t) => t.id.equals(revisionId))).write(
+      DbRevisionsCompanion(
+        scheduledAt: scheduledAt == null
+            ? const Value.absent()
+            : Value(scheduledAt),
+        note: note == null ? const Value.absent() : Value(note),
+        reminderEnabled: reminderEnabled == null
+            ? const Value.absent()
+            : Value(reminderEnabled),
+      ),
+    );
   }
 
   @override
   Future<void> completeRevision(int revisionId) async {
-    await (db.update(db.dbRevisions)
-          ..where((t) => t.id.equals(revisionId)))
-        .write(
-          DbRevisionsCompanion(completedAt: Value(DateTime.now())),
-        );
+    await (db.update(db.dbRevisions)..where((t) => t.id.equals(revisionId)))
+        .write(DbRevisionsCompanion(completedAt: Value(DateTime.now())));
   }
 
   @override
@@ -600,14 +595,14 @@ class StudyRepositoryImpl implements StudyRepository {
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final sessionsToday = sessions.where((s) {
+    final sessionsTodayList = sessions.where((s) {
       final day = DateTime(
         s.startedAt.year,
         s.startedAt.month,
         s.startedAt.day,
       );
       return day == today;
-    }).length;
+    }).toList();
 
     return StudyStats(
       totalFlashcardsGenerated: flashcards.length,
@@ -623,9 +618,101 @@ class StudyRepositoryImpl implements StudyRepository {
         0,
         (sum, s) => sum + s.durationSeconds,
       ),
-      sessionsToday: sessionsToday,
+      studiedTodaySeconds: sessionsTodayList.fold<int>(
+        0,
+        (sum, s) => sum + s.durationSeconds,
+      ),
+      sessionsToday: sessionsTodayList.length,
       streakDays: _streakDays(reviews, sessions, completed, now),
     );
+  }
+
+  @override
+  Future<IncompleteActivity?> getLatestIncompleteActivity() async {
+    // An unfinished quiz attempt first: the most recent one wins.
+    final open =
+        await (db.select(db.dbQuizAttempts)
+              ..where((t) => t.completedAt.isNull())
+              ..orderBy([(t) => OrderingTerm.desc(t.startedAt)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (open != null) {
+      final deck = await getDeck(open.deckId);
+      if (deck != null) {
+        return IncompleteActivity(
+          deck: deck,
+          kind: IncompleteActivityKind.quizIncomplete,
+          currentIndex: open.currentIndex,
+          totalItems: open.totalQuestions,
+        );
+      }
+    }
+    // Otherwise the most recent deck with unfinished work: a
+    // flashcard deck whose cards are not all reviewed, or a quiz
+    // deck with no attempt at all.
+    final decks = await (db.select(
+      db.dbDecks,
+    )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
+    for (final row in decks) {
+      final deck = _toDeck(row);
+      if (!deck.isQuiz) {
+        final cards = await (db.select(
+          db.dbFlashcards,
+        )..where((t) => t.deckId.equals(deck.id))).get();
+        if (cards.isEmpty) continue;
+        final cardIds = cards.map((c) => c.id).toList();
+        final reviews = await (db.select(
+          db.dbCardReviews,
+        )..where((t) => t.cardId.isIn(cardIds))).get();
+        final reviewed = reviews.map((r) => r.cardId).toSet().length;
+        if (reviewed < cards.length) {
+          return IncompleteActivity(
+            deck: deck,
+            kind: reviewed == 0
+                ? IncompleteActivityKind.notStarted
+                : IncompleteActivityKind.flashcardsInProgress,
+            currentIndex: reviewed,
+            totalItems: cards.length,
+          );
+        }
+      } else {
+        final attempts =
+            await (db.select(db.dbQuizAttempts)
+                  ..where((t) => t.deckId.equals(deck.id))
+                  ..limit(1))
+                .get();
+        if (attempts.isEmpty) {
+          return IncompleteActivity(
+            deck: deck,
+            kind: IncompleteActivityKind.notStarted,
+            currentIndex: 0,
+            totalItems: deck.totalItems,
+          );
+        }
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<List<CompletedAttempt>> listCompletedAttempts({int limit = 5}) async {
+    final rows =
+        await (db.select(db.dbQuizAttempts)
+              ..where((t) => t.completedAt.isNotNull())
+              ..orderBy([(t) => OrderingTerm.desc(t.completedAt)])
+              ..limit(limit))
+            .get();
+    final completed = <CompletedAttempt>[];
+    for (final row in rows) {
+      final deck = await getDeck(row.deckId);
+      completed.add(
+        CompletedAttempt(
+          attempt: _toAttempt(row),
+          deckTitle: deck?.title ?? 'Quiz',
+        ),
+      );
+    }
+    return completed;
   }
 
   /// Consecutive calendar days with recorded study activity, walking

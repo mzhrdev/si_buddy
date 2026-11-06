@@ -18,9 +18,15 @@ import '../providers/documents_providers.dart';
 /// screen. Nothing is generated until a study tool is chosen.
 ///
 /// When an extraction job has completed, the reader shows the real
-/// extracted text (one card per page/slide) and the document's real
-/// name and page count; opened without a result it shows an honest
-/// empty state — never the design's sample pages.
+/// extracted text (one card per text block) and the document's real
+/// name; opened without a result it shows an honest empty state —
+/// never the design's sample pages.
+///
+/// Page boundaries are not always reliable (a page's own text can
+/// contain blank lines, so the split produces more blocks than
+/// pages), so the page count here is the number of text blocks
+/// actually shown, not the document's page count. Each block can be
+/// edited in place; saving persists the edited text locally.
 class ExtractedTextReviewScreen extends ConsumerStatefulWidget {
   const ExtractedTextReviewScreen({super.key});
 
@@ -32,18 +38,88 @@ class ExtractedTextReviewScreen extends ConsumerStatefulWidget {
 class _ExtractedTextReviewScreenState
     extends ConsumerState<ExtractedTextReviewScreen> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _editController = TextEditingController();
+  final _pageKeys = <GlobalKey>[];
   int _currentPage = 1;
+  String _query = '';
+  int? _editingIndex;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _query = _searchController.text.trim().toLowerCase());
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
+    _editController.dispose();
     super.dispose();
   }
 
   void _goToPage(int page, int totalPages) {
+    final clamped = page.clamp(1, totalPages);
+    setState(() => _currentPage = clamped);
+    if (clamped - 1 < _pageKeys.length) {
+      final key = _pageKeys[clamped - 1];
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final context = key.currentContext;
+        if (context != null) {
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 300),
+            alignment: 0.0,
+          );
+        }
+      });
+    }
+  }
+
+  void _startEditing(int index, String text) {
     setState(() {
-      _currentPage = page.clamp(1, totalPages);
+      _editingIndex = index;
+      _editController.text = text;
     });
+  }
+
+  Future<void> _saveEdit(List<String> sections, int documentId) async {
+    final index = _editingIndex;
+    if (index == null || _saving) return;
+    setState(() => _saving = true);
+    final updated = List<String>.of(sections);
+    updated[index] = _editController.text;
+    try {
+      final repository = ref.read(documentRepositoryProvider);
+      await repository.updateExtractedText(documentId, updated.join('\n\n'));
+      final reloaded = await repository.getExtractedDocument(documentId);
+      if (reloaded != null) {
+        ref.read(extractionProvider.notifier).loadExisting(reloaded);
+      }
+      ref.invalidate(selectedExtractedDocumentProvider);
+      if (mounted) {
+        setState(() {
+          _editingIndex = null;
+          _saving = false;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Extracted text saved.')));
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Couldn\'t save the edited text. Try again.'),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -73,10 +149,24 @@ class _ExtractedTextReviewScreenState
         ),
       );
     }
-    final totalPages = result.document.pageCount;
+    final sections = result.sections;
+    // The blocks actually shown are the pages: the document's page
+    // count can disagree with them when a page's text contains
+    // blank lines.
+    final totalPages = sections.isEmpty ? 1 : sections.length;
+    while (_pageKeys.length < totalPages) {
+      _pageKeys.add(GlobalKey());
+    }
     final fileName = result.document.originalFileName;
     final subject = extraction.subject ?? 'No subject';
     final currentPage = _currentPage.clamp(1, totalPages);
+    final searching = _query.isNotEmpty;
+    final matches = searching
+        ? [
+            for (var i = 0; i < sections.length; i++)
+              if (sections[i].toLowerCase().contains(_query)) i,
+          ]
+        : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -173,6 +263,18 @@ class _ExtractedTextReviewScreenState
                             ),
                           ),
                         ),
+                        if (searching)
+                          IconButton(
+                            onPressed: _searchController.clear,
+                            icon: const Icon(Icons.clear, size: 18),
+                            color: AppColors.muted,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 32,
+                              height: 32,
+                            ),
+                            padding: EdgeInsets.zero,
+                            tooltip: 'Clear search',
+                          ),
                       ],
                     ),
                   ),
@@ -188,23 +290,26 @@ class _ExtractedTextReviewScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Page $currentPage of $totalPages',
+                          searching
+                              ? '${matches!.length} match${matches.length == 1 ? '' : 'es'} for "$_query"'
+                              : 'Page $currentPage of $totalPages',
                           style: AppTextStyles.link,
                         ),
                         Row(
                           children: [
                             IconButton(
-                              onPressed: currentPage > 1
-                                  ? () => _goToPage(currentPage - 1, totalPages)
-                                  : null,
+                              onPressed: searching || currentPage <= 1
+                                  ? null
+                                  : () =>
+                                        _goToPage(currentPage - 1, totalPages),
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_left.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
-                                  currentPage > 1
-                                      ? AppColors.navInactive
-                                      : AppColors.border,
+                                  searching || currentPage <= 1
+                                      ? AppColors.border
+                                      : AppColors.navInactive,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -216,17 +321,18 @@ class _ExtractedTextReviewScreenState
                             ),
                             const SizedBox(width: 2),
                             IconButton(
-                              onPressed: currentPage < totalPages
-                                  ? () => _goToPage(currentPage + 1, totalPages)
-                                  : null,
+                              onPressed: searching || currentPage >= totalPages
+                                  ? null
+                                  : () =>
+                                        _goToPage(currentPage + 1, totalPages),
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_right.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
-                                  currentPage < totalPages
-                                      ? AppColors.navInactive
-                                      : AppColors.border,
+                                  searching || currentPage >= totalPages
+                                      ? AppColors.border
+                                      : AppColors.navInactive,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -242,17 +348,53 @@ class _ExtractedTextReviewScreenState
                     ),
                     const SizedBox(height: 10),
                     Expanded(
-                      child: ListView(
-                        children: [
-                          for (var i = 0; i < result.sections.length; i++)
-                            _ExtractedPageCard(
-                              page: i + 1,
-                              totalPages: totalPages,
-                              text: result.sections[i],
-                              isLast: i == result.sections.length - 1,
+                      child: searching && matches!.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No pages contain that text.',
+                                style: TextStyle(color: AppColors.muted),
+                              ),
+                            )
+                          : Builder(
+                              builder: (context) {
+                                final visibleIndices =
+                                    matches ??
+                                    List<int>.generate(
+                                      sections.length,
+                                      (j) => j,
+                                    );
+                                return ListView(
+                                  controller: _scrollController,
+                                  children: [
+                                    for (final i in visibleIndices)
+                                      _editingIndex == i
+                                          ? _EditPageCard(
+                                              key: _pageKeys[i],
+                                              page: i + 1,
+                                              totalPages: totalPages,
+                                              controller: _editController,
+                                              saving: _saving,
+                                              onSave: () => _saveEdit(
+                                                sections,
+                                                result.document.id,
+                                              ),
+                                              onCancel: () => setState(
+                                                () => _editingIndex = null,
+                                              ),
+                                            )
+                                          : _ExtractedPageCard(
+                                              key: _pageKeys[i],
+                                              page: i + 1,
+                                              totalPages: totalPages,
+                                              text: sections[i],
+                                              isLast: i == visibleIndices.last,
+                                              onEdit: () =>
+                                                  _startEditing(i, sections[i]),
+                                            ),
+                                  ],
+                                );
+                              },
                             ),
-                        ],
-                      ),
                     ),
                   ],
                 ),
@@ -266,26 +408,28 @@ class _ExtractedTextReviewScreenState
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/figma/arrow_down.svg',
-                        width: 12,
-                        height: 12,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.navInactive,
-                          BlendMode.srcIn,
+                  if (!searching) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/figma/arrow_down.svg',
+                          width: 12,
+                          height: 12,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.navInactive,
+                            BlendMode.srcIn,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Scroll to review all \$totalPages pages',
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Scroll to review all $totalPages pages',
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                   FilledButton(
                     onPressed: () => context.push(AppRoutes.extractionSuccess),
                     child: Row(
@@ -328,12 +472,15 @@ class _ExtractedPageCard extends StatelessWidget {
     required this.totalPages,
     required this.text,
     required this.isLast,
+    required this.onEdit,
+    super.key,
   });
 
   final int page;
   final int totalPages;
   final String text;
   final bool isLast;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -347,9 +494,18 @@ class _ExtractedPageCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Page $page of $totalPages',
-            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Page $page of $totalPages',
+                style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+              ),
+              GestureDetector(
+                onTap: onEdit,
+                child: Text('Edit', style: AppTextStyles.link),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Text(
@@ -358,6 +514,77 @@ class _ExtractedPageCard extends StatelessWidget {
               height: 22 / 14,
               color: text.isEmpty ? AppColors.muted : null,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The same card with the text editable: Save persists the edit
+/// locally, Cancel discards it.
+class _EditPageCard extends StatelessWidget {
+  const _EditPageCard({
+    required this.page,
+    required this.totalPages,
+    required this.controller,
+    required this.saving,
+    required this.onSave,
+    required this.onCancel,
+    super.key,
+  });
+
+  final int page;
+  final int totalPages;
+  final TextEditingController controller;
+  final bool saving;
+  final VoidCallback onSave;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Editing page $page of $totalPages',
+            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: controller,
+            maxLines: null,
+            autofocus: true,
+            style: AppTextStyles.body.copyWith(height: 22 / 14),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: saving ? null : onSave,
+                  child: Text(saving ? 'Saving…' : 'Save'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: saving ? null : onCancel,
+                  child: const Text('Cancel'),
+                ),
+              ),
+            ],
           ),
         ],
       ),

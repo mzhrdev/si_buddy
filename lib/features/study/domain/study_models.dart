@@ -52,11 +52,8 @@ class StudyFlashcard {
   final String? explanation;
   final int sortOrder;
 
-  GeneratedFlashcard get asGenerated => GeneratedFlashcard(
-    front: front,
-    back: back,
-    explanation: explanation,
-  );
+  GeneratedFlashcard get asGenerated =>
+      GeneratedFlashcard(front: front, back: back, explanation: explanation);
 }
 
 /// One persisted quiz question inside a deck, in generation order.
@@ -165,6 +162,54 @@ class StudySessionRecord {
   final String type;
 }
 
+/// What kind of unfinished study work a deck holds.
+enum IncompleteActivityKind {
+  /// A quiz attempt was started but never finished; the user can
+  /// resume from the attempt's current question.
+  quizIncomplete,
+
+  /// A deck was generated but never studied at all.
+  notStarted,
+
+  /// A flashcard deck was partly reviewed; some cards are still
+  /// unreviewed.
+  flashcardsInProgress,
+}
+
+/// The most recent unfinished study work, for "Pick up where you
+/// left off": one deck, what kind of work is outstanding, and how
+/// far along it is.
+class IncompleteActivity {
+  const IncompleteActivity({
+    required this.deck,
+    required this.kind,
+    required this.currentIndex,
+    required this.totalItems,
+  });
+
+  final StudyDeck deck;
+  final IncompleteActivityKind kind;
+
+  /// Resume position: the quiz attempt's current question index, or
+  /// 0 for a deck that was never started.
+  final int currentIndex;
+  final int totalItems;
+
+  /// Progress as a fraction, for the Pick Up card.
+  double get fraction =>
+      totalItems == 0 ? 0 : (currentIndex / totalItems).clamp(0.0, 1.0);
+}
+
+/// A finished quiz attempt with its deck, for the study history.
+class CompletedAttempt {
+  const CompletedAttempt({required this.attempt, required this.deckTitle});
+
+  final QuizAttemptRecord attempt;
+
+  /// The deck's title at read time.
+  final String deckTitle;
+}
+
 /// A scheduled revision of a deck (the planner's upcoming entries).
 class RevisionRecord {
   const RevisionRecord({
@@ -201,6 +246,7 @@ class StudyStats {
     required this.quizCompletionRate,
     required this.averageQuizScore,
     required this.totalStudySeconds,
+    required this.studiedTodaySeconds,
     required this.sessionsToday,
     required this.streakDays,
   });
@@ -230,6 +276,10 @@ class StudyStats {
   /// Tracked study time, in seconds.
   final int totalStudySeconds;
 
+  /// Tracked study time today (local calendar day), in seconds.
+  /// This is what the Home daily-goal bar measures against.
+  final int studiedTodaySeconds;
+
   /// Study sessions started today (local calendar day).
   final int sessionsToday;
 
@@ -242,6 +292,9 @@ class StudyStats {
   /// Tracked study time, in whole minutes.
   int get totalStudyMinutes => totalStudySeconds ~/ 60;
 
+  /// Tracked study time today, in whole minutes.
+  int get studiedTodayMinutes => studiedTodaySeconds ~/ 60;
+
   static const empty = StudyStats(
     totalFlashcardsGenerated: 0,
     totalQuizzesGenerated: 0,
@@ -251,6 +304,7 @@ class StudyStats {
     quizCompletionRate: 0,
     averageQuizScore: null,
     totalStudySeconds: 0,
+    studiedTodaySeconds: 0,
     sessionsToday: 0,
     streakDays: 0,
   );

@@ -64,6 +64,11 @@ dependencies:
   # The PDF extractor renders text-less pages and reads them with
   # this; minSdk 30 already satisfies ML Kit's requirement.
   google_mlkit_text_recognition: ^0.17.1
+  # Android share sheet for document export (Phase 3): the original
+  # file is shared without exposing its internal storage path.
+  # ^13.3.1 (not ^11) because share_plus <13 pins win32 ^5, which
+  # conflicts with file_picker 13's windows_file_picker -> win32 ^6.
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

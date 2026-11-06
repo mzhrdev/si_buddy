@@ -26,6 +26,12 @@ import '../widgets/state_message.dart';
 /// routes to its designed error screen. The "Recently imported" list
 /// below is the live library (newest first, up to three documents),
 /// or an empty-state line when nothing has been imported yet.
+///
+/// Tapping a recent import opens the generation setup for that
+/// document (its extracted text becomes the generation source); the
+/// small details icon on each row opens the document details
+/// instead. A document with no readable text goes to its details,
+/// where the no-text state is explained.
 class ImportFilesScreen extends ConsumerWidget {
   const ImportFilesScreen({super.key});
 
@@ -45,6 +51,32 @@ class ImportFilesScreen extends ConsumerWidget {
       context.push(AppRoutes.corrupted);
     }
     // No error means the user cancelled the picker: stay here.
+  }
+
+  /// A recent import is the generation entry point: bind the
+  /// document's extracted text as the generation source and open
+  /// the generation setup. A document with no readable text has
+  /// nothing to generate from, so it opens its details instead.
+  Future<void> _openRecent(
+    BuildContext context,
+    WidgetRef ref,
+    _RecentDoc doc,
+  ) async {
+    if (doc.id == null) return;
+    final bound = await bindDocumentAsGenerationSource(ref, doc.id!);
+    if (!context.mounted) return;
+    if (bound) {
+      context.push(AppRoutes.generationSetup);
+    } else {
+      _openDetails(context, ref, doc.id);
+    }
+  }
+
+  void _openDetails(BuildContext context, WidgetRef ref, int? id) {
+    if (id != null) {
+      ref.read(selectedDocumentIdProvider.notifier).select(id);
+    }
+    context.push(AppRoutes.details);
   }
 
   @override
@@ -105,14 +137,8 @@ class ImportFilesScreen extends ConsumerWidget {
                         for (final doc in recentItems)
                           _RecentDocumentRow(
                             doc: doc,
-                            onTap: () {
-                              if (doc.id != null) {
-                                ref
-                                    .read(selectedDocumentIdProvider.notifier)
-                                    .select(doc.id);
-                              }
-                              context.push(AppRoutes.details);
-                            },
+                            onTap: () => _openRecent(context, ref, doc),
+                            onDetails: () => _openDetails(context, ref, doc.id),
                           ),
                       ],
                     ),
@@ -259,12 +285,19 @@ class _SourceFileCard extends StatelessWidget {
 }
 
 /// One "Recently imported" row: bordered format box, title and
-/// metadata, and a chevron.
+/// metadata, a details button, and a chevron. Tapping the row opens
+/// the generation setup for the document; the details button opens
+/// the document details.
 class _RecentDocumentRow extends StatelessWidget {
-  const _RecentDocumentRow({required this.doc, required this.onTap});
+  const _RecentDocumentRow({
+    required this.doc,
+    required this.onTap,
+    required this.onDetails,
+  });
 
   final _RecentDoc doc;
   final VoidCallback onTap;
+  final VoidCallback onDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -308,6 +341,17 @@ class _RecentDocumentRow extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                onPressed: onDetails,
+                icon: const Icon(Icons.info_outline, size: 20),
+                color: AppColors.muted,
+                tooltip: 'Document details',
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 36,
+                ),
+                padding: EdgeInsets.zero,
               ),
               SvgPicture.asset(
                 'assets/icons/figma/chevron_right.svg',
