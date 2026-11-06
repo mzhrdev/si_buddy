@@ -311,7 +311,7 @@ class _ActiveSection extends ConsumerWidget {
           SectionHeader(
             title: 'Pick up where you left off',
             actionLabel: 'View all',
-            onAction: () => context.go(AppRoutes.studyLibrary),
+            onAction: () => context.go(AppRoutes.planner),
           ),
           const SizedBox(height: 6),
           _PickUpCard(pickUp: data.pickUp!),

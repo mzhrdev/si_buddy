@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +12,7 @@ import '../../../../core/widgets/app_header.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 
 /// Quiz results, implemented from the Figma frame
 /// "SI Buddy · Quiz Results" (5:6216): score summary card, topic
@@ -18,13 +21,54 @@ import '../../../ai_generation/presentation/providers/study_session_providers.da
 ///
 /// The score comes from this session's answers on the generated
 /// quiz. Without a quiz it shows an honest empty state — never the
-/// design's sample score and topics. Duration is not tracked yet,
-/// so it says so instead of a sample time.
-class QuizResultsScreen extends ConsumerWidget {
+/// design's sample score and topics.
+///
+/// Showing the results finishes the quiz (Phase 5): the attempt is
+/// completed with the score and the study session ends with its
+/// real duration, so the statistics' attempts, completion rate,
+/// average score and study time are genuine.
+class QuizResultsScreen extends ConsumerStatefulWidget {
   const QuizResultsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuizResultsScreen> createState() => _QuizResultsScreenState();
+}
+
+class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
+  bool _finalized = false;
+  String? _durationLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _finalize());
+  }
+
+  Future<void> _finalize() async {
+    if (_finalized) return;
+    _finalized = true;
+    final result = ref.read(lastGenerationResultProvider);
+    final questions = result?.questions ?? const [];
+    if (questions.isEmpty) return;
+    final answers = ref.read(quizAnswersProvider);
+    final correct = questions
+        .where(
+          (q) => q.correctIndex != null && answers[q.prompt] == q.correctIndex,
+        )
+        .length;
+    final tracker = ref.read(studySessionTrackerProvider.notifier);
+    final elapsed = tracker.elapsedNow();
+    unawaited(
+      ref.read(generationJobProvider.notifier).completeQuizAttempt(correct),
+    );
+    await tracker.end();
+    if (mounted && elapsed != null) {
+      setState(() => _durationLabel = _formatDuration(elapsed));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
     final job = ref.watch(generationJobProvider);
@@ -54,13 +98,16 @@ class QuizResultsScreen extends ConsumerWidget {
       );
     }
     final correct = questions
-        .where((q) =>
-            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .where(
+          (q) => q.correctIndex != null && answers[q.prompt] == q.correctIndex,
+        )
         .length;
     final answered = questions
-        .where((q) =>
-            answers.containsKey(q.prompt) ||
-            (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false))
+        .where(
+          (q) =>
+              answers.containsKey(q.prompt) ||
+              (shortAnswers[q.prompt]?.trim().isNotEmpty ?? false),
+        )
         .length;
     final total = questions.length;
     final correctCount = correct;
@@ -148,7 +195,9 @@ class QuizResultsScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Duration · not tracked',
+                                    _durationLabel == null
+                                        ? 'Duration · —'
+                                        : 'Duration · $_durationLabel',
                                     style: _subStyle(),
                                   ),
                                 ],
@@ -293,6 +342,16 @@ class QuizResultsScreen extends ConsumerWidget {
     height: 16 / 12,
     color: color,
   );
+
+  static String _formatDuration(Duration elapsed) {
+    final seconds = elapsed.inSeconds;
+    if (seconds < 60) return '$seconds sec';
+    final minutes = seconds ~/ 60;
+    if (minutes < 60) return '$minutes min';
+    final hours = minutes ~/ 60;
+    final rest = minutes % 60;
+    return rest == 0 ? '${hours}h' : '${hours}h ${rest}m';
+  }
 }
 
 /// One topic row in the results: name, score label and progress bar.

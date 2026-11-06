@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../study/presentation/providers/reminder_providers.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../widgets/settings_row.dart';
 import '../widgets/settings_toggle.dart';
 
@@ -20,24 +23,31 @@ const _noteStyle = TextStyle(
 /// Preferences, implemented from the Figma frame
 /// "SI Buddy · Preferences" (5:20736).
 ///
-/// Theme single-selection defaults to "System" and both reminder
-/// toggles default to off, exactly as designed; all controls work
-/// locally with setState.
-class PreferencesScreen extends StatefulWidget {
+/// Theme single-selection defaults to "System" (Phase 6 wires it to
+/// the persisted appearance). The reminder toggles and preferred
+/// time are real (Phase 5): they read and write the persisted
+/// reminder settings and schedule/cancel actual Android
+/// notifications, asking for the notification permission first.
+class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
 
   @override
-  State<PreferencesScreen> createState() => _PreferencesScreenState();
+  ConsumerState<PreferencesScreen> createState() => _PreferencesScreenState();
 }
 
-class _PreferencesScreenState extends State<PreferencesScreen> {
+class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   static const _themes = ['Light', 'Dark', 'System'];
   int _theme = 2; // "System" is selected in the design.
-  bool _dailyReminder = false;
-  bool _revisionReminder = false;
 
   @override
   Widget build(BuildContext context) {
+    final dailyOn = ref.watch(dailyReminderEnabledProvider).value ?? false;
+    final revisionOn =
+        ref.watch(revisionRemindersEnabledProvider).value ?? false;
+    final timeMinutes =
+        ref.watch(reminderTimeMinutesProvider).value ??
+        defaultReminderTimeMinutes;
+    final goal = ref.watch(dailyGoalMinutesProvider).value ?? 20;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -131,17 +141,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           _ReminderRow(
                             title: 'Daily study reminder',
                             supportingText:
-                                'Optional · Off · Daily goal: 20 min',
-                            value: _dailyReminder,
-                            onChanged: (v) =>
-                                setState(() => _dailyReminder = v),
+                                'Optional · ${dailyOn ? 'On' : 'Off'} · Daily goal: $goal min',
+                            value: dailyOn,
+                            onChanged: (v) => _setDaily(context, ref, v),
                           ),
                           _ReminderRow(
                             title: 'Revision reminder',
-                            supportingText: 'Optional · Off · Planned revision',
-                            value: _revisionReminder,
-                            onChanged: (v) =>
-                                setState(() => _revisionReminder = v),
+                            supportingText:
+                                'Optional · ${revisionOn ? 'On' : 'Off'} · Planned revision',
+                            value: revisionOn,
+                            onChanged: (v) => _setRevision(context, ref, v),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,45 +163,49 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   color: AppColors.muted,
                                 ),
                               ),
-                              // Disabled in the design: no reminder is on.
-                              Container(
-                                height: 36,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: AppColors.border),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      '7:00 PM',
-                                      style: AppTextStyles.body.copyWith(
-                                        fontSize: 13,
-                                        height: 20 / 13,
-                                        color: AppColors.muted,
+                              GestureDetector(
+                                onTap: () =>
+                                    _pickTime(context, ref, timeMinutes),
+                                child: Container(
+                                  height: 36,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: AppColors.border),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        _formatTime(timeMinutes),
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 13,
+                                          height: 20 / 13,
+                                          color: AppColors.muted,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    SvgPicture.asset(
-                                      'assets/icons/figma/clock.svg',
-                                      width: 16,
-                                      height: 16,
-                                      colorFilter: const ColorFilter.mode(
-                                        AppColors.navInactive,
-                                        BlendMode.srcIn,
+                                      const SizedBox(width: 8),
+                                      SvgPicture.asset(
+                                        'assets/icons/figma/clock.svg',
+                                        width: 16,
+                                        height: 16,
+                                        colorFilter: const ColorFilter.mode(
+                                          AppColors.navInactive,
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const Text(
-                            'No reminders are scheduled. Time becomes '
-                            'available when a reminder is enabled.',
+                          Text(
+                            dailyOn || revisionOn
+                                ? 'Reminders are scheduled. The daily reminder fires at the preferred time; revision reminders fire at each revision’s scheduled time.'
+                                : 'No reminders are scheduled. Time becomes available when a reminder is enabled.',
                             style: _noteStyle,
                           ),
                         ],
@@ -201,7 +214,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       const Text(
                         'Enabling will ask for Android notification '
                         'permission if needed. Reminders require permission; '
-                        'nothing is enabled yet.',
+                        'if you deny it, the toggle stays off.',
                         style: _noteStyle,
                       ),
                     ],
@@ -214,6 +227,67 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       ),
     );
   }
+
+  /// Enables/disables the daily reminder, asking for the
+  /// notification permission first. A denial leaves the toggle off
+  /// and explains where to turn notifications on.
+  Future<void> _setDaily(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    final ok = await setDailyReminderEnabled(ref, enabled);
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Notifications are off for SI Buddy. Turn them on in Android Settings > Apps > SI Buddy > Notifications to enable reminders.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _setRevision(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    final ok = await setRevisionRemindersEnabled(ref, enabled);
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Notifications are off for SI Buddy. Turn them on in Android Settings > Apps > SI Buddy > Notifications to enable reminders.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _pickTime(
+    BuildContext context,
+    WidgetRef ref,
+    int currentMinutes,
+  ) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: currentMinutes ~/ 60,
+        minute: currentMinutes % 60,
+      ),
+    );
+    if (picked == null) return;
+    await setReminderTimeMinutes(ref, picked.hour * 60 + picked.minute);
+  }
+}
+
+String _formatTime(int minutes) {
+  final hour = minutes ~/ 60;
+  final minute = minutes % 60;
+  final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+  final period = hour < 12 ? 'AM' : 'PM';
+  return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
 }
 
 /// White card with a border and 14px padding, used by the Language and

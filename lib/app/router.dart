@@ -60,11 +60,8 @@ import '../features/settings/presentation/screens/help_about_screen.dart';
 import '../features/settings/presentation/screens/preferences_screen.dart';
 import '../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../features/settings/presentation/screens/storage_screen.dart';
-import '../features/study/presentation/screens/revision_hub_screen.dart';
 import '../features/study/presentation/screens/statistics_dashboard_screen.dart';
-import '../features/study/presentation/screens/study_library_screen.dart';
 import '../features/study/presentation/screens/study_planner_screen.dart';
-import '../features/study/presentation/screens/subject_details_screen.dart';
 import '../features/subscription/presentation/screens/manage_subscription_screen.dart';
 import '../features/subscription/presentation/screens/payment_failure_screen.dart';
 import '../features/subscription/presentation/screens/payment_processing_screen.dart';
@@ -117,9 +114,6 @@ abstract final class AppRoutes {
   static const results = '/quiz/results';
   static const review = '/quiz/review';
   static const history = '/quiz/history';
-  static const studyLibrary = '/study/library';
-  static const subject = '/study/subject';
-  static const revision = '/study/revision';
   static const statistics = '/study/statistics';
   static const planner = '/study/planner';
   static const notInstalled = '/models/not-installed';
@@ -178,15 +172,13 @@ final appRouter = GoRouter(
         ),
         // Tab 2 · Study
         //
-        // The study destinations (Library, Revision, Statistics,
-        // Planner) are branch routes, not top-level ones, so the
-        // bottom navigation stays visible while switching between
-        // them — they previously lived above the shell and the
-        // bottom nav disappeared on every sub-screen.
+        // The study destinations (Statistics, Planner) are branch
+        // routes, not top-level ones, so the bottom navigation
+        // stays visible while switching between them — they
+        // previously lived above the shell and the bottom nav
+        // disappeared on every sub-screen.
         StatefulShellBranch(
           routes: [
-            _route(AppRoutes.studyLibrary, const StudyLibraryScreen()),
-            _route(AppRoutes.revision, const RevisionHubScreen()),
             _route(AppRoutes.statistics, const StatisticsDashboardScreen()),
             _route(AppRoutes.planner, const StudyPlannerScreen()),
           ],
@@ -256,7 +248,6 @@ final appRouter = GoRouter(
     _route(AppRoutes.review, const AnswerReviewScreen()),
     _route(AppRoutes.history, const QuizHistoryScreen()),
     // Study
-    _route(AppRoutes.subject, const SubjectDetailsScreen()),
     // On-device model management
     _route(AppRoutes.notInstalled, const ModelNotInstalledScreen()),
     _route(AppRoutes.downloading, const ModelDownloadingScreen()),

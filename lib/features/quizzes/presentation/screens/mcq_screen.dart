@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,7 @@ import '../widgets/quiz_progress.dart';
 import '../../../ai_generation/domain/generation_models.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 
 /// Quiz question — multiple choice, implemented from the Figma
 /// frame "SI Buddy · Quiz Question — MCQ" (5:5927).
@@ -29,6 +32,24 @@ class QuizMcqScreen extends ConsumerStatefulWidget {
 }
 
 class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Taking the quiz starts a study session (Phase 5): the
+    // results screen ends it with its real duration. The tracker
+    // ignores the call when a session for this deck is already open
+    // (the `loadDeck` path).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final deckId = ref.read(generationJobProvider).deckId;
+      if (deckId == null) return;
+      unawaited(
+        ref
+            .read(studySessionTrackerProvider.notifier)
+            .start(deckId: deckId, type: 'quiz'),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
@@ -75,9 +96,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
     ];
     final selected = answers[question.prompt] == null
         ? null
-        : String.fromCharCode(
-            'A'.codeUnitAt(0) + answers[question.prompt]!,
-          );
+        : String.fromCharCode('A'.codeUnitAt(0) + answers[question.prompt]!);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -93,8 +112,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                     QuizIdentity(
                       title: generatedMaterialTitle(
                         config: config,
-                        documentName:
-                            job.source?.document.originalFileName,
+                        documentName: job.source?.document.originalFileName,
                       ),
                       meta:
                           '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
@@ -126,7 +144,10 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text('01 / $total', style: AppTextStyles.caption),
+                                Text(
+                                  '01 / $total',
+                                  style: AppTextStyles.caption,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -154,6 +175,17 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                                   ref
                                       .read(quizAnswersProvider.notifier)
                                       .answer(question.prompt, i);
+                                  // Persisted (Phase 5): the answer
+                                  // joins the quiz attempt, so quiz
+                                  // progress survives a restart.
+                                  unawaited(
+                                    ref
+                                        .read(generationJobProvider.notifier)
+                                        .recordQuizAnswer(
+                                          prompt: question.prompt,
+                                          selectedIndex: i,
+                                        ),
+                                  );
                                 },
                               ),
                             ],

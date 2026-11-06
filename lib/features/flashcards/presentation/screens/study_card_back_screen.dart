@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,7 +25,8 @@ class StudyCardBackScreen extends ConsumerStatefulWidget {
   const StudyCardBackScreen({super.key});
 
   @override
-  ConsumerState<StudyCardBackScreen> createState() => _StudyCardBackScreenState();
+  ConsumerState<StudyCardBackScreen> createState() =>
+      _StudyCardBackScreenState();
 }
 
 class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
@@ -33,7 +36,8 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cards = ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
+    final cards =
+        ref.watch(lastGenerationResultProvider)?.flashcards ?? const [];
     if (cards.isEmpty) {
       return Scaffold(
         body: SafeArea(
@@ -74,8 +78,7 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                     StudySessionHeader(
                       title: generatedMaterialTitle(
                         config: config,
-                        documentName:
-                            job.source?.document.originalFileName,
+                        documentName: job.source?.document.originalFileName,
                       ),
                       subtitle:
                           '${config.language} · ${cards.length} flashcards',
@@ -101,9 +104,8 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                     ),
                     const SizedBox(height: 10),
                     StudyCardNavigation(
-                      onPrevious: () => ref
-                          .read(studyCardIndexProvider.notifier)
-                          .previous(),
+                      onPrevious: () =>
+                          ref.read(studyCardIndexProvider.notifier).previous(),
                       onNext: () => ref
                           .read(studyCardIndexProvider.notifier)
                           .next(cards.length),
@@ -166,10 +168,14 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
   }
 
   void _selectRating(String rating) {
-    // Session-only: ratings feed the session summary. They are not
-    // persisted yet, so they reset when the app restarts.
     final index = ref.read(studyCardIndexProvider);
     ref.read(cardRatingsProvider.notifier).rate(index, rating);
+    // Persisted (Phase 5): the rating survives a restart and feeds
+    // the statistics' cards-reviewed count. Best-effort inside the
+    // notifier — the session rating above is already applied.
+    unawaited(
+      ref.read(generationJobProvider.notifier).recordCardReview(index, rating),
+    );
     setState(() => _rating = rating);
   }
 }

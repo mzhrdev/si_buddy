@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,6 +14,7 @@ import '../../../ai_generation/presentation/providers/generation_providers.dart'
 import '../../../ai_generation/presentation/providers/study_session_providers.dart';
 import '../../../ai_generation/presentation/widgets/generation_source_card.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../widgets/source_document_card.dart';
 
 /// Deck overview, implemented from the Figma frame
@@ -22,11 +25,42 @@ import '../widgets/source_document_card.dart';
 /// config, and the progress metrics from this session's ratings.
 /// Opened without one it shows an honest empty state — never the
 /// design's sample deck.
-class DeckOverviewScreen extends ConsumerWidget {
+///
+/// Viewing the deck starts a study session (Phase 5) and leaving
+/// it ends the session with its real duration, so the statistics'
+/// study time is genuine. The tracker ignores the call when a
+/// session for this deck is already open (the `loadDeck` path), and
+/// deletes the session when the visit never became real studying.
+class DeckOverviewScreen extends ConsumerStatefulWidget {
   const DeckOverviewScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DeckOverviewScreen> createState() => _DeckOverviewScreenState();
+}
+
+class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final deckId = ref.read(generationJobProvider).deckId;
+      if (deckId == null) return;
+      unawaited(
+        ref
+            .read(studySessionTrackerProvider.notifier)
+            .start(deckId: deckId, type: 'flashcards'),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    unawaited(ref.read(studySessionTrackerProvider.notifier).end());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final result = ref.watch(lastGenerationResultProvider);
     final config = ref.watch(generationConfigProvider);
     final job = ref.watch(generationJobProvider);
@@ -345,10 +379,7 @@ class _StudyProgressCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ProgressMetric(
-                  value: '$newCards',
-                  label: 'New cards',
-                ),
+                child: _ProgressMetric(value: '$newCards', label: 'New cards'),
               ),
             ],
           ),
