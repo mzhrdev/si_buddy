@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/widgets/app_shell.dart';
-import 'not_found_screen.dart';
 import '../features/ai_generation/presentation/screens/generation_failure_screen.dart';
 import '../features/ai_generation/presentation/screens/generation_setup_screen.dart';
 import '../features/ai_generation/presentation/screens/insufficient_text_screen.dart';
 import '../features/ai_generation/presentation/screens/local_generation_processing_screen.dart';
-import '../features/ai_generation/presentation/screens/low_memory_screen.dart'
-    as generation;
+import '../features/ai_generation/presentation/screens/low_memory_screen.dart' as generation;
 import '../features/ai_generation/presentation/screens/missing_model_screen.dart';
 import '../features/documents/presentation/screens/corrupted_document_screen.dart';
 import '../features/documents/presentation/screens/document_details_screen.dart';
@@ -35,8 +33,7 @@ import '../features/home/presentation/screens/home_dashboard_screen.dart';
 import '../features/model_management/presentation/screens/delete_model_confirmation_screen.dart';
 import '../features/model_management/presentation/screens/download_failed_screen.dart';
 import '../features/model_management/presentation/screens/downloading_screen.dart';
-import '../features/model_management/presentation/screens/low_memory_screen.dart'
-    as models;
+import '../features/model_management/presentation/screens/low_memory_screen.dart' as models;
 import '../features/model_management/presentation/screens/not_installed_screen.dart';
 import '../features/model_management/presentation/screens/offline_not_installed_screen.dart';
 import '../features/model_management/presentation/screens/ready_offline_screen.dart';
@@ -82,6 +79,7 @@ abstract final class AppRoutes {
   static const onboardingImport = '/onboarding/import';
   static const onboardingAi = '/onboarding/ai';
   static const onboardingPrivate = '/onboarding/private';
+  static const emptyHome = '/home/empty';
   static const importFiles = '/documents/import';
   static const selectedPreview = '/documents/preview';
   static const importLoading = '/documents/import-loading';
@@ -97,6 +95,8 @@ abstract final class AppRoutes {
   static const list = '/documents/list';
   static const grid = '/documents/grid';
   static const filters = '/documents/filters';
+  static const searchResults = '/documents/search';
+  static const searchEmpty = '/documents/search-empty';
   static const organize = '/documents/organize';
   static const generationSetup = '/generation/setup';
   static const generationProcessing = '/generation/processing';
@@ -118,6 +118,7 @@ abstract final class AppRoutes {
   static const review = '/quiz/review';
   static const history = '/quiz/history';
   static const studyLibrary = '/study/library';
+  static const createFolder = '/study/create-folder';
   static const subject = '/study/subject';
   static const revision = '/study/revision';
   static const statistics = '/study/statistics';
@@ -146,8 +147,7 @@ abstract final class AppRoutes {
   static const manage = '/subscription/manage';
 }
 
-GoRoute _route(String path, Widget page) =>
-    GoRoute(path: path, builder: (context, state) => page);
+GoRoute _route(String path, Widget page) => GoRoute(path: path, builder: (context, state) => page);
 
 /// The app's GoRouter configuration.
 ///
@@ -162,13 +162,10 @@ final appRouter = GoRouter(
     _route(AppRoutes.onboardingAi, const AiStudyToolsScreen()),
     _route(AppRoutes.onboardingPrivate, const PrivateOfflineScreen()),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          AppShell(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
       branches: [
         // Tab 0 · Home
-        StatefulShellBranch(
-          routes: [_route(AppRoutes.home, const HomeDashboardScreen())],
-        ),
+        StatefulShellBranch(routes: [_route(AppRoutes.home, const HomeDashboardScreen())]),
         // Tab 1 · Library
         StatefulShellBranch(
           routes: [
@@ -177,20 +174,7 @@ final appRouter = GoRouter(
           ],
         ),
         // Tab 2 · Study
-        //
-        // The study destinations (Library, Revision, Statistics,
-        // Planner) are branch routes, not top-level ones, so the
-        // bottom navigation stays visible while switching between
-        // them — they previously lived above the shell and the
-        // bottom nav disappeared on every sub-screen.
-        StatefulShellBranch(
-          routes: [
-            _route(AppRoutes.studyLibrary, const StudyLibraryScreen()),
-            _route(AppRoutes.revision, const RevisionHubScreen()),
-            _route(AppRoutes.statistics, const StatisticsDashboardScreen()),
-            _route(AppRoutes.planner, const StudyPlannerScreen()),
-          ],
-        ),
+        StatefulShellBranch(routes: [_route(AppRoutes.studyLibrary, const StudyLibraryScreen())]),
         // Tab 3 · Settings
         StatefulShellBranch(
           routes: [
@@ -201,10 +185,7 @@ final appRouter = GoRouter(
             _route(AppRoutes.help, const HelpAboutScreen()),
             _route(AppRoutes.clearCache, const ClearCacheConfirmationScreen()),
             _route(AppRoutes.deleteFile, const DeleteFileConfirmationScreen()),
-            _route(
-              AppRoutes.clearData,
-              const ClearAllLocalDataConfirmationScreen(),
-            ),
+            _route(AppRoutes.clearData, const ClearAllLocalDataConfirmationScreen()),
           ],
         ),
       ],
@@ -218,27 +199,19 @@ final appRouter = GoRouter(
     _route(AppRoutes.unreadable, const UnreadableTextScreen()),
     _route(AppRoutes.ocr, const ScannedPdfOcrScreen()),
     _route(AppRoutes.storageError, const InsufficientStorageScreen()),
-    _route(
-      AppRoutes.extractionProcessing,
-      const TextExtractionProcessingScreen(),
-    ),
+    _route(AppRoutes.extractionProcessing, const TextExtractionProcessingScreen()),
     _route(AppRoutes.extractionReview, const ExtractedTextReviewScreen()),
     _route(AppRoutes.extractionSuccess, const ExtractionSuccessScreen()),
     _route(AppRoutes.details, const DocumentDetailsScreen()),
     _route(AppRoutes.filters, const LibraryFiltersSortingScreen()),
+
     _route(AppRoutes.organize, const OrganizeDocumentsScreen()),
     // AI generation
     _route(AppRoutes.generationSetup, const GenerationSetupScreen()),
-    _route(
-      AppRoutes.generationProcessing,
-      const LocalGenerationProcessingScreen(),
-    ),
+    _route(AppRoutes.generationProcessing, const LocalGenerationProcessingScreen()),
     _route(AppRoutes.missingModel, const MissingModelScreen()),
     _route(AppRoutes.insufficientText, const InsufficientTextScreen()),
-    _route(
-      AppRoutes.generationLowMemory,
-      const generation.GenerationLowMemoryScreen(),
-    ),
+    _route(AppRoutes.generationLowMemory, const generation.GenerationLowMemoryScreen()),
     _route(AppRoutes.generationFailure, const GenerationFailureScreen()),
     // Flashcards
     _route(AppRoutes.deck, const DeckOverviewScreen()),
@@ -257,6 +230,9 @@ final appRouter = GoRouter(
     _route(AppRoutes.history, const QuizHistoryScreen()),
     // Study
     _route(AppRoutes.subject, const SubjectDetailsScreen()),
+    _route(AppRoutes.revision, const RevisionHubScreen()),
+    _route(AppRoutes.statistics, const StatisticsDashboardScreen()),
+    _route(AppRoutes.planner, const StudyPlannerScreen()),
     // On-device model management
     _route(AppRoutes.notInstalled, const ModelNotInstalledScreen()),
     _route(AppRoutes.downloading, const ModelDownloadingScreen()),
@@ -274,7 +250,6 @@ final appRouter = GoRouter(
     _route(AppRoutes.restore, const RestorePurchasesScreen()),
     _route(AppRoutes.manage, const ManageSubscriptionScreen()),
   ],
-  // Unknown routes show a real not-found screen instead of silently
-  // landing on Home, which used to mask broken links.
-  errorBuilder: (context, state) => const RouteNotFoundScreen(),
+  // Previous behaviour: unknown routes fall back to the home dashboard.
+  errorBuilder: (context, state) => const HomeDashboardScreen(),
 );
