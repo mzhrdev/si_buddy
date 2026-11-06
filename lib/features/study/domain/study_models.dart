@@ -210,6 +210,21 @@ class CompletedAttempt {
   final String deckTitle;
 }
 
+/// One study-content match for the library's inline search: a
+/// persisted flashcard or quiz question whose text contains the
+/// query, with the deck it belongs to.
+class StudySearchMatch {
+  const StudySearchMatch({required this.deck, required this.snippet});
+
+  final StudyDeck deck;
+
+  /// The matching text: the flashcard's front, or the question's
+  /// prompt.
+  final String snippet;
+
+  bool get isQuiz => deck.isQuiz;
+}
+
 /// A scheduled revision of a deck (the planner's upcoming entries).
 class RevisionRecord {
   const RevisionRecord({

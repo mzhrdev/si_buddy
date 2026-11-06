@@ -14,6 +14,7 @@ import '../../../study/domain/study_models.dart';
 import '../../../study/presentation/providers/study_providers.dart';
 import '../../domain/document_models.dart';
 import '../providers/documents_providers.dart';
+import '../widgets/document_actions.dart';
 import '../widgets/privacy_reassurance.dart';
 
 /// Document details, implemented from the Figma frame
@@ -75,7 +76,6 @@ class DocumentDetailsScreen extends ConsumerWidget {
         orElse: () => '',
       );
       final decks = decksAsync.value ?? const [];
-      final allDocuments = documentsAsync.value ?? const [];
       return _DetailsScaffold(
         title: documentDisplayName(document),
         subjectChip: 'Saved on this device',
@@ -103,9 +103,20 @@ class DocumentDetailsScreen extends ConsumerWidget {
             _generateFromDocument(context, ref, document.id),
         onGenerateQuiz: () =>
             _generateQuizFromDocument(context, ref, document.id),
-        onRename: () => _rename(context, ref, document, allDocuments),
+        onRename: () => showRenameDocumentDialog(context, ref, document),
         onExport: () => _export(context, ref, document),
-        onDelete: () => _delete(context, ref, document, decks.length),
+        onDelete: () async {
+          final deleted = await confirmDeleteDocument(
+            context,
+            ref,
+            document,
+            studySetCount: decks.length,
+          );
+          if (deleted) {
+            ref.read(selectedDocumentIdProvider.notifier).clear();
+            if (context.mounted) context.pop();
+          }
+        },
       );
     }
     // Opened without a selection (only reachable by opening the
@@ -187,72 +198,6 @@ class DocumentDetailsScreen extends ConsumerWidget {
     }
   }
 
-  static Future<void> _rename(
-    BuildContext context,
-    WidgetRef ref,
-    Document document,
-    List<Document> allDocuments,
-  ) async {
-    final controller = TextEditingController(text: document.title);
-    String? error;
-    final newTitle = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Rename document'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Document title',
-              errorText: error,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                final value = controller.text.trim();
-                if (value.isEmpty) {
-                  setState(() => error = 'Enter a title.');
-                  return;
-                }
-                if (value.toLowerCase() ==
-                    document.title.trim().toLowerCase()) {
-                  // Unchanged: close without writing.
-                  Navigator.of(dialogContext).pop();
-                  return;
-                }
-                final duplicate = allDocuments.any(
-                  (other) =>
-                      other.id != document.id &&
-                      other.title.trim().toLowerCase() == value.toLowerCase(),
-                );
-                if (duplicate) {
-                  setState(
-                    () => error = 'Another document already has this title.',
-                  );
-                  return;
-                }
-                Navigator.of(dialogContext).pop(value);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-    controller.dispose();
-    if (newTitle == null || newTitle.isEmpty) {
-      return;
-    }
-    await ref.read(documentRepositoryProvider).rename(document.id, newTitle);
-  }
-
-  /// Shares the original file through the Android share sheet.
   /// The internal storage path is never shown to the user.
   static Future<void> _export(
     BuildContext context,
@@ -282,43 +227,6 @@ class DocumentDetailsScreen extends ConsumerWidget {
         ),
       );
     }
-  }
-
-  /// Deletes the document, its extracted text and its study sets
-  /// (the repository cascades the decks and removes the stored
-  /// file), after a confirmation dialog that says exactly what goes.
-  static Future<void> _delete(
-    BuildContext context,
-    WidgetRef ref,
-    Document document,
-    int studySetCount,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete document?'),
-        content: Text(
-          'This deletes ${documentDisplayName(document)}, its extracted '
-          'text${studySetCount == 0 ? '' : ' and $studySetCount study set${studySetCount == 1 ? '' : 's'}'}. '
-          'This can\'t be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await ref.read(documentRepositoryProvider).delete(document.id);
-    ref.read(selectedDocumentIdProvider.notifier).clear();
-    if (context.mounted) context.pop();
   }
 }
 

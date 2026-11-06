@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import 'global_search_field.dart';
+import '../providers/library_providers.dart';
 
 /// The "Library tools" block shared by the list and grid library screens:
-/// the global search field, the "Folders & subjects" organization entry,
-/// and the sort / filters / view-toggle controls row.
-class LibraryTools extends StatelessWidget {
+/// the "Folders & subjects" organization entry (with real counts) and
+/// the sort / filters / view-toggle controls row. The sort label shows
+/// the active sort, and the Filters button carries a badge with the
+/// number of active filter groups. The search field lives above this
+/// block, in the screens themselves (inline search with a results
+/// panel — see [LibrarySearchPanel]).
+class LibraryTools extends ConsumerWidget {
   const LibraryTools({
     required this.gridView,
-    required this.onSearchTap,
     required this.onOrganizeTap,
     required this.onSortTap,
     required this.onFiltersTap,
@@ -22,7 +26,6 @@ class LibraryTools extends StatelessWidget {
 
   /// Which view option is highlighted in the toggle.
   final bool gridView;
-  final VoidCallback onSearchTap;
   final VoidCallback onOrganizeTap;
   final VoidCallback onSortTap;
   final VoidCallback onFiltersTap;
@@ -30,14 +33,14 @@ class LibraryTools extends StatelessWidget {
   final VoidCallback onShowGrid;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(libraryFilterProvider);
+    final folders = ref.watch(libraryFoldersProvider).value ?? const [];
+    final subjects = ref.watch(librarySubjectsProvider).value ?? const [];
+    final activeFilters = filter.activeFilterCount;
+
     return Column(
       children: [
-        GlobalSearchField(
-          hintText: 'Search all your study material',
-          onTap: onSearchTap,
-        ),
-        const SizedBox(height: 12),
         Material(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(4),
@@ -74,7 +77,7 @@ class LibraryTools extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '2 folders · 3 subjects',
+                          '${folders.length} folder${folders.length == 1 ? '' : 's'} · ${subjects.length} subject${subjects.length == 1 ? '' : 's'}',
                           style: AppTextStyles.caption,
                         ),
                       ],
@@ -118,7 +121,7 @@ class LibraryTools extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      'Newest first',
+                      filter.sort.label,
                       style: AppTextStyles.body.copyWith(
                         fontSize: 12,
                         height: 18 / 12,
@@ -159,6 +162,28 @@ class LibraryTools extends StatelessWidget {
                         height: 18 / 12,
                       ),
                     ),
+                    if (activeFilters > 0) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Text(
+                          '$activeFilters',
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

@@ -129,6 +129,15 @@ abstract class StudyRepository {
   /// streamed as they change.
   Stream<List<RevisionRecord>> watchUpcomingRevisions();
 
+  /// Study-content matches for the library's inline search:
+  /// persisted flashcards and quiz questions whose text contains
+  /// [query] (case-insensitive), newest deck first. One match per
+  /// matching item, capped at [limit].
+  Future<List<StudySearchMatch>> searchStudyContent(
+    String query, {
+    int limit = 12,
+  });
+
   // -- Statistics ---------------------------------------------------
 
   /// Genuine study statistics computed from persisted rows only.
@@ -574,6 +583,46 @@ class StudyRepositoryImpl implements StudyRepository {
   }
 
   // -- Statistics -----------------------------------------------------------
+
+  @override
+  Future<List<StudySearchMatch>> searchStudyContent(
+    String query, {
+    int limit = 12,
+  }) async {
+    final needle = query.trim().toLowerCase();
+    if (needle.isEmpty) return const [];
+    final decks =
+        await (db.select(db.dbDecks)..orderBy([
+              (t) => OrderingTerm.desc(t.createdAt),
+              // Newer deck wins when two decks share a timestamp.
+              (t) => OrderingTerm.desc(t.id),
+            ]))
+            .get();
+    final matches = <StudySearchMatch>[];
+    for (final row in decks) {
+      if (matches.length >= limit) break;
+      final deck = _toDeck(row);
+      if (deck.isQuiz) {
+        final questions = await getQuestions(deck.id);
+        for (final question in questions) {
+          if (matches.length >= limit) break;
+          if (question.prompt.toLowerCase().contains(needle)) {
+            matches.add(StudySearchMatch(deck: deck, snippet: question.prompt));
+          }
+        }
+      } else {
+        final cards = await getFlashcards(deck.id);
+        for (final card in cards) {
+          if (matches.length >= limit) break;
+          if (card.front.toLowerCase().contains(needle) ||
+              card.back.toLowerCase().contains(needle)) {
+            matches.add(StudySearchMatch(deck: deck, snippet: card.front));
+          }
+        }
+      }
+    }
+    return matches;
+  }
 
   @override
   Future<StudyStats> getStats() async {

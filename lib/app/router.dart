@@ -16,8 +16,6 @@ import '../features/documents/presentation/screens/document_library_grid_screen.
 import '../features/documents/presentation/screens/document_library_list_screen.dart';
 import '../features/documents/presentation/screens/extracted_text_review_screen.dart';
 import '../features/documents/presentation/screens/extraction_success_screen.dart';
-import '../features/documents/presentation/screens/global_search_no_results_screen.dart';
-import '../features/documents/presentation/screens/global_search_results_screen.dart';
 import '../features/documents/presentation/screens/import_files_screen.dart';
 import '../features/documents/presentation/screens/import_loading_screen.dart';
 import '../features/documents/presentation/screens/insufficient_storage_screen.dart';
@@ -62,7 +60,6 @@ import '../features/settings/presentation/screens/help_about_screen.dart';
 import '../features/settings/presentation/screens/preferences_screen.dart';
 import '../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../features/settings/presentation/screens/storage_screen.dart';
-import '../features/study/presentation/screens/create_study_folder_screen.dart';
 import '../features/study/presentation/screens/revision_hub_screen.dart';
 import '../features/study/presentation/screens/statistics_dashboard_screen.dart';
 import '../features/study/presentation/screens/study_library_screen.dart';
@@ -100,8 +97,6 @@ abstract final class AppRoutes {
   static const list = '/documents/list';
   static const grid = '/documents/grid';
   static const filters = '/documents/filters';
-  static const searchResults = '/documents/search';
-  static const searchEmpty = '/documents/search-empty';
   static const organize = '/documents/organize';
   static const generationSetup = '/generation/setup';
   static const generationProcessing = '/generation/processing';
@@ -123,7 +118,6 @@ abstract final class AppRoutes {
   static const review = '/quiz/review';
   static const history = '/quiz/history';
   static const studyLibrary = '/study/library';
-  static const createFolder = '/study/create-folder';
   static const subject = '/study/subject';
   static const revision = '/study/revision';
   static const statistics = '/study/statistics';
@@ -232,8 +226,6 @@ final appRouter = GoRouter(
     _route(AppRoutes.extractionSuccess, const ExtractionSuccessScreen()),
     _route(AppRoutes.details, const DocumentDetailsScreen()),
     _route(AppRoutes.filters, const LibraryFiltersSortingScreen()),
-    _route(AppRoutes.searchResults, const GlobalSearchResultsScreen()),
-    _route(AppRoutes.searchEmpty, const GlobalSearchNoResultsScreen()),
     _route(AppRoutes.organize, const OrganizeDocumentsScreen()),
     // AI generation
     _route(AppRoutes.generationSetup, const GenerationSetupScreen()),
@@ -264,7 +256,6 @@ final appRouter = GoRouter(
     _route(AppRoutes.review, const AnswerReviewScreen()),
     _route(AppRoutes.history, const QuizHistoryScreen()),
     // Study
-    _route(AppRoutes.createFolder, const CreateStudyFolderScreen()),
     _route(AppRoutes.subject, const SubjectDetailsScreen()),
     // On-device model management
     _route(AppRoutes.notInstalled, const ModelNotInstalledScreen()),
