@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,11 +11,15 @@ import '../widgets/onboarding_chrome.dart';
 /// "SI Buddy · Private and offline" (3:1141): a personal-device
 /// illustration with a model-download reminder card, above the
 /// "Big ideas. Small footprint." intro.
-class PrivateOfflineScreen extends StatelessWidget {
+///
+/// "Get Started" finishes onboarding: the completion flag is
+/// persisted before navigating home, so the splash screen routes
+/// straight to Home on the next cold start.
+class PrivateOfflineScreen extends ConsumerWidget {
   const PrivateOfflineScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -37,7 +42,12 @@ class PrivateOfflineScreen extends StatelessWidget {
               pageIndex: 2,
               buttonLabel: 'Get Started',
               caption: 'No account needed. Just you and your notes.',
-              onNext: () => context.go(AppRoutes.home),
+              onNext: () {
+                // Marking completion never blocks navigation: the
+                // write is a single local insert, best-effort.
+                markOnboardingComplete(ref);
+                context.go(AppRoutes.home);
+              },
             ),
           ],
         ),

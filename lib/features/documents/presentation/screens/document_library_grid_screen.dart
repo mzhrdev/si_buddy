@@ -6,6 +6,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../providers/documents_providers.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../widgets/library_document_cards.dart';
 import '../widgets/library_header.dart';
 import '../widgets/library_tools.dart';
@@ -86,8 +87,16 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                       ),
                     );
                   }
+                  final counts =
+                      ref.watch(deckCountsByDocumentProvider).value ??
+                      const <int, int>{};
                   final items = documents
-                      .map(documentToLibraryItem)
+                      .map(
+                        (document) => documentToLibraryItem(
+                          document,
+                          studySets: counts[document.id] ?? 0,
+                        ),
+                      )
                       .toList();
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 14),

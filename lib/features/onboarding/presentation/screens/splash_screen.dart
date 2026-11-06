@@ -1,24 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../settings/presentation/providers/settings_providers.dart';
 
 /// Splash screen, implemented from the Figma frame
 /// "SI Buddy · Splash" (3:987): 108px brand mark, the "SI Buddy" wordmark
-/// and the tagline, centered on the background. Advances to the first
-/// onboarding page automatically after a short delay; tapping skips ahead.
-class SplashDesignScreen extends StatefulWidget {
+/// and the tagline, centered on the background. Advances automatically
+/// after a short delay; tapping skips ahead.
+///
+/// Where it advances to depends on persisted onboarding state,
+/// resolved once at startup in `main()` and provided via
+/// [onboardingCompletedProvider]: first launch goes to the first
+/// onboarding page, later launches go straight to Home — onboarding
+/// is never replayed after completion. The flag is read synchronously
+/// here on purpose: the splash must never stall on a storage read.
+class SplashDesignScreen extends ConsumerStatefulWidget {
   const SplashDesignScreen({super.key});
 
   @override
-  State<SplashDesignScreen> createState() => _SplashDesignScreenState();
+  ConsumerState<SplashDesignScreen> createState() =>
+      _SplashDesignScreenState();
 }
 
-class _SplashDesignScreenState extends State<SplashDesignScreen> {
+class _SplashDesignScreenState extends ConsumerState<SplashDesignScreen> {
   Timer? _timer;
   bool _advanced = false;
 
@@ -38,7 +48,8 @@ class _SplashDesignScreenState extends State<SplashDesignScreen> {
     if (_advanced || !mounted) return;
     _advanced = true;
     _timer?.cancel();
-    context.go(AppRoutes.onboardingImport);
+    final completed = ref.read(onboardingCompletedProvider);
+    context.go(completed ? AppRoutes.home : AppRoutes.onboardingImport);
   }
 
   @override

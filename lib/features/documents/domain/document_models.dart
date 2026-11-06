@@ -78,6 +78,16 @@ class DocumentFolder {
   final String name;
 }
 
+/// A subject category assigned to documents (Biology, Chemistry,
+/// Research, …). Distinct from [DocumentFolder]: a folder is a
+/// container a document lives in, a subject is a category label.
+class DocumentSubject {
+  const DocumentSubject({required this.id, required this.name});
+
+  final int id;
+  final String name;
+}
+
 /// A document saved in the local library.
 class Document {
   const Document({
@@ -88,6 +98,7 @@ class Document {
     required this.sizeBytes,
     required this.pageCount,
     required this.folderId,
+    this.subjectId,
     required this.createdAt,
     required this.updatedAt,
     required this.storedPath,
@@ -110,13 +121,22 @@ class Document {
   /// The folder this document belongs to, or null when unfiled.
   final int? folderId;
 
+  /// The subject category assigned to this document, or null when
+  /// unassigned (shown as "Unassigned").
+  final int? subjectId;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
   /// Absolute path of the app's private copy of the original file.
   final String storedPath;
 
-  Document copyWith({String? title, int? folderId, DateTime? updatedAt}) {
+  Document copyWith({
+    String? title,
+    int? folderId,
+    int? subjectId,
+    DateTime? updatedAt,
+  }) {
     return Document(
       id: id,
       title: title ?? this.title,
@@ -125,6 +145,7 @@ class Document {
       sizeBytes: sizeBytes,
       pageCount: pageCount,
       folderId: folderId ?? this.folderId,
+      subjectId: subjectId ?? this.subjectId,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       storedPath: storedPath,

@@ -1,8 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/database/settings_repository.dart';
+import '../../../settings/presentation/providers/settings_providers.dart';
+
+/// Marks onboarding complete in settings, best-effort and never
+/// awaited by navigation: the write is a single local insert, but
+/// leaving a screen must never wait on storage.
+void markOnboardingComplete(WidgetRef ref) {
+  unawaited(_saveOnboardingCompleted(ref));
+}
+
+Future<void> _saveOnboardingCompleted(WidgetRef ref) async {
+  try {
+    await ref
+        .read(settingsRepositoryProvider)
+        .setBool(SettingsKeys.onboardingCompleted, true);
+  } catch (_) {
+    // Best-effort only: a failed write just replays onboarding
+    // once on the next cold start.
+  }
+}
 
 /// Shared chrome for the three onboarding pages, from the Figma component
 /// "SI Buddy / Onboarding header" and the "Onboarding actions" region:
@@ -28,13 +51,17 @@ const onboardingBody = TextStyle(
 );
 
 /// Header row: 34px brand mark + "SI Buddy" on the left, "Skip" on the right.
-class OnboardingHeader extends StatelessWidget {
+///
+/// Skipping finishes onboarding: the completion flag is persisted
+/// before [onSkip] runs, so the splash screen routes straight to
+/// Home on the next cold start instead of replaying onboarding.
+class OnboardingHeader extends ConsumerWidget {
   const OnboardingHeader({required this.onSkip, super.key});
 
   final VoidCallback onSkip;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       height: 64,
       child: Padding(
@@ -50,7 +77,10 @@ class OnboardingHeader extends StatelessWidget {
             const Text('SI Buddy', style: AppTextStyles.screenTitle),
             const Spacer(),
             TextButton(
-              onPressed: onSkip,
+              onPressed: () {
+                markOnboardingComplete(ref);
+                onSkip();
+              },
               style: TextButton.styleFrom(
                 minimumSize: const Size(0, 44),
                 padding: const EdgeInsets.only(left: 12),

@@ -435,6 +435,21 @@ class DocumentRepositoryImpl implements DocumentRepository {
   }
 
   @override
+  Future<void> updateExtractedText(int documentId, String fullText) async {
+    final trimmed = fullText.trim();
+    await db
+        .into(db.dbExtractedTexts)
+        .insert(
+          DbExtractedTextsCompanion.insert(
+            documentId: Value(documentId),
+            fullText: fullText,
+            charCount: trimmed.length,
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+
+  @override
   Future<void> delete(int documentId) async {
     final row = await (db.select(
       db.dbDocuments,
@@ -464,6 +479,149 @@ class DocumentRepositoryImpl implements DocumentRepository {
   }
 
   @override
+  Future<void> assignSubject(int documentId, int? subjectId) async {
+    await (db.update(db.dbDocuments)
+          ..where((row) => row.id.equals(documentId)))
+        .write(
+          DbDocumentsCompanion(
+            subjectId: Value(subjectId),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+  }
+
+  // -- Folders and subjects -------------------------------------------
+
+  @override
+  Future<List<DocumentFolder>> listFolders() async {
+    final rows = await (db.select(db.dbFolders)
+          ..orderBy([(row) => OrderingTerm.asc(row.name)]))
+        .get();
+    return [
+      for (final row in rows)
+        DocumentFolder(id: row.id, name: row.name),
+    ];
+  }
+
+  @override
+  Stream<List<DocumentFolder>> watchFolders() {
+    final query = db.select(db.dbFolders)
+      ..orderBy([(row) => OrderingTerm.asc(row.name)]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          DocumentFolder(id: row.id, name: row.name),
+      ],
+    );
+  }
+
+  @override
+  Future<int> createFolder(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Folder name must not be empty.');
+    }
+    return _findOrCreateFolder(trimmed);
+  }
+
+  @override
+  Future<void> renameFolder(int folderId, String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Folder name must not be empty.');
+    }
+    final clash = await (db.select(db.dbFolders)
+          ..where(
+            (row) => row.name.equals(trimmed) & row.id.isNotValue(folderId),
+          ))
+        .getSingleOrNull();
+    if (clash != null) {
+      throw StateError('A folder named "$trimmed" already exists.');
+    }
+    await (db.update(db.dbFolders)
+          ..where((row) => row.id.equals(folderId)))
+        .write(DbFoldersCompanion(name: Value(trimmed)));
+  }
+
+  @override
+  Future<void> deleteFolder(int folderId) async {
+    // Documents in the folder are NOT deleted: their folder id is
+    // cleared by the foreign key (onDelete: setNull).
+    await (db.delete(
+      db.dbFolders,
+    )..where((row) => row.id.equals(folderId))).go();
+  }
+
+  @override
+  Future<List<DocumentSubject>> listSubjects() async {
+    final rows = await (db.select(db.dbSubjects)
+          ..orderBy([(row) => OrderingTerm.asc(row.name)]))
+        .get();
+    return [
+      for (final row in rows)
+        DocumentSubject(id: row.id, name: row.name),
+    ];
+  }
+
+  @override
+  Stream<List<DocumentSubject>> watchSubjects() {
+    final query = db.select(db.dbSubjects)
+      ..orderBy([(row) => OrderingTerm.asc(row.name)]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          DocumentSubject(id: row.id, name: row.name),
+      ],
+    );
+  }
+
+  @override
+  Future<int> createSubject(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Subject name must not be empty.');
+    }
+    final existing = await (db.select(
+      db.dbSubjects,
+    )..where((row) => row.name.equals(trimmed))).getSingleOrNull();
+    if (existing != null) return existing.id;
+    return db
+        .into(db.dbSubjects)
+        .insert(
+          DbSubjectsCompanion.insert(name: trimmed, createdAt: DateTime.now()),
+        );
+  }
+
+  @override
+  Future<void> renameSubject(int subjectId, String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Subject name must not be empty.');
+    }
+    final clash = await (db.select(db.dbSubjects)
+          ..where(
+            (row) => row.name.equals(trimmed) & row.id.isNotValue(subjectId),
+          ))
+        .getSingleOrNull();
+    if (clash != null) {
+      throw StateError('A subject named "$trimmed" already exists.');
+    }
+    await (db.update(db.dbSubjects)
+          ..where((row) => row.id.equals(subjectId)))
+        .write(DbSubjectsCompanion(name: Value(trimmed)));
+  }
+
+  @override
+  Future<void> deleteSubject(int subjectId) async {
+    // Documents with this subject are NOT deleted: their subject id
+    // is cleared by the foreign key (onDelete: setNull) and they
+    // read as Unassigned.
+    await (db.delete(
+      db.dbSubjects,
+    )..where((row) => row.id.equals(subjectId))).go();
+  }
+
+  @override
   Future<String> export(int documentId) async {
     final row = await (db.select(
       db.dbDocuments,
@@ -483,6 +641,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
       sizeBytes: row.sizeBytes,
       pageCount: row.pageCount,
       folderId: row.folderId,
+      subjectId: row.subjectId,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       storedPath: row.storedPath,

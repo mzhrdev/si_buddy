@@ -47,14 +47,61 @@ abstract class DocumentRepository {
   /// Renames a library document.
   Future<void> rename(int documentId, String newTitle);
 
+  /// Replaces a document's saved extracted text (the review screen's
+  /// edit flow). The edit is persisted locally and survives
+  /// navigating away and reopening the document.
+  Future<void> updateExtractedText(int documentId, String fullText);
+
   /// Deletes a library document: its database rows and its stored
-  /// file copy.
+  /// file copy. Its decks, extracted text and study data are removed
+  /// with it via foreign keys — no orphaned study sets remain.
   Future<void> delete(int documentId);
 
   /// Moves a document into a folder (null = unfiled).
   Future<void> moveToFolder(int documentId, int? folderId);
 
+  /// Assigns a subject category to a document (null = Unassigned).
+  Future<void> assignSubject(int documentId, int? subjectId);
+
   /// Returns the path of the document's stored file copy, suitable for
   /// sharing or opening with an external viewer.
   Future<String> export(int documentId);
+
+  // -- Folders and subjects (organization) -------------------------
+
+  /// All folders, by name.
+  Future<List<DocumentFolder>> listFolders();
+
+  /// The same list, streamed as it changes.
+  Stream<List<DocumentFolder>> watchFolders();
+
+  /// Creates a folder and returns its id. Returns the existing
+  /// folder's id when a folder with that name already exists.
+  Future<int> createFolder(String name);
+
+  /// Renames a folder. Throws [StateError] when another folder
+  /// already has the new name.
+  Future<void> renameFolder(int folderId, String newName);
+
+  /// Deletes a folder. Its documents are NOT deleted — they become
+  /// unfiled (their folder id is cleared by the foreign key).
+  Future<void> deleteFolder(int folderId);
+
+  /// All subjects, by name.
+  Future<List<DocumentSubject>> listSubjects();
+
+  /// The same list, streamed as it changes.
+  Stream<List<DocumentSubject>> watchSubjects();
+
+  /// Creates a subject and returns its id. Returns the existing
+  /// subject's id when a subject with that name already exists.
+  Future<int> createSubject(String name);
+
+  /// Renames a subject. Throws [StateError] when another subject
+  /// already has the new name.
+  Future<void> renameSubject(int subjectId, String newName);
+
+  /// Deletes a subject. Documents assigned to it become Unassigned
+  /// (their subject id is cleared by the foreign key).
+  Future<void> deleteSubject(int subjectId);
 }

@@ -21,15 +21,15 @@ final greetingProvider = Provider<String>((ref) {
 ///
 /// - Recent documents: the real library stream, newest first.
 /// - "Pick up where you left off": the most recent generation's
-///   flashcards, when one exists this session (decks are not
-///   persisted yet, so nothing shows here after a restart).
-/// - Study progress: study sessions, minutes and streaks are not
-///   tracked anywhere yet, so they honestly read 0 instead of the
-///   design's sample 24 cards / 15 minutes / 3-day streak.
-/// - Model status: the model provider's last known state. It only
-///   becomes "ready" after a model screen has probed or a download
-///   has completed in this session; on a cold start it reads as
-///   not installed until the AI Model screen is visited.
+///   flashcards, when one exists this session. Decks ARE persisted
+///   now (schema v2), but this provider still reads the session
+///   result — Phase 3 wires Home to the persisted deck stream.
+/// - Study progress: study sessions, minutes and streaks are now
+///   tracked in the database (see `studyStatsProvider`), but this
+///   provider still reports 0 until Phase 3 wires Home to it.
+/// - Model status: the model provider's last known state. It is
+///   probed once at startup and on every resume (see `MyApp`), so
+///   a cold start reads the real state instead of "not installed".
 final homeDashboardProvider = Provider<HomeDashboardData>((ref) {
   final documents = ref.watch(documentsStreamProvider).value ?? const [];
   final result = ref.watch(lastGenerationResultProvider);

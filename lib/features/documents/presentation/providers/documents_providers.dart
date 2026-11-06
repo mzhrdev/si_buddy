@@ -105,15 +105,17 @@ String documentDisplayName(Document document) {
 }
 
 /// Maps a saved [Document] onto the library cards' item shape.
-/// Study-set counts are real in the only sense available today:
-/// no deck/quiz persistence exists yet, so every document honestly
-/// reports 0 study sets until that phase lands.
-LibraryDocumentItem documentToLibraryItem(Document document) {
+/// The study-set count is real: the number of persisted decks for
+/// the document (0 until the first generation completes).
+LibraryDocumentItem documentToLibraryItem(
+  Document document, {
+  int studySets = 0,
+}) {
   return LibraryDocumentItem(
     format: document.format.label,
     title: documentDisplayName(document),
     date: formatLibraryDate(document.createdAt),
-    studySets: '0 study sets',
+    studySets: studySets == 1 ? '1 study set' : '$studySets study sets',
     subject:
         'Saved on this device · ${document.pageCount} ${document.format.unitLabel}',
   );

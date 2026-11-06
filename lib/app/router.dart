@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/widgets/app_shell.dart';
+import 'not_found_screen.dart';
 import '../features/ai_generation/presentation/screens/generation_failure_screen.dart';
 import '../features/ai_generation/presentation/screens/generation_setup_screen.dart';
 import '../features/ai_generation/presentation/screens/insufficient_text_screen.dart';
@@ -187,8 +188,19 @@ final appRouter = GoRouter(
           ],
         ),
         // Tab 2 · Study
+        //
+        // The study destinations (Library, Revision, Statistics,
+        // Planner) are branch routes, not top-level ones, so the
+        // bottom navigation stays visible while switching between
+        // them — they previously lived above the shell and the
+        // bottom nav disappeared on every sub-screen.
         StatefulShellBranch(
-          routes: [_route(AppRoutes.studyLibrary, const StudyLibraryScreen())],
+          routes: [
+            _route(AppRoutes.studyLibrary, const StudyLibraryScreen()),
+            _route(AppRoutes.revision, const RevisionHubScreen()),
+            _route(AppRoutes.statistics, const StatisticsDashboardScreen()),
+            _route(AppRoutes.planner, const StudyPlannerScreen()),
+          ],
         ),
         // Tab 3 · Settings
         StatefulShellBranch(
@@ -259,9 +271,6 @@ final appRouter = GoRouter(
     // Study
     _route(AppRoutes.createFolder, const CreateStudyFolderScreen()),
     _route(AppRoutes.subject, const SubjectDetailsScreen()),
-    _route(AppRoutes.revision, const RevisionHubScreen()),
-    _route(AppRoutes.statistics, const StatisticsDashboardScreen()),
-    _route(AppRoutes.planner, const StudyPlannerScreen()),
     // On-device model management
     _route(AppRoutes.notInstalled, const ModelNotInstalledScreen()),
     _route(AppRoutes.downloading, const ModelDownloadingScreen()),
@@ -279,6 +288,7 @@ final appRouter = GoRouter(
     _route(AppRoutes.restore, const RestorePurchasesScreen()),
     _route(AppRoutes.manage, const ManageSubscriptionScreen()),
   ],
-  // Previous behaviour: unknown routes fall back to the home dashboard.
-  errorBuilder: (context, state) => const HomeDashboardScreen(),
+  // Unknown routes show a real not-found screen instead of silently
+  // landing on Home, which used to mask broken links.
+  errorBuilder: (context, state) => const RouteNotFoundScreen(),
 );

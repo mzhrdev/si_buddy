@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../documents/domain/document_models.dart';
+import '../../../study/presentation/providers/study_providers.dart';
 import '../../data/edge_ai_engine.dart';
 import '../../data/flutter_edge_ai_engine.dart';
 import '../../data/generation_repository_impl.dart';
@@ -130,6 +131,7 @@ class GenerationJobState {
     this.fraction = 0,
     this.result,
     this.error,
+    this.deckId,
   });
 
   final GenerationJobStatus status;
@@ -151,6 +153,12 @@ class GenerationJobState {
 
   /// The failure that ended the job, once [status] is failed.
   final Object? error;
+
+  /// The persisted deck id for the completed result, once the
+  /// result has been saved to the local database. Null when the job
+  /// has not completed or the save failed (the in-memory result
+  /// still drives the current session in that case).
+  final int? deckId;
 
   /// The processing screen's stage states (complete/active/upcoming).
   JobStageStatus statusOf(GenerationStage stage) {
@@ -208,6 +216,7 @@ class GenerationJobState {
     double? fraction,
     GenerationResult? result,
     Object? error,
+    int? deckId,
   }) {
     return GenerationJobState(
       status: status ?? this.status,
@@ -217,6 +226,7 @@ class GenerationJobState {
       fraction: fraction ?? this.fraction,
       result: result ?? this.result,
       error: error ?? this.error,
+      deckId: deckId ?? this.deckId,
     );
   }
 }
@@ -250,7 +260,16 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
         ? repository.generateQuiz(source, config)
         : repository.generateFlashcards(source, config);
     _subscription = stream.listen(
-      (progress) {
+      (progress) async {
+        // On completion, persist the result as a deck before the
+        // state flips to completed, so the deck overview can rely
+        // on the persisted deck. A save failure never fails the
+        // generation the user just watched complete: the in-memory
+        // result still drives this session.
+        var deckId = state.deckId;
+        if (progress.isComplete && progress.result != null) {
+          deckId = await _persistResult(progress.result!);
+        }
         state = state.copyWith(
           status: progress.isComplete
               ? GenerationJobStatus.completed
@@ -258,6 +277,7 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
           currentStage: progress.stage,
           fraction: progress.fraction,
           result: progress.result,
+          deckId: deckId,
         );
       },
       onError: (Object error) {
@@ -274,6 +294,33 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
         }
       },
     );
+  }
+
+  /// Persists a completed generation result as a deck and returns
+  /// its id, or null when the result cannot be saved (missing
+  /// source/config, or a database failure). Saving is best-effort
+  /// by design: the job already succeeded, and the in-memory
+  /// result keeps the current session working.
+  Future<int?> _persistResult(GenerationResult result) async {
+    final config = state.config;
+    final source = state.source;
+    if (config == null || source == null) return null;
+    try {
+      return await ref
+          .read(studyRepositoryProvider)
+          .saveDeck(
+            documentId: source.document.id,
+            title: generatedMaterialTitle(
+              config: config,
+              documentName: source.document.originalFileName,
+            ),
+            materialType: config.materialType,
+            flashcards: result.flashcards,
+            questions: result.questions,
+          );
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Cancels the running job. The engine stops generating and
@@ -297,9 +344,9 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
   }
 
   /// Replaces one flashcard in the completed result (the card
-  /// editor's Save). Session-only: the edit lives until the app
-  /// restarts, like the rest of the session result. Returns false
-  /// when there is no completed result or the index is out of range.
+  /// editor's Save), and writes the same edit to the persisted
+  /// deck when the result was saved. Returns false when there is
+  /// no completed result or the index is out of range.
   bool updateFlashcard(int index, String front, String back) {
     final result = state.result;
     if (result == null ||
@@ -320,7 +367,31 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
         questions: result.questions,
       ),
     );
+    final deckId = state.deckId;
+    if (deckId != null) {
+      _persistFlashcardEdit(deckId, index, front, back);
+    }
     return true;
+  }
+
+  /// Writes one card edit to the persisted deck, best-effort: the
+  /// in-memory edit is already applied, so a failure here only
+  /// means the edit does not survive a restart.
+  Future<void> _persistFlashcardEdit(
+    int deckId,
+    int index,
+    String front,
+    String back,
+  ) async {
+    try {
+      final repository = ref.read(studyRepositoryProvider);
+      final cards = await repository.getFlashcards(deckId);
+      if (index < cards.length) {
+        await repository.updateFlashcard(cards[index].id, front, back);
+      }
+    } catch (_) {
+      // Best-effort only; the session result already has the edit.
+    }
   }
 
   void reset() {
