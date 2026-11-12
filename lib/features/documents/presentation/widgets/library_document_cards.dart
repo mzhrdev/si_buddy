@@ -5,7 +5,8 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import 'library_documents.dart';
 
-/// White format badge box with the file format label, e.g. "PDF".
+/// Neutral format badge: warm-gray chip, no border — it sits
+/// inside the bordered document card, so a border would nest.
 class _FormatBadge extends StatelessWidget {
   const _FormatBadge({
     required this.format,
@@ -24,7 +25,7 @@ class _FormatBadge extends StatelessWidget {
       height: height,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: context.appCard,
+        color: context.appChip,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(format, style: AppTextStyles.badge(context)),
@@ -168,10 +169,9 @@ class DocumentGridCard extends StatelessWidget {
                 height: 34,
                 child: Text(
                   document.title,
-                  style: AppTextStyles.itemTitle(context).copyWith(
-                    fontSize: 12,
-                    height: 16 / 12,
-                  ),
+                  style: AppTextStyles.itemTitle(
+                    context,
+                  ).copyWith(fontSize: 12, height: 16 / 12),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -198,7 +198,10 @@ class DocumentGridCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 5),
-                  Text(document.studySets, style: AppTextStyles.captionAccent(context)),
+                  Text(
+                    document.studySets,
+                    style: AppTextStyles.captionAccent(context),
+                  ),
                 ],
               ),
             ],

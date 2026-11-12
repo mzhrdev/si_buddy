@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -167,8 +165,8 @@ class _RecentDoc {
   final int? id;
 }
 
-/// White bordered card with the fanned supported-documents
-/// illustration, the "Browse files" primary action and its caption.
+/// White bordered card with the "Browse files" primary action and
+/// its caption.
 class _DeviceBrowserCard extends StatelessWidget {
   const _DeviceBrowserCard({required this.onBrowse});
 
@@ -185,98 +183,20 @@ class _DeviceBrowserCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const _SupportedDocumentsIllustration(),
-          const SizedBox(height: 14),
           Text(
             'Your files. One study space.',
-            style: AppTextStyles.body(context).copyWith(
-              fontWeight: FontWeight.w600,
-              height: 20 / 14,
-            ),
+            style: AppTextStyles.body(
+              context,
+            ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
           ),
           const SizedBox(height: 14),
           Text('Supports PDF and PPTX', style: AppTextStyles.greeting(context)),
           const SizedBox(height: 14),
           ImportPrimaryButton(label: 'Browse files', onPressed: onBrowse),
           const SizedBox(height: 14),
-          Text('Opens your Android file picker', style: AppTextStyles.caption(context)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Three fanned source-file cards (PDF tilted left, DOCX centred,
-/// PPTX tilted right) from the Figma illustration.
-class _SupportedDocumentsIllustration extends StatelessWidget {
-  const _SupportedDocumentsIllustration();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 220,
-      height: 86,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 19,
-            top: 0,
-            child: Transform.rotate(
-              angle: -9 * math.pi / 180,
-              child: const _SourceFileCard(label: 'PDF'),
-            ),
-          ),
-          const Positioned(
-            left: 81,
-            top: 0,
-            child: _SourceFileCard(label: 'DOCX'),
-          ),
-          Positioned(
-            left: 132,
-            top: 9,
-            child: Transform.rotate(
-              angle: 9 * math.pi / 180,
-              child: const _SourceFileCard(label: 'PPTX'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SourceFileCard extends StatelessWidget {
-  const _SourceFileCard({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 70,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: context.appCard,
-        border: Border.all(color: context.appBorder),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SvgPicture.asset(
-            'assets/icons/figma/file_text.svg',
-            width: 17,
-            height: 21,
-            colorFilter: ColorFilter.mode(
-              context.appPrimary,
-              BlendMode.srcIn,
-            ),
-          ),
-          const SizedBox(height: 6),
           Text(
-            label,
-            style: AppTextStyles.badge(context).copyWith(color: context.appPrimary),
+            'Opens your Android file picker',
+            style: AppTextStyles.caption(context),
           ),
         ],
       ),
@@ -314,7 +234,7 @@ class _RecentDocumentRow extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.appCard,
+                  color: context.appChip,
                   border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),

@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// The app themes. [light] is the Figma "Swiss Blue" system; [dark]
-/// keeps the same type scale on slate surfaces with light text.
-/// Filled buttons keep the cobalt fill and white label in both —
-/// the fill is the brand color, not a surface.
+/// The app theme: a single Light Mode minimalist system (2026-11-12
+/// restyle). Warm off-white canvas, flat white cards with 1px
+/// hairline borders, zero elevation, ink-black primary actions.
 ///
-/// Note: these are static [ThemeData] values, so they use the raw
-/// [AppColors] constants (light) and `dark*` constants (dark)
-/// directly. Screens use the theme-aware `context.app…` getters and
-/// `AppTextStyles.…(context)` instead, so they follow the appearance
-/// the user picked.
+/// Note: this is a static [ThemeData] value, so it uses the raw
+/// [AppColors] constants directly. Screens use the theme-aware
+/// `context.app…` getters and `AppTextStyles.…(context)` instead.
 abstract final class AppTheme {
   static const primary = AppColors.primary;
   static const surface = AppColors.surface;
@@ -21,9 +18,12 @@ abstract final class AppTheme {
     useMaterial3: true,
     fontFamily: 'Inter',
     scaffoldBackgroundColor: AppColors.background,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.primary,
+      onPrimary: AppColors.white,
       surface: AppColors.background,
+      onSurface: AppColors.text,
+      outline: AppColors.border,
     ),
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: AppColors.muted, fontSize: 14, height: 1.55),
@@ -46,6 +46,7 @@ abstract final class AppTheme {
         fontSize: 24,
         fontWeight: FontWeight.w700,
         height: 30 / 24,
+        letterSpacing: -0.5,
         color: AppColors.text,
       ),
       displaySmall: TextStyle(
@@ -53,6 +54,7 @@ abstract final class AppTheme {
         fontSize: 24,
         fontWeight: FontWeight.w700,
         height: 30 / 24,
+        letterSpacing: -0.5,
         color: AppColors.text,
       ),
     ),
@@ -66,89 +68,35 @@ abstract final class AppTheme {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(4)),
+        side: BorderSide(color: AppColors.border, width: 1),
       ),
     ),
     dialogTheme: const DialogThemeData(backgroundColor: AppColors.white),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(56),
-        backgroundColor: primary,
-        foregroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          height: 22 / 16,
-          color: AppColors.white,
-        ),
+    dividerTheme: const DividerThemeData(
+      color: AppColors.border,
+      thickness: 1,
+      space: 1,
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      hintStyle: TextStyle(color: AppColors.placeholder),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.border, width: 1),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.border, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.primary, width: 1),
       ),
     ),
-  );
-
-  static ThemeData get dark => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    fontFamily: 'Inter',
-    scaffoldBackgroundColor: AppColors.darkBackground,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
-      brightness: Brightness.dark,
-      surface: AppColors.darkBackground,
+    switchTheme: SwitchThemeData(
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.primary
+            : AppColors.border,
+      ),
+      thumbColor: const WidgetStatePropertyAll(AppColors.white),
     ),
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(
-        color: AppColors.darkMuted,
-        fontSize: 14,
-        height: 1.55,
-      ),
-      bodyMedium: TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        color: AppColors.darkText,
-      ),
-      labelLarge: TextStyle(
-        color: AppColors.darkPrimary,
-        fontWeight: FontWeight.w600,
-      ),
-      titleLarge: TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        height: 22 / 16,
-        color: AppColors.darkText,
-      ),
-      headlineMedium: TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        height: 30 / 24,
-        color: AppColors.darkText,
-      ),
-      displaySmall: TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        height: 30 / 24,
-        color: AppColors.darkText,
-      ),
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.darkBackground,
-      foregroundColor: AppColors.darkText,
-      elevation: 0,
-    ),
-    cardTheme: CardThemeData(
-      color: AppColors.darkCard,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
-    ),
-    dialogTheme: const DialogThemeData(backgroundColor: AppColors.darkCard),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(56),

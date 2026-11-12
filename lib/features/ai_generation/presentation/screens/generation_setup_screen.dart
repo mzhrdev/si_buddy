@@ -101,7 +101,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         ),
                         formatLabel: source.document.format.label,
                       ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text(
                       'What would you like to create?',
                       style: AppTextStyles.body(
@@ -142,7 +142,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         const Expanded(child: SizedBox()),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -193,7 +193,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text('Difficulty', style: AppTextStyles.itemTitle(context)),
                     const SizedBox(height: 7),
                     Row(
@@ -211,7 +211,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -238,7 +238,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     SizedBox(
                       height: 48,
                       child: Row(
@@ -269,7 +269,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -552,7 +552,6 @@ class _NoSourceCard extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: context.appSurface,
-                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(

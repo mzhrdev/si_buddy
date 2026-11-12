@@ -38,8 +38,9 @@ class SettingsSection extends StatelessWidget {
   }
 }
 
-/// White card (radius 4, padding 12 horizontal / 4 vertical) that groups
-/// settings rows, as in the Figma settings frames.
+/// White card (radius 4, padding 12 horizontal / 4 vertical, 1px
+/// hairline border) that groups settings rows, as in the Figma
+/// settings frames.
 class SettingsCard extends StatelessWidget {
   const SettingsCard({required this.children, super.key});
 
@@ -52,6 +53,7 @@ class SettingsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(children: children),
@@ -115,9 +117,9 @@ class SettingsRow extends StatelessWidget {
                   width: 18,
                   height: 18,
                   colorFilter: ColorFilter.mode(
-                iconColor ?? context.appTextSecondary,
-                BlendMode.srcIn,
-              ),
+                    iconColor ?? context.appTextSecondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
@@ -130,7 +132,10 @@ class SettingsRow extends StatelessWidget {
                   Text(label, style: _labelStyle(context)),
                   if (supportingText != null) ...[
                     const SizedBox(height: 3),
-                    Text(supportingText!, style: AppTextStyles.caption(context)),
+                    Text(
+                      supportingText!,
+                      style: AppTextStyles.caption(context),
+                    ),
                   ],
                 ],
               ),

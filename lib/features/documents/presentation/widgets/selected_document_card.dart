@@ -40,11 +40,13 @@ class SelectedDocumentCard extends StatelessWidget {
             height: 48,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.appCard,
-              border: Border.all(color: context.appBorder),
+              color: context.appChip,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(formatLabel ?? '–', style: AppTextStyles.badge(context)),
+            child: Text(
+              formatLabel ?? '–',
+              style: AppTextStyles.badge(context),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -53,7 +55,9 @@ class SelectedDocumentCard extends StatelessWidget {
               children: [
                 Text(
                   title ?? 'No document',
-                  style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
+                  style: AppTextStyles.itemTitle(
+                    context,
+                  ).copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

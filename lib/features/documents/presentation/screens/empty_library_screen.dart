@@ -7,7 +7,6 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../widgets/import_action_buttons.dart';
 import '../widgets/library_header.dart';
-import '../widgets/note_sheet_illustration.dart';
 import '../widgets/privacy_reassurance.dart';
 
 /// Empty library (first run), implemented from the Figma frame
@@ -31,26 +30,21 @@ class EmptyLibraryScreen extends StatelessWidget {
                   children: [
                     Column(
                       children: [
-                        const NoteSheetIllustration(
-                          badgeIconAsset: 'assets/icons/figma/folder_plus.svg',
-                        ),
-                        const SizedBox(height: 22),
                         Text(
                           'A home for your notes.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.display(context).copyWith(
-                            letterSpacing: -0.48,
-                          ),
+                          style: AppTextStyles.display(
+                            context,
+                          ).copyWith(letterSpacing: -0.48),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           'Import your first document. Turn what you’re '
                           'learning into flashcards, quizzes and summaries.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.body(context).copyWith(
-                            color: context.appMuted,
-                            height: 22 / 14,
-                          ),
+                          style: AppTextStyles.body(
+                            context,
+                          ).copyWith(color: context.appMuted, height: 22 / 14),
                         ),
                         const SizedBox(height: 22),
                         ImportPrimaryButton(

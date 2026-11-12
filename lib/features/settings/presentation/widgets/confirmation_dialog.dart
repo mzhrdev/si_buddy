@@ -8,11 +8,12 @@ import '../../../../app/theme/app_text_styles.dart';
 /// screen and returns whether the user confirmed. Cancel, the system
 /// back button and tapping outside all return false.
 ///
-/// The dialog is a centered white card (radius 4, padding 24) with a
-/// 44px indicator chip, a 24px bold title, muted message paragraphs,
-/// a 56px confirm button and a 44px outlined Cancel button, over the
-/// Figma scrim (rgba(23, 32, 51, 0.42)). Callers run their action
-/// after awaiting the result — the dialog itself only answers.
+/// The dialog is a centered white card (radius 4, 1px hairline border,
+/// padding 24) with a 44px indicator chip, a 24px bold title, muted
+/// message paragraphs, a 56px confirm button and a 48px outlined
+/// Cancel button, over the Figma scrim (rgba(23, 32, 51, 0.42)).
+/// Callers run their action after awaiting the result — the dialog
+/// itself only answers.
 Future<bool> showConfirmationDialog({
   required BuildContext context,
   required String iconAsset,
@@ -50,7 +51,7 @@ Future<bool> showConfirmationDialog({
 
 /// The Figma "SI Buddy / Confirmation dialog" card: a 44px indicator
 /// chip, a 24px bold title, muted message paragraphs, a 56px confirm
-/// button and a 44px outlined Cancel button. Shown through
+/// button and a 48px outlined Cancel button. Shown through
 /// [showConfirmationDialog]; it carries no scrim or navigation of
 /// its own.
 class ConfirmationDialog extends StatelessWidget {
@@ -94,6 +95,7 @@ class ConfirmationDialog extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -173,7 +175,7 @@ class ConfirmationDialog extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 44,
+            height: 48,
             child: OutlinedButton(
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(

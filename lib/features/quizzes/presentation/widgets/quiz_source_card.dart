@@ -36,8 +36,7 @@ class QuizSourceCard extends StatelessWidget {
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.appCard,
-              border: Border.all(color: context.appBorder),
+              color: context.appSurface,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(

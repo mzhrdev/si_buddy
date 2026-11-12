@@ -6,7 +6,7 @@ import '../../../../app/theme/app_text_styles.dart';
 
 /// The pinned bottom action bar of the subscription frames: an optional
 /// muted note, the primary button (label + forward arrow), an optional
-/// 44px outlined secondary action, and an optional footer row (the
+/// 48px outlined secondary action, and an optional footer row (the
 /// Free / Restore links on the Upgrade frame).
 class SubscriptionActions extends StatelessWidget {
   const SubscriptionActions({
@@ -75,7 +75,7 @@ class SubscriptionActions extends StatelessWidget {
             OutlinedButton(
               onPressed: onSecondary,
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(44),
+                minimumSize: const Size.fromHeight(48),
                 side: BorderSide(color: context.appBorder),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),

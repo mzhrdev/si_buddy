@@ -236,8 +236,7 @@ class _DocumentPreview extends StatelessWidget {
             height: 132,
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: context.appCard,
-              border: Border.all(color: context.appBorder),
+              color: context.appChip,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Column(
@@ -339,7 +338,8 @@ class _FileDetails extends StatelessWidget {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: context.appCard,
+                  color: context.appChip,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(chip, style: AppTextStyles.caption(context)),

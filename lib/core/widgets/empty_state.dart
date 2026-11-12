@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 
-/// A centered honest empty state: an icon in a surface circle, a
-/// title, a short explanation, and an optional primary action.
+/// A centered honest empty state: a small ink glyph naming what is
+/// missing, a title, a short explanation, and an optional primary
+/// action. No tinted surface, no circle, no border — on the screen's
+/// flat background.
 ///
 /// Used wherever a screen has no real data to show — no sample
 /// content is ever rendered in its place.
@@ -18,8 +20,9 @@ class EmptyState extends StatelessWidget {
     this.onAction,
   });
 
-  /// The icon shown in the circle (a Material icon — no asset
-  /// dependency, so this can never fail to load).
+  /// The glyph shown above the title (a Material icon — no asset
+  /// dependency, so this can never fail to load). Small and ink:
+  /// it names what is missing, it is not decoration.
   final IconData icon;
 
   /// Short heading, e.g. 'No flashcards yet'.
@@ -43,16 +46,8 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: context.appSurface,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 28, color: context.appPrimary),
-            ),
-            const SizedBox(height: 16),
+            Icon(icon, size: 20, color: context.appMuted),
+            const SizedBox(height: 12),
             Text(
               title,
               style: AppTextStyles.screenTitle(context),

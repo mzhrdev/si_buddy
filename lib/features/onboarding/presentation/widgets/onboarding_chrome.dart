@@ -65,7 +65,7 @@ class OnboardingHeader extends ConsumerWidget {
     return SizedBox(
       height: 64,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           children: [
             SvgPicture.asset(
@@ -118,7 +118,7 @@ class OnboardingIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -153,7 +153,7 @@ class OnboardingActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 22, 28, 16),
+      padding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
       child: Column(
         children: [
           Row(

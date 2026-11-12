@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Text styles from the SI Buddy Figma design system.
+/// Text styles for the minimalist Light Mode system.
 /// Typeface: Inter (bundled in assets/fonts, weights 400–800).
-/// Sizes/weights/line-heights are taken from the Figma frames.
+/// Sizes/weights/line-heights are taken from the Figma frames;
+/// hierarchy comes from size, weight and tight tracking, not color.
 ///
 /// Each style is a static method taking the [BuildContext] because
-/// the text color follows the appearance (Light/Dark/System):
+/// the text color follows the theme tokens:
 /// `AppTextStyles.body(context)`. The sizes and weights never
-/// change with appearance — only the color does. The `button` style
-/// stays white in both appearances: it labels filled primary
-/// buttons, whose fill is the same blue in Light and Dark.
+/// change — only the token values do. The `button` style stays white:
+/// it labels filled primary buttons, whose fill is ink black.
 abstract final class AppTextStyles {
   static const _family = 'Inter';
 
@@ -21,6 +21,7 @@ abstract final class AppTextStyles {
     fontSize: 24,
     fontWeight: FontWeight.w700,
     height: 30 / 24,
+    letterSpacing: -0.5,
     color: context.appText,
   );
 
@@ -30,6 +31,7 @@ abstract final class AppTextStyles {
     fontSize: 24,
     fontWeight: FontWeight.w700,
     height: 30 / 24,
+    letterSpacing: -0.5,
     color: context.appText,
   );
 
@@ -39,6 +41,7 @@ abstract final class AppTextStyles {
     fontSize: 20,
     fontWeight: FontWeight.w600,
     height: 26 / 20,
+    letterSpacing: -0.25,
     color: context.appText,
   );
 

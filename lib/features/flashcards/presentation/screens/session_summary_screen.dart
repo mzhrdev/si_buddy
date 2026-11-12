@@ -61,7 +61,7 @@ class SessionSummaryScreen extends ConsumerWidget {
             AppHeader(title: 'Session summary', onBack: () => context.pop()),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 child: Column(
                   children: [
                     Expanded(
@@ -140,6 +140,9 @@ class SessionSummaryScreen extends ConsumerWidget {
                               Container(
                                 decoration: BoxDecoration(
                                   color: context.appCard,
+                                  border: Border.all(
+                                    color: context.appBorder,
+                                  ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 padding: const EdgeInsets.all(12),

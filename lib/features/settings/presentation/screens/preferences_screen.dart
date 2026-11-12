@@ -8,7 +8,6 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../study/presentation/providers/reminder_providers.dart';
 import '../../../study/presentation/providers/study_providers.dart';
-import '../providers/settings_providers.dart';
 import '../widgets/settings_row.dart';
 import '../widgets/settings_toggle.dart';
 
@@ -24,13 +23,12 @@ TextStyle _noteStyle(BuildContext context) => TextStyle(
 /// Preferences, implemented from the Figma frame
 /// "SI Buddy · Preferences" (5:20736).
 ///
-/// The appearance single-selection is real: it reads and writes the
-/// persisted theme mode (Light/Dark/System) and the whole app
-/// re-themes. The reminder toggles and preferred time are real
-/// (Phase 5): they read and write the persisted reminder settings
-/// and schedule/cancel actual Android notifications, asking for the
-/// notification permission first. There is no Language setting (the
-/// brief removed it — generated content is English-only).
+/// The reminder toggles and preferred time are real (Phase 5): they
+/// read and write the persisted reminder settings and schedule/cancel
+/// actual Android notifications, asking for the notification
+/// permission first. There is no Language setting (the brief removed
+/// it — generated content is English-only) and no Appearance setting
+/// (the app is Light Mode only since the 2026-11-12 restyle).
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
 
@@ -39,13 +37,8 @@ class PreferencesScreen extends ConsumerStatefulWidget {
 }
 
 class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
-  static const _themes = ['Light', 'Dark', 'System'];
-  static const _modes = [ThemeMode.light, ThemeMode.dark, ThemeMode.system];
-
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
-    final themeIndex = _modes.indexOf(themeMode);
     final dailyOn = ref.watch(dailyReminderEnabledProvider).value ?? false;
     final revisionOn =
         ref.watch(revisionRemindersEnabledProvider).value ?? false;
@@ -62,32 +55,6 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 children: [
-                  SettingsSection(
-                    title: 'Appearance',
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (var i = 0; i < _themes.length; i++) ...[
-                            if (i > 0) const SizedBox(width: 8),
-                            Expanded(
-                              child: _ThemeOption(
-                                label: _themes[i],
-                                selected: themeIndex == i,
-                                onTap: () => setThemeMode(ref, _modes[i]),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'System follows your device’s appearance.',
-                        style: _noteStyle(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
                   SettingsSection(
                     title: 'Study & revision reminders',
                     children: [
@@ -127,10 +94,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
                                   ),
+                                  // Flat surface chip, not a bordered
+                                  // box: this control sits inside the
+                                  // bordered reminders card, and nested
+                                  // bordered containers are flattened.
                                   decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: context.appBorder,
-                                    ),
+                                    color: context.appSurface,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Row(
@@ -270,71 +239,12 @@ class _BorderedCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const SizedBox(height: 10),
+            // Rows inside the card are separated by hairlines, not
+            // by whitespace gaps.
+            if (i > 0) const Divider(height: 20),
             children[i],
           ],
         ],
-      ),
-    );
-  }
-}
-
-/// One theme option in the Appearance single-selection row (76 high).
-/// The selected option gets the surface-selected background, a primary
-/// border, the filled radio and a semibold primary label.
-class _ThemeOption extends StatelessWidget {
-  const _ThemeOption({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 76,
-        decoration: BoxDecoration(
-          color: selected ? context.appSurface : context.appCard,
-          border: Border.all(
-            color: selected ? context.appPrimary : context.appBorder,
-          ),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                selected
-                    ? 'assets/icons/figma/radio_button_selected.svg'
-                    : 'assets/icons/figma/radio_button.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: selected
-                    ? TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        height: 18 / 13,
-                        color: context.appPrimary,
-                      )
-                    : AppTextStyles.body(
-                        context,
-                      ).copyWith(fontSize: 13, height: 20 / 13),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

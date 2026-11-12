@@ -76,7 +76,7 @@ class StudyPlannerScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
                 children: [
                   const StudyDestinationsBar(currentIndex: 1),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   StudySectionHeading(
                     title: 'Today, ${now.day} ${_months[now.month - 1]}',
                     actionLabel: 'Edit goal',
@@ -89,14 +89,14 @@ class StudyPlannerScreen extends ConsumerWidget {
                         : 'A little every day adds up.',
                     style: AppTextStyles.greeting(context),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _DailyGoalCard(
                     studiedMinutes: studiedMinutes,
                     goalMinutes: goal,
                     fraction: fraction,
                     complete: goalComplete,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   StudySectionHeading(
                     title: 'Upcoming revision',
                     actionLabel: '+ Add',
@@ -138,7 +138,7 @@ class StudyPlannerScreen extends ConsumerWidget {
                         ],
                       ],
                     ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   const _ReminderCard(),
                 ],
               ),
@@ -617,7 +617,7 @@ class _ReminderCard extends ConsumerWidget {
                   height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   decoration: BoxDecoration(
-                    border: Border.all(color: context.appBorder),
+                    color: context.appSurface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(

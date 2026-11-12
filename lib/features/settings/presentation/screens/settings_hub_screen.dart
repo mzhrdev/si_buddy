@@ -8,7 +8,6 @@ import '../../../../core/widgets/app_header.dart';
 import '../../../model_management/domain/model_state.dart';
 import '../../../model_management/presentation/providers/model_providers.dart';
 import '../../../study/presentation/providers/reminder_providers.dart';
-import '../providers/settings_providers.dart';
 import '../widgets/settings_row.dart';
 
 /// Settings hub, implemented from the Figma frame
@@ -16,20 +15,15 @@ import '../widgets/settings_row.dart';
 ///
 /// Tab-root screen: the shell provides the bottom navigation and the
 /// header uses the brand-lockup form. Every trailing value is real:
-/// Appearance from the persisted theme mode, Reminders from the
-/// persisted reminder settings, AI Model from the live model state.
-/// There is no Language row (the brief removed the setting).
+/// Reminders from the persisted reminder settings, AI Model from the
+/// live model state. There is no Language row (the brief removed the
+/// setting) and no Appearance row (the app is Light Mode only since
+/// the 2026-11-12 restyle).
 class SettingsHubScreen extends ConsumerWidget {
   const SettingsHubScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
-    final appearance = switch (themeMode) {
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
-      ThemeMode.system => 'System',
-    };
     final dailyOn = ref.watch(dailyReminderEnabledProvider).value ?? false;
     final revisionOn =
         ref.watch(revisionRemindersEnabledProvider).value ?? false;
@@ -75,17 +69,9 @@ class SettingsHubScreen extends ConsumerWidget {
                       SettingsCard(
                         children: [
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/sun_moon.svg',
-                            label: 'Appearance',
-                            trailingValue: appearance,
-                            showDivider: true,
-                            onTap: () => context.push(AppRoutes.preferences),
-                          ),
-                          SettingsRow(
                             iconAsset: 'assets/icons/figma/bell.svg',
                             label: 'Reminders',
                             trailingValue: dailyOn || revisionOn ? 'On' : 'Off',
-                            showDivider: true,
                             onTap: () => context.push(AppRoutes.preferences),
                           ),
                         ],
@@ -96,23 +82,29 @@ class SettingsHubScreen extends ConsumerWidget {
                   SettingsSection(
                     title: 'App & storage',
                     children: [
-                      SettingsRow(
-                        iconAsset: 'assets/icons/figma/model.svg',
-                        label: 'AI Model',
-                        supportingText: modelText,
-                        onTap: () => context.push(modelRoute),
-                      ),
-                      SettingsRow(
-                        iconAsset: 'assets/icons/figma/storage.svg',
-                        label: 'Storage',
-                        supportingText: 'Manage local files and cache',
-                        onTap: () => context.push(AppRoutes.storage),
-                      ),
-                      SettingsRow(
-                        iconAsset: 'assets/icons/figma/subscription.svg',
-                        label: 'Subscription',
-                        supportingText: 'Free plan · Premium coming soon',
-                        onTap: () => context.push(AppRoutes.premium),
+                      SettingsCard(
+                        children: [
+                          SettingsRow(
+                            iconAsset: 'assets/icons/figma/model.svg',
+                            label: 'AI Model',
+                            supportingText: modelText,
+                            showDivider: true,
+                            onTap: () => context.push(modelRoute),
+                          ),
+                          SettingsRow(
+                            iconAsset: 'assets/icons/figma/storage.svg',
+                            label: 'Storage',
+                            supportingText: 'Manage local files and cache',
+                            showDivider: true,
+                            onTap: () => context.push(AppRoutes.storage),
+                          ),
+                          SettingsRow(
+                            iconAsset: 'assets/icons/figma/subscription.svg',
+                            label: 'Subscription',
+                            supportingText: 'Free plan · Premium coming soon',
+                            onTap: () => context.push(AppRoutes.premium),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -139,7 +131,6 @@ class SettingsHubScreen extends ConsumerWidget {
                             iconAsset: 'assets/icons/figma/info.svg',
                             label: 'About',
                             supportingText: 'Help & About · App and model info',
-                            showDivider: true,
                             onTap: () => context.push(AppRoutes.help),
                           ),
                         ],

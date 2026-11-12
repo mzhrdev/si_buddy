@@ -34,8 +34,7 @@ class SourceDocumentCard extends StatelessWidget {
             width: 36,
             height: 42,
             decoration: BoxDecoration(
-              color: context.appCard,
-              border: Border.all(color: context.appBorder),
+              color: context.appSurface,
               borderRadius: BorderRadius.circular(4),
             ),
             alignment: Alignment.center,

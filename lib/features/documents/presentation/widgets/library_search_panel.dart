@@ -132,7 +132,7 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                     hintText: 'Search all your study material',
                     hintStyle: AppTextStyles.body(
                       context,
-                    ).copyWith(color: context.appMuted),
+                    ).copyWith(color: context.appPlaceholder),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -235,7 +235,8 @@ class _SearchResultRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: context.appSurface,
+                  color: context.appChip,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

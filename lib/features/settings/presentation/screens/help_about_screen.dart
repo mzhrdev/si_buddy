@@ -58,6 +58,7 @@ class HelpAboutScreen extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: context.appSurfaceSubtle,
+                                border: Border.all(color: context.appBorder),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Center(
@@ -99,6 +100,7 @@ class HelpAboutScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: context.appCard,
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -158,7 +160,10 @@ class _Faq extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(answer, style: AppTextStyles.greeting(context).copyWith(height: 18 / 12)),
+        Text(
+          answer,
+          style: AppTextStyles.greeting(context).copyWith(height: 18 / 12),
+        ),
       ],
     );
   }
@@ -206,10 +211,9 @@ class _FeedbackRow extends StatelessWidget {
               children: [
                 Text(
                   'Send feedback',
-                  style: AppTextStyles.body(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                    height: 20 / 14,
-                  ),
+                  style: AppTextStyles.body(
+                    context,
+                  ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -223,10 +227,7 @@ class _FeedbackRow extends StatelessWidget {
             'assets/icons/figma/arrow_up_right.svg',
             width: 16,
             height: 16,
-            colorFilter: ColorFilter.mode(
-              context.appPrimary,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
           ),
         ],
       ),
@@ -247,13 +248,15 @@ class _VersionRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyles.greeting(context).copyWith(height: 18 / 12)),
+        Text(
+          label,
+          style: AppTextStyles.greeting(context).copyWith(height: 18 / 12),
+        ),
         Text(
           value,
-          style: AppTextStyles.greeting(context).copyWith(
-            height: 18 / 12,
-            color: context.appText,
-          ),
+          style: AppTextStyles.greeting(
+            context,
+          ).copyWith(height: 18 / 12, color: context.appText),
         ),
       ],
     );

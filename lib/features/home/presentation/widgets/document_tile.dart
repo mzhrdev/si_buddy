@@ -29,10 +29,14 @@ class DocumentTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: context.appSurfaceSubtle,
+                  color: context.appChip,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(document.format, style: AppTextStyles.badge(context)),
+                child: Text(
+                  document.format,
+                  style: AppTextStyles.badge(context),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(

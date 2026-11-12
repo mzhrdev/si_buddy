@@ -46,7 +46,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
             AppHeader(title: 'Upgrade to Premium', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 children: [
                   Text(
                     'More room for your study routine.',
@@ -65,9 +65,9 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                       color: context.appMuted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   const _ComparisonCard(),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Text(
                     'One run = one request to generate flashcards, a quiz or a summary. Offline generation counts toward the daily limit in this sample policy.',
                     style: TextStyle(
@@ -78,7 +78,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                       color: context.appMuted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -95,7 +95,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                       ],
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Text(
                     'Both plans include the same Premium benefits. Annual renews at US\$39.99/year unless changed.',
                     style: TextStyle(
@@ -106,7 +106,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                       color: context.appMuted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   SubscriptionGuidanceSection(
                     title: 'Keep studying on Free, online or offline',
                     titleStyle: AppTextStyles.itemTitle(
@@ -127,7 +127,9 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                 onTap: () => context.go(AppRoutes.home),
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  // 15px vertical padding puts the link's hit area
+                  // at the 48px touch target.
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Text(
                     'Continue with Free',
                     style: _footerLinkStyle(context),
@@ -227,7 +229,8 @@ class _ComparisonCard extends StatelessWidget {
             ],
           ),
           for (final row in _rows) ...[
-            const SizedBox(height: 10),
+            // Rows inside the card are separated by hairlines.
+            const Divider(height: 20),
             Row(
               children: [
                 SizedBox(
@@ -266,7 +269,8 @@ class _ComparisonCard extends StatelessWidget {
 }
 
 /// One selectable billing plan card; the selected plan uses the
-/// surface-selected fill and a 2px primary border.
+/// surface fill and a 1px primary (ink) border, plus the selected
+/// radio icon.
 class _PlanOption extends StatelessWidget {
   const _PlanOption({
     required this.name,
@@ -291,7 +295,6 @@ class _PlanOption extends StatelessWidget {
           color: selected ? context.appSurface : context.appCard,
           border: Border.all(
             color: selected ? context.appPrimary : context.appBorder,
-            width: selected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(4),
         ),

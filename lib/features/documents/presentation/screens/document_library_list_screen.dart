@@ -143,10 +143,10 @@ class DocumentLibraryListScreen extends ConsumerWidget {
                       )
                       .toList();
                   return ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 14),
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                     children: [
                       const LibrarySearchPanel(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       LibraryTools(
                         gridView: false,
                         onOrganizeTap: () => context.push(AppRoutes.organize),
@@ -155,11 +155,14 @@ class DocumentLibraryListScreen extends ConsumerWidget {
                         onShowList: () {},
                         onShowGrid: () => context.go(AppRoutes.grid),
                       ),
-                      const SizedBox(height: 12),
-                      Text('All documents', style: AppTextStyles.title(context)),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
+                      Text(
+                        'All documents',
+                        style: AppTextStyles.title(context),
+                      ),
+                      const SizedBox(height: 16),
                       for (var i = 0; i < items.length; i++) ...[
-                        if (i > 0) const SizedBox(height: 8),
+                        if (i > 0) const SizedBox(height: 12),
                         DocumentListCard(
                           document: items[i],
                           onTap: () {

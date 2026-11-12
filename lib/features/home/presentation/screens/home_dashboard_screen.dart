@@ -40,7 +40,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           children: [
             HomeHeader(greeting: greeting),
             const SizedBox(height: 16),
@@ -149,12 +149,6 @@ class _NoModelSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              'assets/icons/figma/shield_check.svg',
-              width: 13,
-              height: 13,
-            ),
-            const SizedBox(width: 6),
             Text(
               'No account. No cloud. Just your notes.',
               style: AppTextStyles.caption(context),
@@ -182,7 +176,10 @@ class _NoDocumentsSection extends StatelessWidget {
               height: 8,
             ),
             const SizedBox(width: 6),
-            Text('AI Ready Offline', style: AppTextStyles.successLabel(context)),
+            Text(
+              'AI Ready Offline',
+              style: AppTextStyles.successLabel(context),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -221,10 +218,7 @@ class _NoDocumentsSection extends StatelessWidget {
                 'assets/icons/figma/arrow_right.svg',
                 width: 18,
                 height: 18,
-                colorFilter: ColorFilter.mode(
-                  context.appCard,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
               ),
             ],
           ),
@@ -264,10 +258,7 @@ class _NoStudySetsSection extends ConsumerWidget {
                 'assets/icons/figma/arrow_right.svg',
                 width: 19,
                 height: 19,
-                colorFilter: ColorFilter.mode(
-                  context.appCard,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
               ),
             ],
           ),
@@ -493,10 +484,14 @@ class _PickUpCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: context.appSurface,
+                  color: context.appChip,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(pickUp.kindLabel, style: AppTextStyles.badge(context)),
+                child: Text(
+                  pickUp.kindLabel,
+                  style: AppTextStyles.badge(context),
+                ),
               ),
             ],
           ),

@@ -188,14 +188,14 @@ class _ExtractedTextReviewScreenState
                       context,
                     ).copyWith(fontSize: 28, height: 34 / 28),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     'Review the text before generating flashcards or a quiz.',
                     style: AppTextStyles.body(
                       context,
                     ).copyWith(color: context.appMuted, height: 22 / 14),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -215,19 +215,20 @@ class _ExtractedTextReviewScreenState
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: context.appSurface,
+                          color: context.appChip,
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           subject,
                           style: AppTextStyles.badge(
                             context,
-                          ).copyWith(color: context.appPrimary),
+                          ).copyWith(color: context.appTextSecondary),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Container(
                     height: 46,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -256,7 +257,7 @@ class _ExtractedTextReviewScreenState
                               hintText: 'Search in extracted text',
                               hintStyle: AppTextStyles.body(
                                 context,
-                              ).copyWith(color: context.appMuted),
+                              ).copyWith(color: context.appPlaceholder),
                               border: InputBorder.none,
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -490,6 +491,7 @@ class _ExtractedPageCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        color: context.appCard,
         border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -555,6 +557,7 @@ class _EditPageCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        color: context.appCard,
         border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),

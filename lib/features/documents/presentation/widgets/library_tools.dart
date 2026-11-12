@@ -99,7 +99,7 @@ class LibraryTools extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         SizedBox(
           height: 44,
           child: Row(
@@ -175,8 +175,9 @@ class LibraryTools extends ConsumerWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: context.appPrimary,
-                            borderRadius: BorderRadius.circular(100),
+                            color: context.appChip,
+                            border: Border.all(color: context.appBorder),
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             '$activeFilters',
@@ -184,7 +185,7 @@ class LibraryTools extends ConsumerWidget {
                               fontFamily: 'Inter',
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: context.appCard,
+                              color: context.appTextSecondary,
                             ),
                           ),
                         ),
@@ -199,7 +200,7 @@ class LibraryTools extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: context.appCard,
                   border: Border.all(color: context.appBorder),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

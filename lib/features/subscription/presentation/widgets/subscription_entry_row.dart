@@ -20,7 +20,7 @@ class SubscriptionEntryRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: 48),
         child: Row(
           children: [
             Expanded(

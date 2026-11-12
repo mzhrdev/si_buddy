@@ -66,7 +66,10 @@ class _SupportedFormatsGuidance extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Choose a supported format', style: AppTextStyles.itemTitle(context)),
+        Text(
+          'Choose a supported format',
+          style: AppTextStyles.itemTitle(context),
+        ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -78,10 +81,14 @@ class _SupportedFormatsGuidance extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: context.appSurfaceSubtle,
+                  color: context.appChip,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(format, style: AppTextStyles.captionStrong(context)),
+                child: Text(
+                  format,
+                  style: AppTextStyles.captionStrong(context),
+                ),
               ),
           ],
         ),

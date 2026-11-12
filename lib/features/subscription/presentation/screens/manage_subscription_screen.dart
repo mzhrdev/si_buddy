@@ -31,7 +31,7 @@ class ManageSubscriptionScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 children: [
                   const EmptyState(
                     icon: Icons.workspace_premium_outlined,
@@ -39,7 +39,7 @@ class ManageSubscriptionScreen extends StatelessWidget {
                     message:
                         'You’re on the Free plan. Premium isn’t available to buy yet — subscriptions arrive with billing.',
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   SubscriptionEntryRow(
                     label: 'See Premium',
                     onTap: () => context.push(AppRoutes.premium),

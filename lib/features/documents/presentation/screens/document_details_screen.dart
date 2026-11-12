@@ -296,14 +296,15 @@ class _DetailsScaffold extends StatelessWidget {
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: context.appSurface,
+                          color: context.appChip,
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           subjectChip,
                           style: AppTextStyles.captionStrong(
                             context,
-                          ).copyWith(color: context.appPrimary),
+                          ).copyWith(color: context.appTextSecondary),
                         ),
                       ),
                     ],
@@ -503,8 +504,7 @@ class _OriginalFileCard extends StatelessWidget {
             height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.appCard,
-              border: Border.all(color: context.appBorder),
+              color: context.appChip,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(format, style: AppTextStyles.badge(context)),

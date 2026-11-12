@@ -285,7 +285,6 @@ class _AttemptAction extends StatelessWidget {
     return Material(
       color: context.appCard,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: InkWell(

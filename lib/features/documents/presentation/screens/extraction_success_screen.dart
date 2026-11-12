@@ -65,23 +65,19 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                   children: [
                     Column(
                       children: [
-                        const _SuccessIllustration(),
-                        const SizedBox(height: 20),
                         Text(
                           'Text extracted. All yours.',
-                          style: AppTextStyles.display(context).copyWith(
-                            fontSize: 28,
-                            height: 34 / 28,
-                          ),
+                          style: AppTextStyles.display(
+                            context,
+                          ).copyWith(fontSize: 28, height: 34 / 28),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 10),
                         Text(
                           body,
-                          style: AppTextStyles.body(context).copyWith(
-                            color: context.appMuted,
-                            height: 22 / 14,
-                          ),
+                          style: AppTextStyles.body(
+                            context,
+                          ).copyWith(color: context.appMuted, height: 22 / 14),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
@@ -123,7 +119,9 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                         const SizedBox(height: 6),
                         Text(
                           'No study materials have been generated yet.',
-                          style: AppTextStyles.muted(context).copyWith(fontSize: 12),
+                          style: AppTextStyles.muted(
+                            context,
+                          ).copyWith(fontSize: 12),
                         ),
                         const SizedBox(height: 12),
                         FilledButton(
@@ -214,101 +212,6 @@ class ExtractionSuccessScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// 132px illustration: an extracted document sheet with a primary
-/// success badge overlapping its bottom-right corner.
-class _SuccessIllustration extends StatelessWidget {
-  const _SuccessIllustration();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 132,
-      height: 132,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 42,
-            top: 27,
-            child: Container(
-              width: 50,
-              height: 68,
-              padding: const EdgeInsets.all(11),
-              decoration: BoxDecoration(
-                color: context.appCard,
-                border: Border.all(color: context.appBorder),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 20,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: context.appPrimary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 7),
-                  Container(
-                    width: 28,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: context.appBorder,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 7),
-                  Container(
-                    width: 28,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: context.appBorder,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 7),
-                  Container(
-                    width: 19,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: context.appBorder,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 75,
-            top: 77,
-            child: Container(
-              width: 34,
-              height: 34,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: context.appPrimary,
-                border: Border.all(color: context.appCard, width: 3),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: SvgPicture.asset(
-                'assets/icons/figma/check.svg',
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(
-                  context.appCard,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

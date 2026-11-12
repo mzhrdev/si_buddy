@@ -102,7 +102,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
             AppHeader(title: 'Quiz setup', onBack: () => context.pop()),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

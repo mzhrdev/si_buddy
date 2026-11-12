@@ -5,9 +5,10 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 /// Selectable answer row from the quiz question screens (MCQ and
-/// True/False). The selected row uses the surface-selected fill, a
-/// primary border and marker, and a primary semibold label with a
-/// check; unselected rows are white with a bordered letter marker.
+/// True/False). Rows sit flat on the question card — no border of
+/// their own — and selection is shown by the warm-gray fill, the
+/// ink ring and marker, and a semibold ink label with a check;
+/// unselected rows are white with a bordered letter marker.
 class AnswerOptionTile extends StatelessWidget {
   const AnswerOptionTile({
     required this.marker,
@@ -28,9 +29,9 @@ class AnswerOptionTile extends StatelessWidget {
     return Material(
       color: selected ? context.appSurface : context.appCard,
       shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: selected ? context.appPrimary : context.appBorder,
-        ),
+        side: selected
+            ? BorderSide(color: context.appPrimary)
+            : BorderSide.none,
         borderRadius: BorderRadius.circular(4),
       ),
       child: InkWell(

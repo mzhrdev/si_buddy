@@ -68,7 +68,7 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
             AppHeader(title: 'Study flashcards', onBack: () => context.pop()),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 child: Column(
                   children: [
                     StudySessionHeader(
@@ -89,7 +89,7 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                       onBookmarkTap: () =>
                           setState(() => _bookmarked = !_bookmarked),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
                     Expanded(
                       child: _QuestionCard(
                         question: question,

@@ -161,6 +161,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: context.appCard,
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(

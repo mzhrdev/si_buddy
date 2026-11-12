@@ -107,7 +107,7 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
             AppHeader(title: 'Flashcards', onBack: () => context.pop()),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 child: Column(
                   children: [
                     Expanded(
@@ -120,7 +120,10 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
                                 if (subject != null && subject.isNotEmpty) ...[
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: context.appSurface,
+                                      color: context.appChip,
+                                      border: Border.all(
+                                        color: context.appBorder,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -130,7 +133,7 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
                                     child: Text(
                                       subject,
                                       style: AppTextStyles.tileLabel(context).copyWith(
-                                        color: context.appPrimary,
+                                        color: context.appTextSecondary,
                                       ),
                                     ),
                                   ),

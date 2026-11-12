@@ -176,7 +176,7 @@ void main() {
         check('tab $tab');
       }
 
-      await tester.tap(find.text('Appearance').first);
+      await tester.tap(find.text('Reminders').first);
       await tester.pumpAndSettle();
       check('settings -> Preferences');
       await back('back from Preferences');

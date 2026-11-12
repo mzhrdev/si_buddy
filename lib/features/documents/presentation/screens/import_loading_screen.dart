@@ -43,7 +43,8 @@ class ImportLoadingScreen extends ConsumerWidget {
                 child: EmptyState(
                   icon: Icons.upload_file_outlined,
                   title: 'Nothing is importing',
-                  message: 'Pick a document first — its import progress will appear here.',
+                  message:
+                      'Pick a document first — its import progress will appear here.',
                 ),
               ),
             ],
@@ -73,7 +74,7 @@ class ImportLoadingScreen extends ConsumerWidget {
                           formatLabel: file.format.label,
                         ),
                         const SizedBox(height: 24),
-                        _ReadingIllustration(formatLabel: file.format.label),
+                        const _ReadingIllustration(),
                         const SizedBox(height: 20),
                         const StateMessage(
                           headline: 'Getting your notes ready.',
@@ -134,71 +135,20 @@ class ImportLoadingScreen extends ConsumerWidget {
   }
 }
 
-/// Circular progress ring (indeterminate — no fraction is known)
-/// with the miniature reading document centred over it, from the
-/// Figma reading illustration.
+/// Circular progress ring (indeterminate — no fraction is known).
 class _ReadingIllustration extends StatelessWidget {
-  const _ReadingIllustration({required this.formatLabel});
-
-  final String formatLabel;
+  const _ReadingIllustration();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: SizedBox(
-        width: 160,
-        height: 156,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 15,
-              top: 13,
-              child: SizedBox(
-                width: 130,
-                height: 130,
-                child: CircularProgressIndicator(
-                  strokeWidth: 8,
-                  backgroundColor: context.appBorder,
-                  color: context.appPrimary,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 53,
-              top: 43,
-              child: Container(
-                width: 54,
-                height: 70,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: context.appCard,
-                  border: Border.all(color: context.appBorder),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/figma/file_text.svg',
-                      width: 25,
-                      height: 30,
-                      colorFilter: ColorFilter.mode(
-                        context.appPrimary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      formatLabel,
-                      style: AppTextStyles.badge(context).copyWith(
-                        color: context.appPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        width: 130,
+        height: 130,
+        child: CircularProgressIndicator(
+          strokeWidth: 8,
+          backgroundColor: AppColors.border,
+          color: AppColors.primary,
         ),
       ),
     );
@@ -234,7 +184,10 @@ class _ProgressDetailsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Text('Reading your document…', style: AppTextStyles.greeting(context)),
+          Text(
+            'Reading your document…',
+            style: AppTextStyles.greeting(context),
+          ),
         ],
       ),
     );

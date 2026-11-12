@@ -41,6 +41,7 @@ class ModelManagementLayout extends StatelessWidget {
   final Color readinessIconColor;
   final String readinessTitle;
   final String readinessBody;
+
   /// Null reads as the card color.
   final Color? readinessBackground;
 
@@ -54,8 +55,10 @@ class ModelManagementLayout extends StatelessWidget {
   final VoidCallback onPrimary;
   final String secondaryLabel;
   final VoidCallback onSecondary;
+
   /// Null reads as the primary color.
   final Color? secondaryColor;
+
   /// Null reads as the border color.
   final Color? secondaryBorderColor;
 
@@ -74,7 +77,7 @@ class ModelManagementLayout extends StatelessWidget {
             AppHeader(title: 'AI Model', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 children: [
                   _ModelPackageCard(
                     statusLabel: statusLabel,
@@ -88,8 +91,7 @@ class ModelManagementLayout extends StatelessWidget {
                     iconColor: readinessIconColor,
                     title: readinessTitle,
                     body: readinessBody,
-                    background:
-                        readinessBackground ?? context.appCard,
+                    background: readinessBackground ?? context.appCard,
                     child: readinessChild,
                   ),
                   const SizedBox(height: 16),
@@ -130,7 +132,7 @@ class ModelManagementLayout extends StatelessWidget {
                   OutlinedButton(
                     onPressed: onSecondary,
                     style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(44),
+                      minimumSize: const Size.fromHeight(48),
                       side: BorderSide(
                         color: secondaryBorderColor ?? context.appBorder,
                       ),
@@ -207,9 +209,15 @@ class _ModelPackageCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Qwen3 0.6B', style: AppTextStyles.screenTitle(context)),
+                    Text(
+                      'Qwen3 0.6B',
+                      style: AppTextStyles.screenTitle(context),
+                    ),
                     const SizedBox(height: 4),
-                    Text('On-device AI model', style: AppTextStyles.caption(context)),
+                    Text(
+                      'On-device AI model',
+                      style: AppTextStyles.caption(context),
+                    ),
                   ],
                 ),
               ),
@@ -326,16 +334,18 @@ class _ReadinessCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: AppTextStyles.body(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                    height: 20 / 14,
-                  ),
+                  style: AppTextStyles.body(
+                    context,
+                  ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(body, style: AppTextStyles.muted(context).copyWith(height: 20 / 13)),
+          Text(
+            body,
+            style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
+          ),
           if (child != null) ...[const SizedBox(height: 8), child!],
         ],
       ),
@@ -355,10 +365,9 @@ class _OfflineAvailability extends StatelessWidget {
       children: [
         Text(
           'What works offline',
-          style: AppTextStyles.body(context).copyWith(
-            fontWeight: FontWeight.w600,
-            height: 20 / 14,
-          ),
+          style: AppTextStyles.body(
+            context,
+          ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
         ),
         const SizedBox(height: 12),
         const _AvailabilityRow(
@@ -404,10 +413,7 @@ class _AvailabilityRow extends StatelessWidget {
           iconAsset,
           width: 16,
           height: 16,
-          colorFilter: ColorFilter.mode(
-            context.appPrimary,
-            BlendMode.srcIn,
-          ),
+          colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
         ),
         const SizedBox(width: 10),
         Expanded(

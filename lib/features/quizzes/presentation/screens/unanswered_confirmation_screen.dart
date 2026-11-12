@@ -38,7 +38,7 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
       textStyle: AppTextStyles.button(context),
     );
     return Scaffold(
-      backgroundColor: const Color(0x99172033),
+      backgroundColor: const Color(0x99111111),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

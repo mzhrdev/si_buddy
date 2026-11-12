@@ -109,7 +109,7 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
             AppHeader(title: 'Edit card', onBack: () => context.pop()),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 child: Column(
                   children: [
                     Expanded(

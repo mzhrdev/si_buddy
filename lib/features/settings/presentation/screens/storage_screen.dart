@@ -343,7 +343,7 @@ class _UsageCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _UsageCategory(
             name: 'Documents & extracted text',
             amount: formatFileSize(documentsBytes),
@@ -351,7 +351,7 @@ class _UsageCard extends StatelessWidget {
                 ? 'No files imported yet'
                 : '$fileCount file${fileCount == 1 ? '' : 's'}',
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _UsageCategory(
             name: 'AI model',
             amount: modelInstalled
@@ -361,7 +361,7 @@ class _UsageCard extends StatelessWidget {
                 ? '${AiModelInfo.current.displayName} · On-device model file'
                 : 'Download the model to generate offline',
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _UsageCategory(
             name: 'Study materials',
             amount: deckCount + quizCount == 0
@@ -370,13 +370,13 @@ class _UsageCard extends StatelessWidget {
             detail:
                 '$cardCount flashcard${cardCount == 1 ? '' : 's'} generated · Kept in the local database',
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _UsageCategory(
             name: 'Local database',
             amount: formatFileSize(databaseBytes),
             detail: 'Documents, extracted text, study data and settings',
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _UsageCategory(
             name: 'Temporary cache',
             amount: formatFileSize(cacheBytes),
