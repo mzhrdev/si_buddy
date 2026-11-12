@@ -59,7 +59,10 @@ List<GeneratedFlashcard> parseFlashcards(
   var openField = 0; // 0 none, 1 front, 2 back, 3 explanation
 
   void flush() {
-    if (front != null && front!.isNotEmpty && back != null && back!.isNotEmpty) {
+    if (front != null &&
+        front!.isNotEmpty &&
+        back != null &&
+        back!.isNotEmpty) {
       cards.add(
         GeneratedFlashcard(
           front: front!,
@@ -90,6 +93,23 @@ List<GeneratedFlashcard> parseFlashcards(
     if (e != null && back != null) {
       explanation = e.group(1)!;
       openField = 3;
+      continue;
+    }
+    // A bare question starts the next card: 1B models often prefix
+    // only the first item with `Q:`, then write the rest as bare
+    // questions. Without this, everything after the first item is
+    // swallowed into the first card's answer and a 10-card request
+    // comes back with a single card — the same failure the quiz
+    // parsers already guard against. Only a line ending in '?'
+    // starts a card: a wrapped answer (or question) line almost
+    // never ends with one, so multi-line fields still join, and a
+    // stray question without a following answer is dropped by
+    // flush() like any other malformed entry.
+    if (line.endsWith('?') &&
+        (front == null || (back != null && back!.isNotEmpty))) {
+      flush();
+      front = line;
+      openField = 1;
       continue;
     }
     // A continuation of whichever field is open.

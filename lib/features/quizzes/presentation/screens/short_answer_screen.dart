@@ -61,8 +61,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.shortAnswer)
         .toList();
-    final question = questions.isEmpty ? null : questions.first;
-    if (question == null) {
+    if (questions.isEmpty) {
       return Scaffold(
         backgroundColor: context.appBackground,
         body: SafeArea(
@@ -84,6 +83,9 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
         ),
       );
     }
+    final total = questions.length;
+    final index = ref.watch(quizQuestionIndexProvider).clamp(0, total - 1);
+    final question = questions[index];
     final answers = ref.watch(quizAnswersProvider);
     final shortAnswers = ref.watch(quizShortAnswersProvider);
     final answeredCount = result!.questions
@@ -93,7 +95,6 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
               shortAnswers.containsKey(q.prompt),
         )
         .length;
-    final total = questions.length;
     if (_boundPrompt != question.prompt) {
       _boundPrompt = question.prompt;
       _controller.text = shortAnswers[question.prompt] ?? '';
@@ -120,7 +121,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: 'Question 1 of $total',
+                      leftLabel: 'Question ${index + 1} of $total',
                       rightLabel: '$answeredCount / $total answered',
                       fraction: total == 0 ? 0 : answeredCount / total,
                     ),
@@ -140,13 +141,14 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                               children: [
                                 Text(
                                   'SHORT ANSWER',
-                                  style: AppTextStyles.caption(context).copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: context.appPrimary,
-                                  ),
+                                  style: AppTextStyles.caption(context)
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: context.appPrimary,
+                                      ),
                                 ),
                                 Text(
-                                  '01 / $total',
+                                  '${(index + 1).toString().padLeft(2, '0')} / $total',
                                   style: AppTextStyles.caption(context),
                                 ),
                               ],
@@ -175,9 +177,9 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                               },
                               maxLines: null,
                               minLines: 6,
-                              style: AppTextStyles.body(context).copyWith(
-                                height: 22 / 14,
-                              ),
+                              style: AppTextStyles.body(
+                                context,
+                              ).copyWith(height: 22 / 14),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(14),
                                 enabledBorder: OutlineInputBorder(
@@ -214,8 +216,22 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
               leftLabel: 'Previous',
               rightLabel: 'Next',
               linkLabel: 'Submit Quiz',
-              onLeft: () => context.pop(),
-              onRight: () => context.push(AppRoutes.unanswered),
+              onLeft: () {
+                if (index > 0) {
+                  ref.read(quizQuestionIndexProvider.notifier).previous();
+                } else {
+                  context.pop();
+                }
+              },
+              // Next moves within this quiz's questions; on the last
+              // one it opens the submit check.
+              onRight: () {
+                if (index >= total - 1) {
+                  context.push(AppRoutes.unanswered);
+                } else {
+                  ref.read(quizQuestionIndexProvider.notifier).next(total);
+                }
+              },
               onLink: () => context.push(AppRoutes.unanswered),
             ),
           ],

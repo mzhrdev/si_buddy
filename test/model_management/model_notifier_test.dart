@@ -18,6 +18,10 @@ class FakeEdgeAiEngine implements EdgeAiEngine {
   EngineDownloadException? downloadError;
   bool deleted = false;
 
+  /// How many times a download was started — the single-flight
+  /// guard is that a second start while one runs adds none.
+  int downloadCalls = 0;
+
   @override
   Future<bool> isModelReady() async => ready;
 
@@ -26,6 +30,7 @@ class FakeEdgeAiEngine implements EdgeAiEngine {
 
   @override
   Stream<double> downloadModel() async* {
+    downloadCalls++;
     final error = downloadError;
     if (error != null) {
       // Some progress, then the failure — like a real download.
@@ -132,6 +137,22 @@ void main() {
       (state().failure! as ModelDownloadFailure).kind,
       ModelDownloadErrorKind.network,
     );
+  });
+
+  test('a second start while downloading restarts nothing', () async {
+    engine.downloadScript = const [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
+    notifier().startDownload();
+    await Future<void>.delayed(const Duration(milliseconds: 35));
+    expect(state().status, ModelStatus.downloading);
+    expect(engine.downloadCalls, 1);
+    // The re-entry that used to start a second parallel install:
+    // back, then Download again while the first is still running.
+    notifier().startDownload();
+    expect(engine.downloadCalls, 1);
+    expect(state().status, ModelStatus.downloading);
+    await settle();
+    expect(state().status, ModelStatus.ready);
+    expect(engine.downloadCalls, 1);
   });
 
   test('cancel returns to not installed', () async {

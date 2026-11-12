@@ -40,8 +40,14 @@ class _ModelNotInstalledScreenState
         context.pushReplacement(AppRoutes.readyOffline);
       }
     });
+    // A download already running (started, then left via back) is
+    // shown with its live progress and rejoined — never restarted:
+    // starting a second install of the same file while the first
+    // was still running downloaded the model twice at once.
+    final modelState = ref.watch(modelProvider);
+    final downloading = modelState.isDownloading;
     return ModelManagementLayout(
-      statusLabel: 'Not installed',
+      statusLabel: downloading ? 'Downloading' : 'Not installed',
       statusColor: context.appPrimary,
       readinessIconAsset: 'assets/icons/figma/download_plain.svg',
       readinessIconColor: context.appPrimary,
@@ -50,9 +56,13 @@ class _ModelNotInstalledScreenState
           'The initial model download requires internet. AI generation is unavailable until installation completes.',
       generationAvailability:
           'Requires an installed model and enough free device resources.',
-      primaryLabel: 'Download Model',
+      primaryLabel: downloading
+          ? 'Downloading… ${(modelState.downloadProgress * 100).round()}%'
+          : 'Download Model',
       onPrimary: () {
-        ref.read(modelProvider.notifier).startDownload();
+        if (!downloading) {
+          ref.read(modelProvider.notifier).startDownload();
+        }
         context.push(AppRoutes.downloading);
       },
       secondaryLabel: 'Continue Studying',

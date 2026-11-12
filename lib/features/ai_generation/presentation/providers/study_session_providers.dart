@@ -25,9 +25,38 @@ class StudyCardIndexNotifier extends Notifier<int> {
   void reset() => state = 0;
 }
 
-final studyCardIndexProvider =
-    NotifierProvider<StudyCardIndexNotifier, int>(
-      StudyCardIndexNotifier.new,
+final studyCardIndexProvider = NotifierProvider<StudyCardIndexNotifier, int>(
+  StudyCardIndexNotifier.new,
+);
+
+/// Index of the quiz question currently shown by the MCQ /
+/// true-false / short-answer screens, into the current type's
+/// questions list. The screens used to always show the first
+/// question and navigate on to the next question TYPE — so a
+/// 10-question MCQ quiz showed one question, then empty true/false
+/// and short-answer screens. With this index, Next moves within
+/// the same type and the last question leads to the submit check.
+class QuizQuestionIndexNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void set(int index) => state = index < 0 ? 0 : index;
+
+  void next(int count) {
+    if (count <= 0) return;
+    state = (state + 1).clamp(0, count - 1);
+  }
+
+  void previous() {
+    state = (state - 1).clamp(0, state);
+  }
+
+  void reset() => state = 0;
+}
+
+final quizQuestionIndexProvider =
+    NotifierProvider<QuizQuestionIndexNotifier, int>(
+      QuizQuestionIndexNotifier.new,
     );
 
 /// Answers chosen on MCQ / true-false questions, keyed by the
@@ -86,8 +115,9 @@ class ReviewIndexNotifier extends Notifier<int> {
   void reset() => state = 0;
 }
 
-final reviewIndexProvider =
-    NotifierProvider<ReviewIndexNotifier, int>(ReviewIndexNotifier.new);
+final reviewIndexProvider = NotifierProvider<ReviewIndexNotifier, int>(
+  ReviewIndexNotifier.new,
+);
 
 /// Free-text answers on short-answer questions, keyed by prompt.
 class QuizShortAnswersNotifier extends Notifier<Map<String, String>> {

@@ -39,8 +39,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.trueFalse)
         .toList();
-    final question = questions.isEmpty ? null : questions.first;
-    if (question == null) {
+    if (questions.isEmpty) {
       return Scaffold(
         backgroundColor: context.appBackground,
         body: SafeArea(
@@ -62,6 +61,9 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
         ),
       );
     }
+    final total = questions.length;
+    final index = ref.watch(quizQuestionIndexProvider).clamp(0, total - 1);
+    final question = questions[index];
     final answers = ref.watch(quizAnswersProvider);
     final answeredCount = result!.questions
         .where(
@@ -70,7 +72,6 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
               ref.watch(quizShortAnswersProvider).containsKey(q.prompt),
         )
         .length;
-    final total = questions.length;
     final options = [
       for (var i = 0; i < question.options.length; i++)
         (i == 0 ? 'T' : 'F', question.options[i]),
@@ -100,7 +101,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: 'Question 1 of $total',
+                      leftLabel: 'Question ${index + 1} of $total',
                       rightLabel: '$answeredCount / $total answered',
                       fraction: total == 0 ? 0 : answeredCount / total,
                     ),
@@ -120,13 +121,14 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                               children: [
                                 Text(
                                   'TRUE/FALSE',
-                                  style: AppTextStyles.caption(context).copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: context.appPrimary,
-                                  ),
+                                  style: AppTextStyles.caption(context)
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: context.appPrimary,
+                                      ),
                                 ),
                                 Text(
-                                  '01 / $total',
+                                  '${(index + 1).toString().padLeft(2, '0')} / $total',
                                   style: AppTextStyles.caption(context),
                                 ),
                               ],
@@ -190,8 +192,23 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
               leftLabel: 'Previous',
               rightLabel: 'Next',
               linkLabel: 'Submit Quiz',
-              onLeft: () => context.pop(),
-              onRight: () => context.push(AppRoutes.shortAnswer),
+              onLeft: () {
+                if (index > 0) {
+                  ref.read(quizQuestionIndexProvider.notifier).previous();
+                } else {
+                  context.pop();
+                }
+              },
+              // Next moves within this quiz's questions; on the last
+              // one it opens the submit check instead of wandering
+              // to another question type's (empty) screen.
+              onRight: () {
+                if (index >= total - 1) {
+                  context.push(AppRoutes.unanswered);
+                } else {
+                  ref.read(quizQuestionIndexProvider.notifier).next(total);
+                }
+              },
               onLink: () => context.push(AppRoutes.unanswered),
             ),
           ],

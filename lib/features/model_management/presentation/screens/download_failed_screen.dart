@@ -20,7 +20,12 @@ class ModelDownloadFailedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final failure = ref.watch(modelProvider).failure;
+    final modelState = ref.watch(modelProvider);
+    final failure = modelState.failure;
+    // A download already running is rejoined, never restarted (see
+    // the not-installed screen): a second install of the same file
+    // while the first was still running downloaded the model twice.
+    final downloading = modelState.isDownloading;
     return ModelManagementLayout(
       statusLabel: 'Download failed · Not installed',
       statusColor: context.appDanger,
@@ -33,9 +38,13 @@ class ModelDownloadFailedScreen extends ConsumerWidget {
           'The internet connection was lost. The model is not installed. Reconnect to the internet and try again.',
       generationAvailability:
           'Requires an installed model and enough free device resources.',
-      primaryLabel: 'Retry',
+      primaryLabel: downloading
+          ? 'Downloading… ${(modelState.downloadProgress * 100).round()}%'
+          : 'Retry',
       onPrimary: () {
-        ref.read(modelProvider.notifier).startDownload();
+        if (!downloading) {
+          ref.read(modelProvider.notifier).startDownload();
+        }
         context.push(AppRoutes.downloading);
       },
       secondaryLabel: 'Continue Studying',

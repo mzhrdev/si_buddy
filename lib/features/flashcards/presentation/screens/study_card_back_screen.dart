@@ -157,6 +157,34 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                         ],
                       ),
                     ),
+                    // Once every card has a rating, the session has
+                    // an end: the summary (counts, Study Again,
+                    // Home). Before this, rating the last card left
+                    // the user on the answer with nowhere to go —
+                    // no save step is needed, the deck was saved
+                    // when generation completed.
+                    if (reviewed >= cards.length) ...[
+                      const SizedBox(height: 10),
+                      FilledButton(
+                        onPressed: () => context.push(AppRoutes.summary),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Finish session'),
+                            const SizedBox(width: 12),
+                            SvgPicture.asset(
+                              'assets/icons/figma/arrow_right.svg',
+                              width: 18,
+                              height: 18,
+                              colorFilter: ColorFilter.mode(
+                                context.appCard,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -226,19 +254,16 @@ class _AnswerCard extends StatelessWidget {
           const Spacer(),
           Text(
             question,
-            style: AppTextStyles.body(context).copyWith(
-              fontWeight: FontWeight.w600,
-              height: 20 / 14,
-            ),
+            style: AppTextStyles.body(
+              context,
+            ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
           ),
           const SizedBox(height: 9),
           Text(
             answer,
-            style: AppTextStyles.display(context).copyWith(
-              fontSize: 28,
-              height: 34 / 28,
-              letterSpacing: -0.56,
-            ),
+            style: AppTextStyles.display(
+              context,
+            ).copyWith(fontSize: 28, height: 34 / 28, letterSpacing: -0.56),
           ),
           const SizedBox(height: 9),
           if (explanation.isNotEmpty)
@@ -249,7 +274,9 @@ class _AnswerCard extends StatelessWidget {
           const Spacer(),
           Text(
             'Generated on this device',
-            style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
+            style: AppTextStyles.badge(
+              context,
+            ).copyWith(color: context.appMuted),
           ),
           const SizedBox(height: 9),
           InkWell(
@@ -318,7 +345,9 @@ class _RatingOption extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               sublabel,
-              style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
+              style: AppTextStyles.badge(
+                context,
+              ).copyWith(color: context.appMuted),
             ),
           ],
         ),

@@ -99,6 +99,9 @@ abstract class EdgeAiEngine {
   /// the download through the plugin's cancel token; a cancelled
   /// download surfaces as an [EngineDownloadException] with kind
   /// [EngineDownloadErrorKind.cancelled] if it is observed at all.
+  ///
+  /// Single-flight: while a download is running, a second call
+  /// returns the same stream instead of starting a second install.
   Stream<double> downloadModel();
 
   /// Removes the installed model and its stored file. Throws

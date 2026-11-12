@@ -10,12 +10,13 @@ import '../domain/generation_config.dart';
 /// Character budget for the source text embedded in a prompt.
 ///
 /// The model's context is 4096 tokens (prompt + reply). At roughly
-/// 4 characters per token, 6000 characters of source (~1500 tokens)
+/// 4 characters per token, 4000 characters of source (~1000 tokens)
 /// leaves comfortable room for the instructions and a full reply of
-/// generated items. Longer documents are sampled across their
-/// sections rather than truncated at the front, so late pages still
-/// contribute items.
-const int sourceTextBudgetChars = 6000;
+/// generated items — and keeps the on-device prefill (the slowest
+/// part of a generation on a phone CPU) short. Longer documents are
+/// sampled across their sections rather than truncated at the front,
+/// so late pages still contribute items.
+const int sourceTextBudgetChars = 4000;
 
 /// Builds the full prompt for one generation job from [source]'s
 /// extracted text and the user's [config].
@@ -23,10 +24,7 @@ String buildGenerationPrompt({
   required ExtractedDocument source,
   required GenerationConfig config,
 }) {
-  final notes = sampleSourceText(
-    source,
-    budgetChars: sourceTextBudgetChars,
-  );
+  final notes = sampleSourceText(source, budgetChars: sourceTextBudgetChars);
   final header =
       'You are creating study material from a student\'s notes.\n'
       'Topic: ${_topic(config)}\n'

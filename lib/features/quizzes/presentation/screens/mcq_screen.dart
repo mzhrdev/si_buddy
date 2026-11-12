@@ -58,8 +58,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
     final questions = (result?.questions ?? const [])
         .where((q) => q.type == QuizQuestionType.mcq)
         .toList();
-    final question = questions.isEmpty ? null : questions.first;
-    if (question == null) {
+    if (questions.isEmpty) {
       return Scaffold(
         backgroundColor: context.appBackground,
         body: SafeArea(
@@ -81,6 +80,9 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
         ),
       );
     }
+    final total = questions.length;
+    final index = ref.watch(quizQuestionIndexProvider).clamp(0, total - 1);
+    final question = questions[index];
     final answers = ref.watch(quizAnswersProvider);
     final answeredCount = result!.questions
         .where(
@@ -89,7 +91,6 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
               ref.watch(quizShortAnswersProvider).containsKey(q.prompt),
         )
         .length;
-    final total = questions.length;
     final options = [
       for (var i = 0; i < question.options.length; i++)
         (String.fromCharCode('A'.codeUnitAt(0) + i), question.options[i]),
@@ -119,7 +120,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                     ),
                     const SizedBox(height: 16),
                     QuizProgressBar(
-                      leftLabel: 'Question 1 of $total',
+                      leftLabel: 'Question ${index + 1} of $total',
                       rightLabel: '$answeredCount / $total answered',
                       fraction: total == 0 ? 0 : answeredCount / total,
                     ),
@@ -139,13 +140,14 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                               children: [
                                 Text(
                                   'MULTIPLE CHOICE',
-                                  style: AppTextStyles.caption(context).copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: context.appPrimary,
-                                  ),
+                                  style: AppTextStyles.caption(context)
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: context.appPrimary,
+                                      ),
                                 ),
                                 Text(
-                                  '01 / $total',
+                                  '${(index + 1).toString().padLeft(2, '0')} / $total',
                                   style: AppTextStyles.caption(context),
                                 ),
                               ],
@@ -209,8 +211,23 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
               leftLabel: 'Previous',
               rightLabel: 'Next',
               linkLabel: 'Submit Quiz',
-              onLeft: () => context.pop(),
-              onRight: () => context.push(AppRoutes.trueFalse),
+              onLeft: () {
+                if (index > 0) {
+                  ref.read(quizQuestionIndexProvider.notifier).previous();
+                } else {
+                  context.pop();
+                }
+              },
+              // Next moves within this quiz's questions; on the last
+              // one it opens the submit check instead of wandering
+              // to another question type's (empty) screen.
+              onRight: () {
+                if (index >= total - 1) {
+                  context.push(AppRoutes.unanswered);
+                } else {
+                  ref.read(quizQuestionIndexProvider.notifier).next(total);
+                }
+              },
               onLink: () => context.push(AppRoutes.unanswered),
             ),
           ],

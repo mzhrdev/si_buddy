@@ -68,10 +68,28 @@ class FlutterEdgeAiEngine implements EdgeAiEngine {
     }
   }
 
+  /// Downloads and installs the model, emitting progress 0.0–1.0.
+  ///
+  /// Single-flight: while a download is running, a second caller
+  /// gets the SAME stream instead of starting a second native
+  /// install of the same file. Re-entering the download screens
+  /// (back, then Download again) used to start a parallel install,
+  /// and cancelling the first subscription did not reliably stop
+  /// its native WorkManager task — two installs of one model could
+  /// run at once, and the abandoned one's cancel was logged after
+  /// the surviving one installed the model.
   @override
   Stream<double> downloadModel() {
+    final existing = _inFlightDownload;
+    if (existing != null) return existing;
+    late final Stream<double> shared;
     final cancelToken = CancelToken();
     late final StreamController<double> controller;
+
+    void clearIfCurrent() {
+      if (_inFlightDownload == shared) _inFlightDownload = null;
+    }
+
     controller = StreamController<double>(
       onListen: () async {
         try {
@@ -104,12 +122,22 @@ class FlutterEdgeAiEngine implements EdgeAiEngine {
             controller.addError(_mapDownloadError(error));
             await controller.close();
           }
+        } finally {
+          clearIfCurrent();
         }
       },
-      onCancel: () => cancelToken.cancel('Download abandoned by the UI'),
+      onCancel: () {
+        cancelToken.cancel('Download abandoned by the UI');
+        clearIfCurrent();
+      },
     );
-    return controller.stream;
+    shared = controller.stream.asBroadcastStream();
+    _inFlightDownload = shared;
+    return shared;
   }
+
+  /// The download in flight right now, if any — see [downloadModel].
+  static Stream<double>? _inFlightDownload;
 
   /// Maps the plugin's failures onto the seam's kinds. HTTP failures
   /// arrive as a [DownloadException] wrapping a sealed
@@ -152,9 +180,7 @@ class FlutterEdgeAiEngine implements EdgeAiEngine {
 
     Future<void> run() async {
       try {
-        model = await FlutterEdgeAi.getActiveModel(
-          maxTokens: contextTokens,
-        );
+        model = await FlutterEdgeAi.getActiveModel(maxTokens: contextTokens);
         if (cancelled) return;
         // Greedy decoding (topK 1): a 1B model follows the requested
         // output format far more reliably without sampling drift.

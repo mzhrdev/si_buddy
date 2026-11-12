@@ -49,6 +49,56 @@ A: DNA.
       expect(cards.single.back, contains('energy currency'));
     });
 
+    test('a bare question after a finished card starts the next card', () {
+      // 1B models often prefix only the first item with `Q:`, then
+      // write the rest as bare questions. Without this, the second
+      // question is swallowed into the first card's answer and a
+      // 10-card request comes back with a single card.
+      final cards = parseFlashcards(
+        'Q: What organelle produces ATP?\n'
+        'A: The mitochondria.\n'
+        'What does the nucleus store?\n'
+        'A: DNA.\n'
+        'Which organelle makes proteins?\n'
+        'A: The ribosome.',
+        maxCount: 10,
+        includeExplanations: false,
+      );
+      expect(cards, hasLength(3));
+      expect(cards[0].front, 'What organelle produces ATP?');
+      expect(cards[0].back, 'The mitochondria.');
+      expect(cards[1].front, 'What does the nucleus store?');
+      expect(cards[1].back, 'DNA.');
+      expect(cards[2].front, 'Which organelle makes proteins?');
+      expect(cards[2].back, 'The ribosome.');
+    });
+
+    test('a bare first question (no Q: prefix at all) still parses', () {
+      final cards = parseFlashcards(
+        'What organelle produces ATP?\nA: The mitochondria.',
+        maxCount: 5,
+        includeExplanations: false,
+      );
+      expect(cards, hasLength(1));
+      expect(cards.single.front, 'What organelle produces ATP?');
+      expect(cards.single.back, 'The mitochondria.');
+    });
+
+    test('a bare question after an explanation starts the next card', () {
+      final cards = parseFlashcards(
+        'Q: What organelle produces ATP?\n'
+        'A: The mitochondria.\n'
+        'E: It runs cellular respiration.\n'
+        'What does the nucleus store?\n'
+        'A: DNA.',
+        maxCount: 10,
+        includeExplanations: true,
+      );
+      expect(cards, hasLength(2));
+      expect(cards[0].explanation, 'It runs cellular respiration.');
+      expect(cards[1].front, 'What does the nucleus store?');
+    });
+
     test('skips malformed entries (question without an answer)', () {
       final cards = parseFlashcards(
         'Q: A question with no answer.\n\nQ: Good?\nA: Yes.',
@@ -99,7 +149,11 @@ ANSWER: B
 ''';
 
     test('parses questions, options and the correct letter', () {
-      final questions = parseMcqs(output, maxCount: 10, includeExplanations: false);
+      final questions = parseMcqs(
+        output,
+        maxCount: 10,
+        includeExplanations: false,
+      );
       expect(questions, hasLength(2));
       expect(questions[0].type, QuizQuestionType.mcq);
       expect(questions[0].prompt, 'Which organelle produces ATP?');
@@ -129,7 +183,10 @@ ANSWER: B
     });
 
     test('garbage parses to empty', () {
-      expect(parseMcqs('no structure here', maxCount: 5, includeExplanations: false), isEmpty);
+      expect(
+        parseMcqs('no structure here', maxCount: 5, includeExplanations: false),
+        isEmpty,
+      );
     });
 
     test('parses later questions the model left unnumbered', () {
@@ -159,7 +216,10 @@ ANSWER: B
       expect(questions, hasLength(3));
       expect(questions[1].prompt, 'What does DNA store?');
       expect(questions[1].correctIndex, 1);
-      expect(questions[2].prompt, 'Which structure controls what enters a cell?');
+      expect(
+        questions[2].prompt,
+        'Which structure controls what enters a cell?',
+      );
       expect(questions[2].correctIndex, 2);
     });
   });
@@ -220,7 +280,11 @@ ANSWER: B
 
     test('skips questions without an answer', () {
       expect(
-        parseShortAnswers('1. Unanswered?', maxCount: 10, includeExplanations: false),
+        parseShortAnswers(
+          '1. Unanswered?',
+          maxCount: 10,
+          includeExplanations: false,
+        ),
         isEmpty,
       );
     });

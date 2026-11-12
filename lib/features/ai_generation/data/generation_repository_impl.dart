@@ -184,11 +184,19 @@ class GenerationRepositoryImpl implements GenerationRepository {
     return config.count * 140;
   }
 
-  /// Output token cap for the job: ~110 tokens per item, clamped to
-  /// a range the 4096-token context can hold next to the prompt.
+  /// Output token cap for the job: ~80 tokens per flashcard
+  /// (question + answer + explanation are short) and ~110 per quiz
+  /// question (four options cost more), clamped to a range the
+  /// 4096-token context can hold next to the prompt. The cap is a
+  /// ceiling, not a target — the model stops at its end-of-turn —
+  /// but a tighter ceiling bounds the slowest case (a full set
+  /// actually generated) on a phone CPU.
   int _outputTokenBudget(GenerationConfig config) {
     if (config.materialType == GenerationMaterialType.summaries) return 1024;
-    final budget = config.count * 110;
+    final perItem = config.materialType == GenerationMaterialType.flashcards
+        ? 80
+        : 110;
+    final budget = config.count * perItem;
     return budget < 512 ? 512 : (budget > 2048 ? 2048 : budget);
   }
 }

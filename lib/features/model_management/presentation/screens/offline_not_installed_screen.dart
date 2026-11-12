@@ -19,6 +19,11 @@ class OfflineNotInstalledScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // A download already running is rejoined, never restarted (see
+    // the not-installed screen): a second install of the same file
+    // while the first was still running downloaded the model twice.
+    final modelState = ref.watch(modelProvider);
+    final downloading = modelState.isDownloading;
     return ModelManagementLayout(
       statusLabel: 'Not installed · Offline',
       statusColor: context.appPrimary,
@@ -29,9 +34,13 @@ class OfflineNotInstalledScreen extends ConsumerWidget {
           'You\u2019re offline, so the download can\u2019t start. Connect to the internet to download and install the model.',
       generationAvailability:
           'Requires an installed model and enough free device resources.',
-      primaryLabel: 'Retry Connection',
+      primaryLabel: downloading
+          ? 'Downloading… ${(modelState.downloadProgress * 100).round()}%'
+          : 'Retry Connection',
       onPrimary: () {
-        ref.read(modelProvider.notifier).startDownload();
+        if (!downloading) {
+          ref.read(modelProvider.notifier).startDownload();
+        }
         context.push(AppRoutes.downloading);
       },
       secondaryLabel: 'Continue Studying',

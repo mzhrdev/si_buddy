@@ -250,6 +250,19 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     required GenerationConfig config,
   }) {
     _subscription?.cancel();
+    // A new job starts a clean session: ratings, answers and the
+    // card/question index from the previous deck must not leak into
+    // this one — a stale rating count would otherwise show the new
+    // deck as already reviewed (and the Finish action too early),
+    // and a stale attempt id would record new answers into the old
+    // quiz's attempt.
+    _currentAttemptId = null;
+    ref.read(studyCardIndexProvider.notifier).reset();
+    ref.read(reviewIndexProvider.notifier).reset();
+    ref.read(quizQuestionIndexProvider.notifier).reset();
+    ref.read(cardRatingsProvider.notifier).clear();
+    ref.read(quizAnswersProvider.notifier).clear();
+    ref.read(quizShortAnswersProvider.notifier).clear();
     state = GenerationJobState(
       status: GenerationJobStatus.running,
       config: config,
@@ -378,6 +391,7 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     // unfinished attempt's answers instead.
     ref.read(studyCardIndexProvider.notifier).reset();
     ref.read(reviewIndexProvider.notifier).reset();
+    ref.read(quizQuestionIndexProvider.notifier).reset();
     ref.read(cardRatingsProvider.notifier).clear();
     ref.read(quizAnswersProvider.notifier).clear();
     ref.read(quizShortAnswersProvider.notifier).clear();
