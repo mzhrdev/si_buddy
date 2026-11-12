@@ -133,8 +133,7 @@ class _SelectedFilePreviewScreenState
     final meta = <String>[
       file.format == DocumentFormat.pdf ? 'PDF document' : 'PPTX document',
       file.sizeLabel,
-      if (file.pageCount != null)
-        '${file.pageCount} ${file.format.unitLabel}',
+      if (file.pageCount != null) '${file.pageCount} ${file.format.unitLabel}',
     ];
 
     return Scaffold(
@@ -168,7 +167,10 @@ class _SelectedFilePreviewScreenState
                           onRename: () => _rename(filename),
                         ),
                         const SizedBox(height: 22),
-                        Text('Subject', style: AppTextStyles.itemTitle(context)),
+                        Text(
+                          'Subject',
+                          style: AppTextStyles.itemTitle(context),
+                        ),
                         const SizedBox(height: 8),
                         _SubjectField(
                           subject: job.subject,
@@ -296,14 +298,15 @@ class _FileDetails extends StatelessWidget {
           children: [
             Text(
               'Filename',
-              style: AppTextStyles.greeting(context).copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.greeting(
+                context,
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
             InkWell(
               onTap: onRename,
-              child: SizedBox(
-                height: 28,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   children: [
                     SvgPicture.asset(
@@ -382,7 +385,9 @@ class _SubjectField extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(subject, style: AppTextStyles.body(context))),
+              Expanded(
+                child: Text(subject, style: AppTextStyles.body(context)),
+              ),
               SvgPicture.asset(
                 'assets/icons/figma/chevron_down.svg',
                 width: 18,

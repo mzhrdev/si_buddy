@@ -119,36 +119,38 @@ class PrivacyScreen extends ConsumerWidget {
                     style: _bodyMutedStyle(context),
                   ),
                   const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () => _confirmClearAllData(context, ref),
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: context.appDangerSurface,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/figma/trash_2.svg',
-                            width: 16,
-                            height: 16,
-                            colorFilter: ColorFilter.mode(
-                              context.appDanger,
-                              BlendMode.srcIn,
+                  Material(
+                    color: context.appDangerSurface,
+                    borderRadius: BorderRadius.circular(4),
+                    child: InkWell(
+                      onTap: () => _confirmClearAllData(context, ref),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/figma/trash_2.svg',
+                              width: 16,
+                              height: 16,
+                              colorFilter: ColorFilter.mode(
+                                context.appDanger,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Clear All Local Data',
-                            style: AppTextStyles.body(context).copyWith(
-                              fontWeight: FontWeight.w600,
-                              height: 20 / 14,
-                              color: context.appDanger,
+                            const SizedBox(width: 8),
+                            Text(
+                              'Clear All Local Data',
+                              style: AppTextStyles.body(context).copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                color: context.appDanger,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

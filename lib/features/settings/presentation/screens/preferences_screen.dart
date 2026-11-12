@@ -118,11 +118,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                   color: context.appMuted,
                                 ),
                               ),
-                              GestureDetector(
+                              InkWell(
                                 onTap: () =>
                                     _pickTime(context, ref, timeMinutes),
+                                borderRadius: BorderRadius.circular(4),
                                 child: Container(
-                                  height: 36,
+                                  height: 48,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
                                   ),
@@ -380,7 +381,7 @@ class _ReminderRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          SettingsToggle(value: value, onChanged: onChanged),
+          SettingsToggle(value: value, onChanged: onChanged, label: title),
         ],
       ),
     );

@@ -241,10 +241,9 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Topic performance',
-                      style: AppTextStyles.body(context).copyWith(
-                        fontWeight: FontWeight.w600,
-                        height: 20 / 14,
-                      ),
+                      style: AppTextStyles.body(
+                        context,
+                      ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                     ),
                     const SizedBox(height: 12),
                     for (var i = 0; i < topics.length; i++) ...[
@@ -282,8 +281,9 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     const SizedBox(height: 6),
                     InkWell(
                       onTap: () => context.push(AppRoutes.history),
-                      child: SizedBox(
-                        height: 30,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -329,12 +329,9 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     color: color,
   );
 
-  static TextStyle _subStyle(BuildContext context) =>
-      AppTextStyles.body(context).copyWith(
-    fontSize: 12,
-    height: 18 / 12,
-    color: context.appMuted,
-  );
+  static TextStyle _subStyle(BuildContext context) => AppTextStyles.body(
+    context,
+  ).copyWith(fontSize: 12, height: 18 / 12, color: context.appMuted);
 
   static TextStyle _countStyle(Color color) => TextStyle(
     fontFamily: 'Inter',
@@ -377,7 +374,9 @@ class _TopicResult extends StatelessWidget {
           children: [
             Text(
               name,
-              style: AppTextStyles.body(context).copyWith(fontSize: 13, height: 20 / 13),
+              style: AppTextStyles.body(
+                context,
+              ).copyWith(fontSize: 13, height: 20 / 13),
             ),
             Text(
               score,

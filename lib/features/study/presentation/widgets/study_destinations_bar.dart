@@ -25,7 +25,7 @@ class StudyDestinationsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 38,
+      height: 48,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: context.appCard,
@@ -35,25 +35,31 @@ class StudyDestinationsBar extends StatelessWidget {
         children: [
           for (var i = 0; i < _labels.length; i++)
             Expanded(
-              child: GestureDetector(
-                onTap: i == currentIndex ? null : () => context.go(_routes[i]),
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: i == currentIndex
-                        ? context.appSurface
-                        : context.appCard,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    _labels[i],
-                    style: AppTextStyles.navLabel(context).copyWith(
+              child: Semantics(
+                selected: i == currentIndex,
+                button: true,
+                child: GestureDetector(
+                  onTap: i == currentIndex
+                      ? null
+                      : () => context.go(_routes[i]),
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
                       color: i == currentIndex
-                          ? context.appPrimary
-                          : context.appMuted,
-                      fontWeight: i == currentIndex
-                          ? FontWeight.w600
-                          : FontWeight.w400,
+                          ? context.appSurface
+                          : context.appCard,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      _labels[i],
+                      style: AppTextStyles.navLabel(context).copyWith(
+                        color: i == currentIndex
+                            ? context.appPrimary
+                            : context.appMuted,
+                        fontWeight: i == currentIndex
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),

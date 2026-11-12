@@ -301,9 +301,9 @@ class _DetailsScaffold extends StatelessWidget {
                         ),
                         child: Text(
                           subjectChip,
-                          style: AppTextStyles.captionStrong(context).copyWith(
-                            color: context.appPrimary,
-                          ),
+                          style: AppTextStyles.captionStrong(
+                            context,
+                          ).copyWith(color: context.appPrimary),
                         ),
                       ),
                     ],
@@ -314,11 +314,21 @@ class _DetailsScaffold extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Extracted text', style: AppTextStyles.title(context)),
+                      Text(
+                        'Extracted text',
+                        style: AppTextStyles.title(context),
+                      ),
                       if (onViewAll != null)
-                        GestureDetector(
+                        InkWell(
                           onTap: onViewAll,
-                          child: Text('View all', style: AppTextStyles.link(context)),
+                          borderRadius: BorderRadius.circular(4),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              'View all',
+                              style: AppTextStyles.link(context),
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -346,16 +356,18 @@ class _DetailsScaffold extends StatelessWidget {
                             ),
                             Text(
                               previewPageLabel,
-                              style: AppTextStyles.badge(context).copyWith(
-                                color: context.appMuted,
-                              ),
+                              style: AppTextStyles.badge(
+                                context,
+                              ).copyWith(color: context.appMuted),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           previewText,
-                          style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
+                          style: AppTextStyles.muted(
+                            context,
+                          ).copyWith(height: 20 / 13),
                         ),
                       ],
                     ),
@@ -364,7 +376,10 @@ class _DetailsScaffold extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Associated study sets', style: AppTextStyles.title(context)),
+                      Text(
+                        'Associated study sets',
+                        style: AppTextStyles.title(context),
+                      ),
                       Text(
                         '${studySets.length} set${studySets.length == 1 ? '' : 's'}',
                         style: AppTextStyles.caption(context),
@@ -501,12 +516,15 @@ class _OriginalFileCard extends StatelessWidget {
               children: [
                 Text(
                   'Original file',
-                  style: AppTextStyles.body(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.body(
+                    context,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 5),
-                Text(meta, style: AppTextStyles.muted(context).copyWith(fontSize: 12)),
+                Text(
+                  meta,
+                  style: AppTextStyles.muted(context).copyWith(fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -514,10 +532,7 @@ class _OriginalFileCard extends StatelessWidget {
             'assets/icons/figma/file_text.svg',
             width: 18,
             height: 18,
-            colorFilter: ColorFilter.mode(
-              context.appPrimary,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
           ),
         ],
       ),
@@ -627,7 +642,7 @@ class _ManagementAction extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(4),
           child: Container(
-            height: 44,
+            height: 48,
             decoration: BoxDecoration(
               color: backgroundColor ?? context.appCard,
               borderRadius: BorderRadius.circular(4),
@@ -642,7 +657,10 @@ class _ManagementAction extends StatelessWidget {
                   colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                 ),
                 const SizedBox(width: 6),
-                Text(label, style: AppTextStyles.link(context).copyWith(color: color)),
+                Text(
+                  label,
+                  style: AppTextStyles.link(context).copyWith(color: color),
+                ),
               ],
             ),
           ),

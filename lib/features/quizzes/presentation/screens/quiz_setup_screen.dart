@@ -195,7 +195,10 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: Text('Edit', style: AppTextStyles.link(context)),
+                          child: Text(
+                            'Edit',
+                            style: AppTextStyles.link(context),
+                          ),
                         ),
                       ],
                     ),
@@ -214,10 +217,9 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                               config.topic.isEmpty
                                   ? 'No topics set'
                                   : config.topic,
-                              style: AppTextStyles.body(context).copyWith(
-                                fontSize: 12,
-                                height: 18 / 12,
-                              ),
+                              style: AppTextStyles.body(
+                                context,
+                              ).copyWith(fontSize: 12, height: 18 / 12),
                             ),
                           ),
                           SvgPicture.asset(
@@ -350,11 +352,9 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.body(context).copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        height: 18 / 13,
-      ),
+      style: AppTextStyles.body(
+        context,
+      ).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13),
     );
   }
 }
@@ -409,17 +409,14 @@ class _StepButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: SizedBox(
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         child: Center(
           child: SvgPicture.asset(
             asset,
             width: 16,
             height: 16,
-            colorFilter: ColorFilter.mode(
-              context.appPrimary,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
           ),
         ),
       ),
@@ -455,7 +452,7 @@ class _ChoiceChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: SizedBox(
-          height: 40,
+          height: 48,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

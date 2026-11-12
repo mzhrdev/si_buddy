@@ -104,10 +104,9 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'What would you like to create?',
-                      style: AppTextStyles.body(context).copyWith(
-                        fontWeight: FontWeight.w600,
-                        height: 20 / 14,
-                      ),
+                      style: AppTextStyles.body(
+                        context,
+                      ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -293,9 +292,9 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                           Expanded(
                             child: Text(
                               'For summaries, choose content length instead of count and difficulty.',
-                              style: AppTextStyles.caption(context).copyWith(
-                                color: context.appMuted,
-                              ),
+                              style: AppTextStyles.caption(
+                                context,
+                              ).copyWith(color: context.appMuted),
                             ),
                           ),
                         ],
@@ -387,7 +386,7 @@ class _ChoiceChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: Container(
-          height: 40,
+          height: 48,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             border: Border.all(
@@ -444,17 +443,14 @@ class _StepperButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: SizedBox(
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         child: Center(
           child: SvgPicture.asset(
             iconAsset,
             width: 16,
             height: 16,
-            colorFilter: ColorFilter.mode(
-              context.appPrimary,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
           ),
         ),
       ),
@@ -502,10 +498,9 @@ class _SelectionField extends StatelessWidget {
                       value,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.muted(context).copyWith(
-                        color: context.appText,
-                        height: 20 / 13,
-                      ),
+                      style: AppTextStyles.muted(
+                        context,
+                      ).copyWith(color: context.appText, height: 20 / 13),
                     ),
                   ),
                   SvgPicture.asset(
@@ -577,7 +572,9 @@ class _NoSourceCard extends StatelessWidget {
                   children: [
                     Text(
                       'No document selected',
-                      style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
+                      style: AppTextStyles.itemTitle(
+                        context,
+                      ).copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -604,7 +601,9 @@ class _NoSourceCard extends StatelessWidget {
   }
 }
 
-/// The 46×28 pill switch used for "Include explanations".
+/// The 46×28 pill switch used for "Include explanations". The
+/// visual stays 46×28, but the hit area is 48×48 and the control
+/// announces its label and on/off state to screen readers.
 class _Toggle extends StatelessWidget {
   const _Toggle({required this.value, required this.onChanged});
 
@@ -613,24 +612,35 @@ class _Toggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Container(
-        width: 46,
-        height: 28,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: value ? context.appPrimary : context.appChip,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Align(
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+    return Semantics(
+      label: 'Include explanations',
+      toggled: value,
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onChanged(!value),
+        child: Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
           child: Container(
-            width: 22,
-            height: 22,
+            width: 46,
+            height: 28,
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: context.appCard,
-              shape: BoxShape.circle,
+              color: value ? context.appPrimary : context.appChip,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Align(
+              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: context.appCard,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
           ),
         ),

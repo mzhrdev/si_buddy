@@ -56,8 +56,9 @@ class QuizHistoryScreen extends ConsumerWidget {
       );
     }
     final correct = questions
-        .where((q) =>
-            q.correctIndex != null && answers[q.prompt] == q.correctIndex)
+        .where(
+          (q) => q.correctIndex != null && answers[q.prompt] == q.correctIndex,
+        )
         .length;
     final total = questions.length;
     final percent = total == 0 ? 0 : (correct * 100 ~/ total);
@@ -141,9 +142,9 @@ class QuizHistoryScreen extends ConsumerWidget {
                         const SizedBox(width: 7),
                         Text(
                           'Saved quizzes can be studied offline.',
-                          style: AppTextStyles.caption(context).copyWith(
-                            color: context.appPrimary,
-                          ),
+                          style: AppTextStyles.caption(
+                            context,
+                          ).copyWith(color: context.appPrimary),
                         ),
                       ],
                     ),
@@ -209,7 +210,9 @@ class _AttemptCard extends StatelessWidget {
               if (attempt.latest)
                 Text(
                   'LATEST',
-                  style: AppTextStyles.badge(context).copyWith(color: context.appPrimary),
+                  style: AppTextStyles.badge(
+                    context,
+                  ).copyWith(color: context.appPrimary),
                 ),
             ],
           ),
@@ -289,7 +292,7 @@ class _AttemptAction extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: SizedBox(
-          height: 36,
+          height: 44,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

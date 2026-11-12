@@ -101,94 +101,100 @@ class LibraryTools extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 36,
+          height: 44,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
                 onTap: onSortTap,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/figma/arrow_down_wide_narrow.svg',
-                      width: 16,
-                      height: 16,
-                      colorFilter: ColorFilter.mode(
-                        context.appNavInactive,
-                        BlendMode.srcIn,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/figma/arrow_down_wide_narrow.svg',
+                        width: 16,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      filter.sort.label,
-                      style: AppTextStyles.body(context).copyWith(
-                        fontSize: 12,
-                        height: 18 / 12,
+                      const SizedBox(width: 5),
+                      Text(
+                        filter.sort.label,
+                        style: AppTextStyles.body(
+                          context,
+                        ).copyWith(fontSize: 12, height: 18 / 12),
                       ),
-                    ),
-                    const SizedBox(width: 5),
-                    SvgPicture.asset(
-                      'assets/icons/figma/chevron_down.svg',
-                      width: 12,
-                      height: 12,
-                      colorFilter: ColorFilter.mode(
-                        context.appNavInactive,
-                        BlendMode.srcIn,
+                      const SizedBox(width: 5),
+                      SvgPicture.asset(
+                        'assets/icons/figma/chevron_down.svg',
+                        width: 12,
+                        height: 12,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               InkWell(
                 onTap: onFiltersTap,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/figma/sliders_horizontal.svg',
-                      width: 16,
-                      height: 16,
-                      colorFilter: ColorFilter.mode(
-                        context.appNavInactive,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Filters',
-                      style: AppTextStyles.body(context).copyWith(
-                        fontSize: 12,
-                        height: 18 / 12,
-                      ),
-                    ),
-                    if (activeFilters > 0) ...[
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/figma/sliders_horizontal.svg',
+                        width: 16,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
+                          BlendMode.srcIn,
                         ),
-                        decoration: BoxDecoration(
-                          color: context.appPrimary,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Text(
-                          '$activeFilters',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: context.appCard,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Filters',
+                        style: AppTextStyles.body(
+                          context,
+                        ).copyWith(fontSize: 12, height: 18 / 12),
+                      ),
+                      if (activeFilters > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.appPrimary,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Text(
+                            '$activeFilters',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: context.appCard,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               Container(
-                height: 34,
+                height: 50,
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   color: context.appCard,
@@ -241,8 +247,8 @@ class _ViewOption extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: SizedBox(
-          width: 30,
-          height: 28,
+          width: 44,
+          height: 44,
           child: Center(
             child: SvgPicture.asset(
               iconAsset,

@@ -292,9 +292,13 @@ class _SectionHeading extends StatelessWidget {
       children: [
         Text(title, style: AppTextStyles.title(context)),
         if (actionLabel != null)
-          GestureDetector(
+          InkWell(
             onTap: onAction,
-            child: Text(actionLabel!, style: AppTextStyles.link(context)),
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(actionLabel!, style: AppTextStyles.link(context)),
+            ),
           ),
       ],
     );

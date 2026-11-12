@@ -123,11 +123,15 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
             SubscriptionActions(
               primaryLabel: 'Continue with ${_plans[_selectedPlan].name}',
               onPrimary: () => _showPremiumUnavailable(context),
-              footer: GestureDetector(
+              footer: InkWell(
                 onTap: () => context.go(AppRoutes.home),
-                child: Text(
-                  'Continue with Free',
-                  style: _footerLinkStyle(context),
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'Continue with Free',
+                    style: _footerLinkStyle(context),
+                  ),
                 ),
               ),
             ),

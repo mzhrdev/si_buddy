@@ -351,7 +351,10 @@ class _DailyGoalCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Daily goal', style: AppTextStyles.itemTitle(context)),
+                child: Text(
+                  'Daily goal',
+                  style: AppTextStyles.itemTitle(context),
+                ),
               ),
               Text(
                 '$studiedMinutes / $goalMinutes min',
@@ -476,9 +479,9 @@ class _RevisionRow extends StatelessWidget {
                     Text(
                       _dayLabel,
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.badge(context).copyWith(
-                        color: context.appPrimary,
-                      ),
+                      style: AppTextStyles.badge(
+                        context,
+                      ).copyWith(color: context.appPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(_timeLabel, style: AppTextStyles.caption(context)),
@@ -503,9 +506,9 @@ class _RevisionRow extends StatelessWidget {
                                 ? 'Reminder on'
                                 : 'Reminder off')
                           : note,
-                      style: AppTextStyles.badge(context).copyWith(
-                        color: context.appMuted,
-                      ),
+                      style: AppTextStyles.badge(
+                        context,
+                      ).copyWith(color: context.appMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -574,9 +577,9 @@ class _ReminderCard extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       enabled ? 'Optional · On' : 'Optional · Off',
-                      style: AppTextStyles.badge(context).copyWith(
-                        color: context.appMuted,
-                      ),
+                      style: AppTextStyles.badge(
+                        context,
+                      ).copyWith(color: context.appMuted),
                     ),
                   ],
                 ),
@@ -602,12 +605,16 @@ class _ReminderCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Preferred time', style: AppTextStyles.greeting(context)),
+                child: Text(
+                  'Preferred time',
+                  style: AppTextStyles.greeting(context),
+                ),
               ),
-              GestureDetector(
+              InkWell(
                 onTap: () => _pickTime(context, ref, timeMinutes),
+                borderRadius: BorderRadius.circular(4),
                 child: Container(
-                  height: 30,
+                  height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   decoration: BoxDecoration(
                     border: Border.all(color: context.appBorder),
@@ -638,7 +645,9 @@ class _ReminderCard extends ConsumerWidget {
             enabled
                 ? 'Revisions remind you at their scheduled time. The preferred time is for the daily study reminder.'
                 : 'No reminder is scheduled. Enabling will ask for notification permission if needed.',
-            style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
+            style: AppTextStyles.badge(
+              context,
+            ).copyWith(color: context.appMuted),
           ),
         ],
       ),
@@ -663,7 +672,9 @@ class _ReminderCard extends ConsumerWidget {
 }
 
 /// The square SI Buddy toggle (40×24, radius 4): a border-colored
-/// track with a white thumb when off, a primary track when on.
+/// track with a white thumb when off, a primary track when on. The
+/// visual stays 40×24, but the hit area is 48×48 and the control
+/// announces its label and on/off state to screen readers.
 class _ReminderToggle extends StatelessWidget {
   const _ReminderToggle({required this.value, required this.onToggle});
 
@@ -672,27 +683,38 @@ class _ReminderToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onToggle(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 40,
-        height: 24,
-        decoration: BoxDecoration(
-          color: value ? context.appPrimary : context.appBorder,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 150),
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                color: context.appCard,
-                shape: BoxShape.circle,
+    return Semantics(
+      label: 'Revision reminder',
+      toggled: value,
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onToggle(!value),
+        child: Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 40,
+            height: 24,
+            decoration: BoxDecoration(
+              color: value ? context.appPrimary : context.appBorder,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: AnimatedAlign(
+              duration: const Duration(milliseconds: 150),
+              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: context.appCard,
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
             ),
           ),

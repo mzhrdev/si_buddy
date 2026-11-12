@@ -184,18 +184,16 @@ class _ExtractedTextReviewScreenState
                 children: [
                   Text(
                     'A quick read, then study.',
-                    style: AppTextStyles.display(context).copyWith(
-                      fontSize: 28,
-                      height: 34 / 28,
-                    ),
+                    style: AppTextStyles.display(
+                      context,
+                    ).copyWith(fontSize: 28, height: 34 / 28),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Review the text before generating flashcards or a quiz.',
-                    style: AppTextStyles.body(context).copyWith(
-                      color: context.appMuted,
-                      height: 22 / 14,
-                    ),
+                    style: AppTextStyles.body(
+                      context,
+                    ).copyWith(color: context.appMuted, height: 22 / 14),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -203,7 +201,9 @@ class _ExtractedTextReviewScreenState
                       Expanded(
                         child: Text(
                           fileName,
-                          style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
+                          style: AppTextStyles.itemTitle(
+                            context,
+                          ).copyWith(fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -220,9 +220,9 @@ class _ExtractedTextReviewScreenState
                         ),
                         child: Text(
                           subject,
-                          style: AppTextStyles.badge(context).copyWith(
-                            color: context.appPrimary,
-                          ),
+                          style: AppTextStyles.badge(
+                            context,
+                          ).copyWith(color: context.appPrimary),
                         ),
                       ),
                     ],
@@ -254,9 +254,9 @@ class _ExtractedTextReviewScreenState
                             style: AppTextStyles.body(context),
                             decoration: InputDecoration(
                               hintText: 'Search in extracted text',
-                              hintStyle: AppTextStyles.body(context).copyWith(
-                                color: context.appMuted,
-                              ),
+                              hintStyle: AppTextStyles.body(
+                                context,
+                              ).copyWith(color: context.appMuted),
                               border: InputBorder.none,
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -269,8 +269,8 @@ class _ExtractedTextReviewScreenState
                             icon: const Icon(Icons.clear, size: 18),
                             color: context.appMuted,
                             constraints: const BoxConstraints.tightFor(
-                              width: 32,
-                              height: 32,
+                              width: 48,
+                              height: 48,
                             ),
                             padding: EdgeInsets.zero,
                             tooltip: 'Clear search',
@@ -302,6 +302,7 @@ class _ExtractedTextReviewScreenState
                                   ? null
                                   : () =>
                                         _goToPage(currentPage - 1, totalPages),
+                              tooltip: 'Previous page',
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_left.svg',
                                 width: 16,
@@ -314,8 +315,8 @@ class _ExtractedTextReviewScreenState
                                 ),
                               ),
                               constraints: const BoxConstraints.tightFor(
-                                width: 32,
-                                height: 32,
+                                width: 48,
+                                height: 48,
                               ),
                               padding: EdgeInsets.zero,
                             ),
@@ -325,6 +326,7 @@ class _ExtractedTextReviewScreenState
                                   ? null
                                   : () =>
                                         _goToPage(currentPage + 1, totalPages),
+                              tooltip: 'Next page',
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_right.svg',
                                 width: 16,
@@ -337,8 +339,8 @@ class _ExtractedTextReviewScreenState
                                 ),
                               ),
                               constraints: const BoxConstraints.tightFor(
-                                width: 32,
-                                height: 32,
+                                width: 48,
+                                height: 48,
                               ),
                               padding: EdgeInsets.zero,
                             ),
@@ -499,11 +501,17 @@ class _ExtractedPageCard extends StatelessWidget {
             children: [
               Text(
                 'Page $page of $totalPages',
-                style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
+                style: AppTextStyles.caption(
+                  context,
+                ).copyWith(color: context.appPrimary),
               ),
-              GestureDetector(
+              InkWell(
                 onTap: onEdit,
-                child: Text('Edit', style: AppTextStyles.link(context)),
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Edit', style: AppTextStyles.link(context)),
+                ),
               ),
             ],
           ),
@@ -555,7 +563,9 @@ class _EditPageCard extends StatelessWidget {
         children: [
           Text(
             'Editing page $page of $totalPages',
-            style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
+            style: AppTextStyles.caption(
+              context,
+            ).copyWith(color: context.appPrimary),
           ),
           const SizedBox(height: 12),
           TextField(

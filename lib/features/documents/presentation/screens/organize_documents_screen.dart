@@ -303,9 +303,13 @@ class _SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: AppTextStyles.title(context)),
-        GestureDetector(
+        InkWell(
           onTap: onAction,
-          child: Text(actionLabel, style: AppTextStyles.link(context)),
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(actionLabel, style: AppTextStyles.link(context)),
+          ),
         ),
       ],
     );

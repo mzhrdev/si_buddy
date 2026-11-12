@@ -130,9 +130,9 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                   style: AppTextStyles.body(context),
                   decoration: InputDecoration(
                     hintText: 'Search all your study material',
-                    hintStyle: AppTextStyles.body(context).copyWith(
-                      color: context.appMuted,
-                    ),
+                    hintStyle: AppTextStyles.body(
+                      context,
+                    ).copyWith(color: context.appMuted),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -142,14 +142,14 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
               if (query.isNotEmpty)
                 IconButton(
                   onPressed: _clear,
+                  tooltip: 'Clear search',
                   icon: const Icon(Icons.clear, size: 18),
                   color: context.appMuted,
                   constraints: const BoxConstraints.tightFor(
-                    width: 32,
-                    height: 32,
+                    width: 48,
+                    height: 48,
                   ),
                   padding: EdgeInsets.zero,
-                  tooltip: 'Clear search',
                 ),
             ],
           ),
@@ -238,7 +238,10 @@ class _SearchResultRow extends StatelessWidget {
                   color: context.appSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(result.tagLabel, style: AppTextStyles.badge(context)),
+                child: Text(
+                  result.tagLabel,
+                  style: AppTextStyles.badge(context),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(

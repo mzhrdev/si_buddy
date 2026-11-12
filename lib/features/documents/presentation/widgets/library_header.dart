@@ -31,7 +31,9 @@ class LibraryHeader extends StatelessWidget {
                 children: [
                   Text(
                     'Your library',
-                    style: AppTextStyles.display(context).copyWith(letterSpacing: -0.48),
+                    style: AppTextStyles.display(
+                      context,
+                    ).copyWith(letterSpacing: -0.48),
                   ),
                   const SizedBox(height: 4),
                   Text(subtitle, style: AppTextStyles.caption(context)),
@@ -46,8 +48,8 @@ class LibraryHeader extends StatelessWidget {
                   onTap: onImport,
                   borderRadius: BorderRadius.circular(4),
                   child: SizedBox(
-                    width: 36,
-                    height: 36,
+                    width: 44,
+                    height: 44,
                     child: Center(
                       child: SvgPicture.asset(
                         'assets/icons/figma/plus.svg',

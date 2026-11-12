@@ -59,36 +59,38 @@ class StorageScreen extends ConsumerWidget {
                     onTap: () => context.push(AppRoutes.readyOffline),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () => _confirmClearCache(context, ref, figures),
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: context.appSurface,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/figma/eraser.svg',
-                            width: 16,
-                            height: 16,
-                            colorFilter: ColorFilter.mode(
-                              context.appPrimary,
-                              BlendMode.srcIn,
+                  Material(
+                    color: context.appSurface,
+                    borderRadius: BorderRadius.circular(4),
+                    child: InkWell(
+                      onTap: () => _confirmClearCache(context, ref, figures),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/figma/eraser.svg',
+                              width: 16,
+                              height: 16,
+                              colorFilter: ColorFilter.mode(
+                                context.appPrimary,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Clear Cache',
-                            style: AppTextStyles.body(context).copyWith(
-                              fontWeight: FontWeight.w600,
-                              height: 20 / 14,
-                              color: context.appPrimary,
+                            const SizedBox(width: 8),
+                            Text(
+                              'Clear Cache',
+                              style: AppTextStyles.body(context).copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                color: context.appPrimary,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -196,25 +198,32 @@ class _LocalFileCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
+              InkWell(
                 onTap: () {
                   ref
                       .read(selectedDocumentIdProvider.notifier)
                       .select(document.id);
                   context.push(AppRoutes.details);
                 },
-                child: Text('View details', style: AppTextStyles.link(context)),
-              ),
-              GestureDetector(
-                onTap: () => _confirmDelete(context, ref),
-                child: Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: context.appDangerSurface,
-                    borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'View details',
+                    style: AppTextStyles.link(context),
                   ),
-                  child: Center(
+                ),
+              ),
+              Material(
+                color: context.appDangerSurface,
+                borderRadius: BorderRadius.circular(4),
+                child: InkWell(
+                  onTap: () => _confirmDelete(context, ref),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    alignment: Alignment.center,
                     child: Text(
                       'Delete File',
                       style: AppTextStyles.link(
