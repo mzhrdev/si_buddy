@@ -381,8 +381,10 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     ref.read(cardRatingsProvider.notifier).clear();
     ref.read(quizAnswersProvider.notifier).clear();
     ref.read(quizShortAnswersProvider.notifier).clear();
+    int? resumedAttemptId;
     if (resume) {
       final attempt = await studyRepository.getIncompleteAttempt(deckId);
+      resumedAttemptId = attempt?.id;
       if (attempt != null) {
         final answers = await studyRepository.getAnswers(attempt.id);
         final questionsById = {
@@ -410,6 +412,16 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
       result: result,
       deckId: deckId,
     );
+    // Studying this deck starts a study session (Phase 5): the
+    // tracker ends it when the deck is left or another deck opens.
+    // Awaited — it is one local database write, and the session
+    // must exist before the study screens build.
+    await ref
+        .read(studySessionTrackerProvider.notifier)
+        .start(deckId: deckId, type: deck.isQuiz ? 'quiz' : 'flashcards');
+    // A resumed quiz continues its unfinished attempt instead of
+    // starting a new one.
+    _currentAttemptId = resume && deck.isQuiz ? resumedAttemptId : null;
     return true;
   }
 
@@ -462,9 +474,98 @@ class GenerationJobNotifier extends Notifier<GenerationJobState> {
     }
   }
 
+  /// The quiz attempt the current quiz is recording into (null
+  /// when no quiz is being taken). Lazily started on the first
+  /// recorded answer, or restored by [loadDeck] when resuming.
+  int? _currentAttemptId;
+
+  /// Records a self-rating for the card at [index] in the persisted
+  /// deck (Phase 5): the rating survives a restart and feeds the
+  /// statistics' cards-reviewed count. Best-effort — the session
+  /// rating is already applied by the caller.
+  Future<void> recordCardReview(int index, String rating) async {
+    final deckId = state.deckId;
+    if (deckId == null) return;
+    ref.read(studySessionTrackerProvider.notifier).recordCardReviewed(index);
+    try {
+      final repository = ref.read(studyRepositoryProvider);
+      final cards = await repository.getFlashcards(deckId);
+      if (index < cards.length) {
+        await repository.recordReview(cardId: cards[index].id, rating: rating);
+        ref.read(studyDataVersionProvider.notifier).bump();
+      }
+    } catch (_) {
+      // Best-effort only; the session rating already exists.
+    }
+  }
+
+  /// Records one quiz answer in the persisted attempt (Phase 5):
+  /// the attempt starts lazily on the first answer (or continues the
+  /// resumed attempt), so quiz progress survives a restart and the
+  /// statistics' attempts/completion/score are real. Best-effort —
+  /// the session answer is already applied by the caller.
+  Future<void> recordQuizAnswer({
+    required String prompt,
+    int? selectedIndex,
+    String? answerText,
+  }) async {
+    final deckId = state.deckId;
+    if (deckId == null) return;
+    try {
+      final repository = ref.read(studyRepositoryProvider);
+      final questions = await repository.getQuestions(deckId);
+      final question = questions.where((q) => q.prompt == prompt).firstOrNull;
+      if (question == null) return;
+      var attemptId = _currentAttemptId;
+      attemptId ??= await repository
+          .getIncompleteAttempt(deckId)
+          .then((attempt) => attempt?.id);
+      attemptId ??= await repository.startAttempt(
+        deckId: deckId,
+        totalQuestions: questions.length,
+      );
+      _currentAttemptId = attemptId;
+      // Scoreable questions (MCQ / true-false) record whether the
+      // answer was right; short answers stay unscored (null).
+      final isCorrect = question.correctIndex == null
+          ? null
+          : selectedIndex == question.correctIndex;
+      await repository.recordAnswer(
+        attemptId: attemptId,
+        questionId: question.id,
+        selectedIndex: selectedIndex,
+        answerText: answerText,
+        isCorrect: isCorrect,
+      );
+      ref.read(studyDataVersionProvider.notifier).bump();
+    } catch (_) {
+      // Best-effort only; the session answer already exists.
+    }
+  }
+
+  /// Completes the quiz attempt being recorded, with the final
+  /// [score] (correct answers). A no-op when no quiz is being
+  /// taken — calling it twice is safe.
+  Future<void> completeQuizAttempt(int score) async {
+    final attemptId = _currentAttemptId;
+    _currentAttemptId = null;
+    if (attemptId == null) return;
+    try {
+      await ref.read(studyRepositoryProvider).completeAttempt(attemptId, score);
+      ref.read(studyDataVersionProvider.notifier).bump();
+    } catch (_) {
+      // Best-effort only; the session results screen already shows
+      // the score.
+    }
+  }
+
   void reset() {
     _subscription?.cancel();
+    _currentAttemptId = null;
     state = const GenerationJobState();
+    // Leaving the deck ends the open study session with its real
+    // duration. Fire-and-forget: the reset itself never waits.
+    unawaited(ref.read(studySessionTrackerProvider.notifier).end());
   }
 }
 

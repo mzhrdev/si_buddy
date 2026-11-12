@@ -6,23 +6,21 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 /// Segmented "Study destinations" bar shown at the top of the Study
-/// screens (Library, Revision, Statistics, Planner). The active
-/// destination is highlighted with the selected surface color; tapping
-/// another destination replaces the current study screen.
+/// screens (Statistics, Planner). The active destination is
+/// highlighted with the selected surface color; tapping another
+/// destination replaces the current study screen.
+///
+/// The Library and Revision sub-tabs were removed in Phase 5: the
+/// library already lives in the bottom navigation, and revision
+/// scheduling lives in the Planner.
 class StudyDestinationsBar extends StatelessWidget {
   const StudyDestinationsBar({required this.currentIndex, super.key});
 
-  /// Index of the active destination: 0 Library, 1 Revision,
-  /// 2 Statistics, 3 Planner.
+  /// Index of the active destination: 0 Statistics, 1 Planner.
   final int currentIndex;
 
-  static const _labels = ['Library', 'Revision', 'Statistics', 'Planner'];
-  static const _routes = [
-    AppRoutes.studyLibrary,
-    AppRoutes.revision,
-    AppRoutes.statistics,
-    AppRoutes.planner,
-  ];
+  static const _labels = ['Statistics', 'Planner'];
+  static const _routes = [AppRoutes.statistics, AppRoutes.planner];
 
   @override
   Widget build(BuildContext context) {

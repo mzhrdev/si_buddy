@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +27,8 @@ class QuizShortAnswerScreen extends ConsumerStatefulWidget {
   const QuizShortAnswerScreen({super.key});
 
   @override
-  ConsumerState<QuizShortAnswerScreen> createState() => _QuizShortAnswerScreenState();
+  ConsumerState<QuizShortAnswerScreen> createState() =>
+      _QuizShortAnswerScreenState();
 }
 
 class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
@@ -34,6 +37,18 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
 
   @override
   void dispose() {
+    // Persisted (Phase 5): the typed answer joins the quiz attempt
+    // when leaving the screen, so it survives a restart. The
+    // session answer was already saved on every keystroke.
+    final prompt = _boundPrompt;
+    final text = _controller.text.trim();
+    if (prompt != null && text.isNotEmpty) {
+      unawaited(
+        ref
+            .read(generationJobProvider.notifier)
+            .recordQuizAnswer(prompt: prompt, answerText: text),
+      );
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -98,8 +113,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                     QuizIdentity(
                       title: generatedMaterialTitle(
                         config: config,
-                        documentName:
-                            job.source?.document.originalFileName,
+                        documentName: job.source?.document.originalFileName,
                       ),
                       meta:
                           '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
@@ -131,7 +145,10 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text('01 / $total', style: AppTextStyles.caption),
+                                Text(
+                                  '01 / $total',
+                                  style: AppTextStyles.caption,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),

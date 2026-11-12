@@ -7,6 +7,32 @@
 import '../../ai_generation/domain/generation_config.dart';
 import '../../ai_generation/domain/generation_models.dart';
 
+/// One day of study activity, for the Statistics weekly chart and
+/// the Planner's daily progress: tracked study time, cards reviewed
+/// and quizzes completed on that local calendar day.
+class DailyActivity {
+  const DailyActivity({
+    required this.date,
+    required this.studySeconds,
+    required this.cardsReviewed,
+    required this.quizzesCompleted,
+  });
+
+  /// The day, at local midnight.
+  final DateTime date;
+
+  /// Tracked study time that day, in seconds.
+  final int studySeconds;
+
+  /// Flashcards self-rated that day.
+  final int cardsReviewed;
+
+  /// Quiz attempts completed that day.
+  final int quizzesCompleted;
+
+  int get studyMinutes => studySeconds ~/ 60;
+}
+
 /// One generated study set: a flashcard deck or a quiz produced from
 /// a document. A document can have many decks (regenerating creates
 /// a new one).

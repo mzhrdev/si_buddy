@@ -129,6 +129,17 @@ abstract class StudyRepository {
   /// streamed as they change.
   Stream<List<RevisionRecord>> watchUpcomingRevisions();
 
+  /// Daily study activity for the last [days] local calendar days,
+  /// oldest first, including days with no activity (zeros): tracked
+  /// study time, cards reviewed and quizzes completed per day.
+  /// Only finished sessions count toward study time.
+  Future<List<DailyActivity>> getDailyActivity({int days = 7});
+
+  /// Removes a study session entirely. The session tracker uses
+  /// this for sessions that never became real studying (abandoned
+  /// within seconds with nothing reviewed).
+  Future<void> deleteSession(int sessionId);
+
   /// Study-content matches for the library's inline search:
   /// persisted flashcards and quiz questions whose text contains
   /// [query] (case-insensitive), newest deck first. One match per
@@ -583,6 +594,59 @@ class StudyRepositoryImpl implements StudyRepository {
   }
 
   // -- Statistics -----------------------------------------------------------
+
+  @override
+  Future<List<DailyActivity>> getDailyActivity({int days = 7}) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final firstDay = today.subtract(Duration(days: days - 1));
+    final sessions = await db.select(db.dbStudySessions).get();
+    final reviews = await db.select(db.dbCardReviews).get();
+    final attempts = await db.select(db.dbQuizAttempts).get();
+
+    DateTime dayOf(DateTime at) => DateTime(at.year, at.month, at.day);
+
+    final studySeconds = <DateTime, int>{};
+    for (final session in sessions) {
+      // Only finished sessions carry a duration; an open session
+      // contributes nothing until it ends.
+      if (session.endedAt == null) continue;
+      final day = dayOf(session.startedAt);
+      if (day.isBefore(firstDay)) continue;
+      studySeconds[day] = (studySeconds[day] ?? 0) + session.durationSeconds;
+    }
+    final cardsReviewed = <DateTime, int>{};
+    for (final review in reviews) {
+      final day = dayOf(review.reviewedAt);
+      if (day.isBefore(firstDay)) continue;
+      cardsReviewed[day] = (cardsReviewed[day] ?? 0) + 1;
+    }
+    final quizzesCompleted = <DateTime, int>{};
+    for (final attempt in attempts) {
+      final completedAt = attempt.completedAt;
+      if (completedAt == null) continue;
+      final day = dayOf(completedAt);
+      if (day.isBefore(firstDay)) continue;
+      quizzesCompleted[day] = (quizzesCompleted[day] ?? 0) + 1;
+    }
+    return [
+      for (var i = days - 1; i >= 0; i--)
+        DailyActivity(
+          date: today.subtract(Duration(days: i)),
+          studySeconds: studySeconds[today.subtract(Duration(days: i))] ?? 0,
+          cardsReviewed: cardsReviewed[today.subtract(Duration(days: i))] ?? 0,
+          quizzesCompleted:
+              quizzesCompleted[today.subtract(Duration(days: i))] ?? 0,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> deleteSession(int sessionId) async {
+    await (db.delete(
+      db.dbStudySessions,
+    )..where((t) => t.id.equals(sessionId))).go();
+  }
 
   @override
   Future<List<StudySearchMatch>> searchStudyContent(

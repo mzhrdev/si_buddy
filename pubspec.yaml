@@ -69,6 +69,12 @@ dependencies:
   # ^13.3.1 (not ^11) because share_plus <13 pins win32 ^5, which
   # conflicts with file_picker 13's windows_file_picker -> win32 ^6.
   share_plus: ^13.3.1
+  # Real Android local notifications for study reminders (Phase 5):
+  # revision reminders + the daily study reminder. flutter_timezone
+  # supplies the device's IANA timezone for zoned scheduling.
+  flutter_local_notifications: ^18.0.1
+  flutter_timezone: ^4.1.1
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

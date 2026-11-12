@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +26,8 @@ class QuizTrueFalseScreen extends ConsumerStatefulWidget {
   const QuizTrueFalseScreen({super.key});
 
   @override
-  ConsumerState<QuizTrueFalseScreen> createState() => _QuizTrueFalseScreenState();
+  ConsumerState<QuizTrueFalseScreen> createState() =>
+      _QuizTrueFalseScreenState();
 }
 
 class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
@@ -90,8 +93,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                     QuizIdentity(
                       title: generatedMaterialTitle(
                         config: config,
-                        documentName:
-                            job.source?.document.originalFileName,
+                        documentName: job.source?.document.originalFileName,
                       ),
                       meta:
                           '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
@@ -123,7 +125,10 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-                                Text('01 / $total', style: AppTextStyles.caption),
+                                Text(
+                                  '01 / $total',
+                                  style: AppTextStyles.caption,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -151,6 +156,17 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                                   ref
                                       .read(quizAnswersProvider.notifier)
                                       .answer(question.prompt, i);
+                                  // Persisted (Phase 5): the answer
+                                  // joins the quiz attempt, so quiz
+                                  // progress survives a restart.
+                                  unawaited(
+                                    ref
+                                        .read(generationJobProvider.notifier)
+                                        .recordQuizAnswer(
+                                          prompt: question.prompt,
+                                          selectedIndex: i,
+                                        ),
+                                  );
                                 },
                               ),
                             ],

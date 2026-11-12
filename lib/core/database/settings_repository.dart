@@ -18,6 +18,9 @@ abstract final class SettingsKeys {
   /// Whether revision reminders are enabled.
   static const remindersEnabled = 'reminders_enabled';
 
+  /// Whether the daily study reminder is enabled.
+  static const dailyReminderEnabled = 'daily_reminder_enabled';
+
   /// Revision reminder time, minutes after midnight.
   static const reminderTimeMinutes = 'reminder_time_minutes';
 }
@@ -31,9 +34,9 @@ class SettingsRepository {
   final AppDatabase db;
 
   Future<String?> getString(String key) async {
-    final row = await (db.select(db.dbSettings)
-          ..where((t) => t.key.equals(key)))
-        .getSingleOrNull();
+    final row = await (db.select(
+      db.dbSettings,
+    )..where((t) => t.key.equals(key))).getSingleOrNull();
     return row?.value;
   }
 
@@ -68,9 +71,25 @@ class SettingsRepository {
 
   /// A setting's value, streamed as it changes.
   Stream<String?> watchString(String key) {
-    final query = db.select(db.dbSettings)
-      ..where((t) => t.key.equals(key));
+    final query = db.select(db.dbSettings)..where((t) => t.key.equals(key));
     return query.watchSingleOrNull().map((row) => row?.value);
+  }
+
+  /// A boolean setting, streamed as it changes (null when unset).
+  Stream<bool?> watchBool(String key) {
+    return watchString(key).map((value) {
+      if (value == null) return null;
+      return value == 'true';
+    });
+  }
+
+  /// An integer setting, streamed as it changes (null when unset
+  /// or unparsable).
+  Stream<int?> watchInt(String key) {
+    return watchString(key).map((value) {
+      if (value == null) return null;
+      return int.tryParse(value);
+    });
   }
 
   Future<void> remove(String key) async {
