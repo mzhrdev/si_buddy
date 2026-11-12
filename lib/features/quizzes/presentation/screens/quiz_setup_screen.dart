@@ -95,7 +95,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
     final config = ref.watch(generationConfigProvider);
     final modelReady = ref.watch(modelProvider).isReady;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -125,7 +125,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                       children: [
                         Text(
                           'Question count',
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontWeight: FontWeight.w600,
                             height: 20 / 14,
                           ),
@@ -195,7 +195,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: Text('Edit', style: AppTextStyles.link),
+                          child: Text('Edit', style: AppTextStyles.link(context)),
                         ),
                       ],
                     ),
@@ -203,8 +203,8 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
-                        border: Border.all(color: AppColors.border),
+                        color: context.appCard,
+                        border: Border.all(color: context.appBorder),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -214,7 +214,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                               config.topic.isEmpty
                                   ? 'No topics set'
                                   : config.topic,
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
                               ),
@@ -224,8 +224,8 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             'assets/icons/figma/chevron_down.svg',
                             width: 16,
                             height: 16,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.muted,
+                            colorFilter: ColorFilter.mode(
+                              context.appMuted,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -245,7 +245,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                                 _timerEnabled
                                     ? 'Enabled · Auto-submit at time limit'
                                     : 'Disabled · No time limit',
-                                style: AppTextStyles.caption,
+                                style: AppTextStyles.caption(context),
                               ),
                             ],
                           ),
@@ -254,9 +254,9 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                           value: _timerEnabled,
                           onChanged: (value) =>
                               setState(() => _timerEnabled = value),
-                          activeTrackColor: AppColors.primary,
-                          inactiveTrackColor: AppColors.chip,
-                          inactiveThumbColor: AppColors.white,
+                          activeTrackColor: context.appPrimary,
+                          inactiveTrackColor: context.appChip,
+                          inactiveThumbColor: context.appCard,
                         ),
                       ],
                     ),
@@ -266,7 +266,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                         height: 44,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -274,15 +274,15 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                           children: [
                             Text(
                               'Time limit',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
-                                color: AppColors.muted,
+                                color: context.appMuted,
                               ),
                             ),
                             Text(
                               '10 minutes',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 height: 18 / 13,
@@ -292,8 +292,8 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                               'assets/icons/figma/chevron_down.svg',
                               width: 16,
                               height: 16,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.muted,
+                              colorFilter: ColorFilter.mode(
+                                context.appMuted,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -306,9 +306,9 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
               ),
             ),
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(top: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                color: context.appCard,
+                border: Border(top: BorderSide(color: context.appBorder)),
               ),
               padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
               child: Column(
@@ -319,10 +319,10 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                         ? '● Model installed · AI ready offline'
                         : '● No model installed · Download the model to generate',
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
+                    style: AppTextStyles.caption(context).copyWith(
                       color: modelReady
-                          ? AppColors.successText
-                          : AppColors.danger,
+                          ? context.appSuccessText
+                          : context.appDanger,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -350,7 +350,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.body.copyWith(
+      style: AppTextStyles.body(context).copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w600,
         height: 18 / 13,
@@ -376,7 +376,7 @@ class _CountStepper extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -388,7 +388,7 @@ class _CountStepper extends StatelessWidget {
             child: Text(
               '$count',
               textAlign: TextAlign.center,
-              style: AppTextStyles.title,
+              style: AppTextStyles.title(context),
             ),
           ),
           _StepButton(asset: 'assets/icons/figma/plus.svg', onTap: onIncrease),
@@ -416,8 +416,8 @@ class _StepButton extends StatelessWidget {
             asset,
             width: 16,
             height: 16,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
@@ -444,10 +444,10 @@ class _ChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.white,
+      color: selected ? context.appSurface : context.appCard,
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: selected ? context.appPrimary : context.appBorder,
         ),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -464,8 +464,8 @@ class _ChoiceChip extends StatelessWidget {
                   'assets/icons/figma/check.svg',
                   width: 14,
                   height: 14,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -473,11 +473,11 @@ class _ChoiceChip extends StatelessWidget {
               ],
               Text(
                 label,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   height: selected ? 16 / 12 : 18 / 12,
-                  color: selected ? AppColors.primary : AppColors.text,
+                  color: selected ? context.appPrimary : context.appText,
                 ),
               ),
             ],

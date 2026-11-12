@@ -158,11 +158,11 @@ Future<bool> showMoveToFolderDialog(
               for (final folder in folders)
                 RadioListTile<int>(title: Text(folder.name), value: folder.id),
               if (folders.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(12),
                   child: Text(
                     'No folders yet — create one from Organize documents.',
-                    style: TextStyle(color: AppColors.muted),
+                    style: TextStyle(color: context.appMuted),
                   ),
                 ),
             ],
@@ -216,11 +216,11 @@ Future<bool> showChangeSubjectDialog(
                   value: subject.id,
                 ),
               if (subjects.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(12),
                   child: Text(
                     'No subjects yet — create one from Organize documents.',
-                    style: TextStyle(color: AppColors.muted),
+                    style: TextStyle(color: context.appMuted),
                   ),
                 ),
             ],
@@ -292,7 +292,7 @@ Future<void> showDocumentMenu(
               alignment: Alignment.centerLeft,
               child: Text(
                 documentDisplayName(document),
-                style: AppTextStyles.itemTitle,
+                style: AppTextStyles.itemTitle(context),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -396,11 +396,11 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: danger ? AppColors.danger : AppColors.text),
+      leading: Icon(icon, color: danger ? context.appDanger : context.appText),
       title: Text(
         label,
-        style: AppTextStyles.body.copyWith(
-          color: danger ? AppColors.danger : null,
+        style: AppTextStyles.body(context).copyWith(
+          color: danger ? context.appDanger : null,
         ),
       ),
       onTap: () => Navigator.of(context).pop(value),

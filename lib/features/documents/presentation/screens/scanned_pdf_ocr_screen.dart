@@ -32,8 +32,8 @@ class ScannedPdfOcrScreen extends ConsumerWidget {
         formatLabel: state.file?.format.label,
       ),
       iconAsset: 'assets/icons/figma/scan_text.svg',
-      iconColor: AppColors.primary,
-      surfaceColor: AppColors.surface,
+      iconColor: context.appPrimary,
+      surfaceColor: context.appSurface,
       headline: 'No readable text found.',
       body:
           'These pages are scanned images, and OCR couldn’t read any text from them.',
@@ -42,12 +42,12 @@ class ScannedPdfOcrScreen extends ConsumerWidget {
         children: [
           Text(
             'Try a clearer scan or a text version',
-            style: AppTextStyles.itemTitle,
+            style: AppTextStyles.itemTitle(context),
           ),
           const SizedBox(height: 8),
           Text(
             'Re-scan the pages at a higher contrast, or get a text-based export from the source — a PDF with selectable text — and import that version instead.',
-            style: AppTextStyles.muted.copyWith(height: 20 / 13),
+            style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
           ),
         ],
       ),

@@ -25,8 +25,8 @@ class QuizSourceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -36,13 +36,13 @@ class QuizSourceCard extends StatelessWidget {
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               formatLabel ?? '—',
-              style: AppTextStyles.badge,
+              style: AppTextStyles.badge(context),
             ),
           ),
           const SizedBox(width: 10),
@@ -52,7 +52,7 @@ class QuizSourceCard extends StatelessWidget {
               children: [
                 Text(
                   title ?? 'No source document',
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     height: 16 / 12,
@@ -62,7 +62,7 @@ class QuizSourceCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle ?? 'Import a document to generate a quiz from it',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
               ],
             ),

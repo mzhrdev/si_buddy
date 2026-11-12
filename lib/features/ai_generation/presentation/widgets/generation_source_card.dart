@@ -48,8 +48,8 @@ class GenerationSourceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -59,11 +59,11 @@ class GenerationSourceCard extends StatelessWidget {
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(formatLabel ?? '–', style: AppTextStyles.badge),
+            child: Text(formatLabel ?? '–', style: AppTextStyles.badge(context)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -72,7 +72,7 @@ class GenerationSourceCard extends StatelessWidget {
               children: [
                 Text(
                   title ?? 'No source document',
-                  style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
+                  style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -80,7 +80,7 @@ class GenerationSourceCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     subtitle!,
-                    style: AppTextStyles.caption,
+                    style: AppTextStyles.caption(context),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

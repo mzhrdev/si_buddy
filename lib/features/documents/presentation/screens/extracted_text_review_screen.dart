@@ -128,7 +128,7 @@ class _ExtractedTextReviewScreenState
     final result = extraction.result;
     if (result == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -169,7 +169,7 @@ class _ExtractedTextReviewScreenState
         : null;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -184,7 +184,7 @@ class _ExtractedTextReviewScreenState
                 children: [
                   Text(
                     'A quick read, then study.',
-                    style: AppTextStyles.display.copyWith(
+                    style: AppTextStyles.display(context).copyWith(
                       fontSize: 28,
                       height: 34 / 28,
                     ),
@@ -192,8 +192,8 @@ class _ExtractedTextReviewScreenState
                   const SizedBox(height: 12),
                   Text(
                     'Review the text before generating flashcards or a quiz.',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.muted,
+                    style: AppTextStyles.body(context).copyWith(
+                      color: context.appMuted,
                       height: 22 / 14,
                     ),
                   ),
@@ -203,7 +203,7 @@ class _ExtractedTextReviewScreenState
                       Expanded(
                         child: Text(
                           fileName,
-                          style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
+                          style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -215,13 +215,13 @@ class _ExtractedTextReviewScreenState
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           subject,
-                          style: AppTextStyles.badge.copyWith(
-                            color: AppColors.primary,
+                          style: AppTextStyles.badge(context).copyWith(
+                            color: context.appPrimary,
                           ),
                         ),
                       ),
@@ -232,8 +232,8 @@ class _ExtractedTextReviewScreenState
                     height: 46,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      border: Border.all(color: AppColors.border),
+                      color: context.appCard,
+                      border: Border.all(color: context.appBorder),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -242,8 +242,8 @@ class _ExtractedTextReviewScreenState
                           'assets/icons/figma/search.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.navInactive,
+                          colorFilter: ColorFilter.mode(
+                            context.appNavInactive,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -251,11 +251,11 @@ class _ExtractedTextReviewScreenState
                         Expanded(
                           child: TextField(
                             controller: _searchController,
-                            style: AppTextStyles.body,
+                            style: AppTextStyles.body(context),
                             decoration: InputDecoration(
                               hintText: 'Search in extracted text',
-                              hintStyle: AppTextStyles.body.copyWith(
-                                color: AppColors.muted,
+                              hintStyle: AppTextStyles.body(context).copyWith(
+                                color: context.appMuted,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -267,7 +267,7 @@ class _ExtractedTextReviewScreenState
                           IconButton(
                             onPressed: _searchController.clear,
                             icon: const Icon(Icons.clear, size: 18),
-                            color: AppColors.muted,
+                            color: context.appMuted,
                             constraints: const BoxConstraints.tightFor(
                               width: 32,
                               height: 32,
@@ -293,7 +293,7 @@ class _ExtractedTextReviewScreenState
                           searching
                               ? '${matches!.length} match${matches.length == 1 ? '' : 'es'} for "$_query"'
                               : 'Page $currentPage of $totalPages',
-                          style: AppTextStyles.link,
+                          style: AppTextStyles.link(context),
                         ),
                         Row(
                           children: [
@@ -308,8 +308,8 @@ class _ExtractedTextReviewScreenState
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
                                   searching || currentPage <= 1
-                                      ? AppColors.border
-                                      : AppColors.navInactive,
+                                      ? context.appBorder
+                                      : context.appNavInactive,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -331,8 +331,8 @@ class _ExtractedTextReviewScreenState
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
                                   searching || currentPage >= totalPages
-                                      ? AppColors.border
-                                      : AppColors.navInactive,
+                                      ? context.appBorder
+                                      : context.appNavInactive,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -349,10 +349,10 @@ class _ExtractedTextReviewScreenState
                     const SizedBox(height: 10),
                     Expanded(
                       child: searching && matches!.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
                                 'No pages contain that text.',
-                                style: TextStyle(color: AppColors.muted),
+                                style: TextStyle(color: context.appMuted),
                               ),
                             )
                           : Builder(
@@ -401,9 +401,9 @@ class _ExtractedTextReviewScreenState
               ),
             ),
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(top: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                color: context.appCard,
+                border: Border(top: BorderSide(color: context.appBorder)),
               ),
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: Column(
@@ -416,15 +416,15 @@ class _ExtractedTextReviewScreenState
                           'assets/icons/figma/arrow_down.svg',
                           width: 12,
                           height: 12,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.navInactive,
+                          colorFilter: ColorFilter.mode(
+                            context.appNavInactive,
                             BlendMode.srcIn,
                           ),
                         ),
                         const SizedBox(width: 5),
                         Text(
                           'Scroll to review all $totalPages pages',
-                          style: AppTextStyles.caption,
+                          style: AppTextStyles.caption(context),
                         ),
                       ],
                     ),
@@ -441,8 +441,8 @@ class _ExtractedTextReviewScreenState
                           'assets/icons/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
+                          colorFilter: ColorFilter.mode(
+                            context.appCard,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -452,7 +452,7 @@ class _ExtractedTextReviewScreenState
                   const SizedBox(height: 10),
                   Text(
                     'Nothing is generated until you choose a study tool.',
-                    style: AppTextStyles.caption,
+                    style: AppTextStyles.caption(context),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -488,7 +488,7 @@ class _ExtractedPageCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -499,20 +499,20 @@ class _ExtractedPageCard extends StatelessWidget {
             children: [
               Text(
                 'Page $page of $totalPages',
-                style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+                style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
               ),
               GestureDetector(
                 onTap: onEdit,
-                child: Text('Edit', style: AppTextStyles.link),
+                child: Text('Edit', style: AppTextStyles.link(context)),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             text.isEmpty ? 'No readable text on this page.' : text,
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.body(context).copyWith(
               height: 22 / 14,
-              color: text.isEmpty ? AppColors.muted : null,
+              color: text.isEmpty ? context.appMuted : null,
             ),
           ),
         ],
@@ -547,7 +547,7 @@ class _EditPageCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -555,14 +555,14 @@ class _EditPageCard extends StatelessWidget {
         children: [
           Text(
             'Editing page $page of $totalPages',
-            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+            style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: controller,
             maxLines: null,
             autofocus: true,
-            style: AppTextStyles.body.copyWith(height: 22 / 14),
+            style: AppTextStyles.body(context).copyWith(height: 22 / 14),
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,

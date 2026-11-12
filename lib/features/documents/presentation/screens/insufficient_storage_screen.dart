@@ -30,9 +30,9 @@ class InsufficientStorageScreen extends ConsumerWidget {
       ),
       iconAsset: 'assets/icons/figma/hard_drive.svg',
       // Figma: warning-text
-      iconColor: AppColors.warningText,
+      iconColor: context.appWarningText,
       // Figma: warning-surface
-      surfaceColor: AppColors.warningSurface,
+      surfaceColor: context.appWarningSurface,
       headline: 'A little more room needed.',
       body:
           'There isn’t enough device storage to save this document and its extracted text.',
@@ -56,7 +56,7 @@ class _StorageGuidance extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Free up at least 18 MB', style: AppTextStyles.itemTitle),
+        Text('Free up at least 18 MB', style: AppTextStyles.itemTitle(context)),
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,9 +64,9 @@ class _StorageGuidance extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('30 MB', style: AppTextStyles.screenTitle),
+                Text('30 MB', style: AppTextStyles.screenTitle(context)),
                 const SizedBox(height: 3),
-                Text('Needed for import', style: AppTextStyles.caption),
+                Text('Needed for import', style: AppTextStyles.caption(context)),
               ],
             ),
             Column(
@@ -74,13 +74,13 @@ class _StorageGuidance extends StatelessWidget {
               children: [
                 Text(
                   '12 MB',
-                  style: AppTextStyles.screenTitle.copyWith(
+                  style: AppTextStyles.screenTitle(context).copyWith(
                     // Figma: warning-text
-                    color: AppColors.warningText,
+                    color: context.appWarningText,
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text('Available on device', style: AppTextStyles.caption),
+                Text('Available on device', style: AppTextStyles.caption(context)),
               ],
             ),
           ],
@@ -90,10 +90,10 @@ class _StorageGuidance extends StatelessWidget {
           borderRadius: BorderRadius.circular(100),
           child: Stack(
             children: [
-              Container(height: 5, color: AppColors.border),
+              Container(height: 5, color: context.appBorder),
               FractionallySizedBox(
                 widthFactor: 12 / 30,
-                child: Container(height: 5, color: AppColors.primary),
+                child: Container(height: 5, color: context.appPrimary),
               ),
             ],
           ),
@@ -101,7 +101,7 @@ class _StorageGuidance extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Remove unneeded files in Android storage settings, then return here and retry.',
-          style: AppTextStyles.muted.copyWith(height: 20 / 13),
+          style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
         ),
       ],
     );

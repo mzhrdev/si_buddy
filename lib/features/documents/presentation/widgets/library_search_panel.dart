@@ -108,8 +108,8 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.border),
+            color: context.appCard,
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -118,8 +118,8 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                 'assets/icons/figma/search.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.navInactive,
+                colorFilter: ColorFilter.mode(
+                  context.appNavInactive,
                   BlendMode.srcIn,
                 ),
               ),
@@ -127,11 +127,11 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
               Expanded(
                 child: TextField(
                   controller: _controller,
-                  style: AppTextStyles.body,
+                  style: AppTextStyles.body(context),
                   decoration: InputDecoration(
                     hintText: 'Search all your study material',
-                    hintStyle: AppTextStyles.body.copyWith(
-                      color: AppColors.muted,
+                    hintStyle: AppTextStyles.body(context).copyWith(
+                      color: context.appMuted,
                     ),
                     border: InputBorder.none,
                     isDense: true,
@@ -143,7 +143,7 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                 IconButton(
                   onPressed: _clear,
                   icon: const Icon(Icons.clear, size: 18),
-                  color: AppColors.muted,
+                  color: context.appMuted,
                   constraints: const BoxConstraints.tightFor(
                     width: 32,
                     height: 32,
@@ -158,23 +158,23 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             child: resultsAsync.when(
-              loading: () => const Padding(
+              loading: () => Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
                   'Searching…',
-                  style: TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: context.appMuted),
                 ),
               ),
-              error: (_, _) => const Padding(
+              error: (_, _) => Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
                   'Search is unavailable right now. Try again.',
-                  style: TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: context.appMuted),
                 ),
               ),
               data: (results) {
@@ -183,7 +183,7 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       'No results for \'${query.trim()}\'.',
-                      style: const TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: context.appMuted),
                     ),
                   );
                 }
@@ -192,9 +192,9 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
                     for (var i = 0; i < results.length; i++) ...[
                       if (i > 0)
                         Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             border: Border(
-                              top: BorderSide(color: AppColors.border),
+                              top: BorderSide(color: context.appBorder),
                             ),
                           ),
                         ),
@@ -235,10 +235,10 @@ class _SearchResultRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(result.tagLabel, style: AppTextStyles.badge),
+                child: Text(result.tagLabel, style: AppTextStyles.badge(context)),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -247,14 +247,14 @@ class _SearchResultRow extends StatelessWidget {
                   children: [
                     Text(
                       result.title,
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
                     Text(
                       result.subtitle,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -265,8 +265,8 @@ class _SearchResultRow extends StatelessWidget {
                 'assets/icons/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.muted,
+                colorFilter: ColorFilter.mode(
+                  context.appMuted,
                   BlendMode.srcIn,
                 ),
               ),

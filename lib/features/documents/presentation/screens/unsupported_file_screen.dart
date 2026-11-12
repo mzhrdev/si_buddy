@@ -40,9 +40,9 @@ class UnsupportedFileScreen extends ConsumerWidget {
       ),
       iconAsset: 'assets/icons/figma/file_x_2.svg',
       // Figma: warning-text
-      iconColor: AppColors.warningText,
+      iconColor: context.appWarningText,
       // Figma: warning-surface
-      surfaceColor: AppColors.warningSurface,
+      surfaceColor: context.appWarningSurface,
       headline: 'This file type isn’t supported.',
       body: extension == null
           ? 'We can’t import this file type. Choose a PDF or PPTX document instead.'
@@ -66,7 +66,7 @@ class _SupportedFormatsGuidance extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Choose a supported format', style: AppTextStyles.itemTitle),
+        Text('Choose a supported format', style: AppTextStyles.itemTitle(context)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -78,17 +78,17 @@ class _SupportedFormatsGuidance extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceSubtle,
+                  color: context.appSurfaceSubtle,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(format, style: AppTextStyles.captionStrong),
+                child: Text(format, style: AppTextStyles.captionStrong(context)),
               ),
           ],
         ),
         const SizedBox(height: 8),
         Text(
           'Export your notes in one of these formats, then select the new file.',
-          style: AppTextStyles.muted.copyWith(height: 20 / 13),
+          style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
         ),
       ],
     );

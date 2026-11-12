@@ -29,8 +29,8 @@ class SelectedDocumentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -40,11 +40,11 @@ class SelectedDocumentCard extends StatelessWidget {
             height: 48,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(formatLabel ?? '–', style: AppTextStyles.badge),
+            child: Text(formatLabel ?? '–', style: AppTextStyles.badge(context)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -53,13 +53,13 @@ class SelectedDocumentCard extends StatelessWidget {
               children: [
                 Text(
                   title ?? 'No document',
-                  style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
+                  style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (subtitle != null && subtitle!.isNotEmpty) ...[
                   const SizedBox(height: 5),
-                  Text(subtitle!, style: AppTextStyles.caption),
+                  Text(subtitle!, style: AppTextStyles.caption(context)),
                 ],
               ],
             ),

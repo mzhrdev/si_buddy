@@ -59,20 +59,20 @@ class _NavButton extends StatelessWidget {
       iconAsset,
       width: 16,
       height: 16,
-      colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+      colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
     );
     final text = Text(
       label,
-      style: AppTextStyles.body.copyWith(
+      style: AppTextStyles.body(context).copyWith(
         fontWeight: FontWeight.w600,
         height: 20 / 14,
-        color: AppColors.primary,
+        color: context.appPrimary,
       ),
     );
     return OutlinedButton(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.appBorder),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         padding: EdgeInsets.zero,
       ),

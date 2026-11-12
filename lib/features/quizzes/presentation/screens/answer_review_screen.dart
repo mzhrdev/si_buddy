@@ -26,9 +26,6 @@ import '../widgets/quiz_progress.dart';
 class AnswerReviewScreen extends ConsumerWidget {
   const AnswerReviewScreen({super.key});
 
-  // Figma: success-surface
-  static const _successSurface = AppColors.successSurface;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(lastGenerationResultProvider);
@@ -39,7 +36,7 @@ class AnswerReviewScreen extends ConsumerWidget {
     final questions = result?.questions ?? const [];
     if (questions.isEmpty) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -94,10 +91,10 @@ class AnswerReviewScreen extends ConsumerWidget {
         ? (isAnswered ? 'Answered · not auto-scored' : 'Unanswered')
         : (isCorrect ? 'Correct' : 'Incorrect');
     final statusColor =
-        isCorrect ? AppColors.successText : AppColors.danger;
+        isCorrect ? context.appSuccessText : context.appDanger;
     final sourceName = job.source?.document.originalFileName;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -127,34 +124,34 @@ class AnswerReviewScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       '${generatedMaterialTitle(config: config, documentName: sourceName)} · ${question.type.label}',
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                     ),
                     const SizedBox(height: 14),
                     Text(
                       question.prompt,
-                      style: AppTextStyles.screenTitle,
+                      style: AppTextStyles.screenTitle(context),
                     ),
                     const SizedBox(height: 14),
                     _AnswerCard(
                       background: isCorrect
-                          ? AppColors.successSurface
-                          : AppColors.dangerSurface,
+                          ? context.appSuccessSurface
+                          : context.appDangerSurface,
                       iconAsset: isCorrect
                           ? 'assets/icons/figma/check_circle_2.svg'
                           : 'assets/icons/figma/circle_x.svg',
-                      iconColor: isCorrect ? AppColors.success : AppColors.danger,
+                      iconColor: isCorrect ? context.appSuccess : context.appDanger,
                       label: 'Your answer',
                       labelColor:
-                          isCorrect ? AppColors.successText : AppColors.danger,
+                          isCorrect ? context.appSuccessText : context.appDanger,
                       value: yourAnswerText(),
                     ),
                     const SizedBox(height: 14),
                     _AnswerCard(
-                      background: _successSurface,
+                      background: context.appSuccessSurface,
                       iconAsset: 'assets/icons/figma/check_circle_2.svg',
-                      iconColor: AppColors.success,
+                      iconColor: context.appSuccess,
                       label: 'Correct answer',
-                      labelColor: AppColors.successText,
+                      labelColor: context.appSuccessText,
                       value: correctAnswerText(),
                     ),
                     if (question.explanation != null &&
@@ -163,7 +160,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: context.appCard,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -171,14 +168,14 @@ class AnswerReviewScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Why this is correct',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 7),
                             Text(
                               question.explanation!,
-                              style: AppTextStyles.muted,
+                              style: AppTextStyles.muted(context),
                             ),
                           ],
                         ),
@@ -189,7 +186,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -198,8 +195,8 @@ class AnswerReviewScreen extends ConsumerWidget {
                               'assets/icons/figma/file_text.svg',
                               width: 20,
                               height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
+                              colorFilter: ColorFilter.mode(
+                                context.appPrimary,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -210,15 +207,15 @@ class AnswerReviewScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     'Source',
-                                    style: AppTextStyles.caption,
+                                    style: AppTextStyles.caption(context),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     sourceName,
-                                    style: AppTextStyles.body.copyWith(
+                                    style: AppTextStyles.body(context).copyWith(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.primary,
+                                      color: context.appPrimary,
                                     ),
                                   ),
                                 ],
@@ -297,12 +294,12 @@ class _AnswerCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: AppTextStyles.caption.copyWith(color: labelColor),
+                  style: AppTextStyles.caption(context).copyWith(color: labelColor),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     fontWeight: FontWeight.w600,
                     height: 20 / 14,
                   ),

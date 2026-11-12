@@ -29,20 +29,20 @@ class UnreadableTextScreen extends ConsumerWidget {
       ),
       iconAsset: 'assets/icons/figma/text_cursor_input.svg',
       // Figma: warning-text
-      iconColor: AppColors.warningText,
+      iconColor: context.appWarningText,
       // Figma: warning-surface
-      surfaceColor: AppColors.warningSurface,
+      surfaceColor: context.appWarningSurface,
       headline: 'We couldn’t read the text.',
       body:
           'The PDF opens, but its text is garbled or incorrectly encoded. It can’t be used for study tools yet.',
       guidance: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Export a readable version', style: AppTextStyles.itemTitle),
+          Text('Export a readable version', style: AppTextStyles.itemTitle(context)),
           const SizedBox(height: 8),
           Text(
             'Export again from the original app as a text-based PDF. Check that you can select and copy a sentence as readable text, then try that version.',
-            style: AppTextStyles.muted.copyWith(height: 20 / 13),
+            style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
           ),
         ],
       ),

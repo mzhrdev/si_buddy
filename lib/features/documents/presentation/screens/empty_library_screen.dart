@@ -18,7 +18,7 @@ class EmptyLibraryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -38,7 +38,7 @@ class EmptyLibraryScreen extends StatelessWidget {
                         Text(
                           'A home for your notes.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.display.copyWith(
+                          style: AppTextStyles.display(context).copyWith(
                             letterSpacing: -0.48,
                           ),
                         ),
@@ -47,8 +47,8 @@ class EmptyLibraryScreen extends StatelessWidget {
                           'Import your first document. Turn what you’re '
                           'learning into flashcards, quizzes and summaries.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.muted,
+                          style: AppTextStyles.body(context).copyWith(
+                            color: context.appMuted,
                             height: 22 / 14,
                           ),
                         ),
@@ -60,10 +60,10 @@ class EmptyLibraryScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         Text(
                           'PDF and PPTX supported',
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontSize: 12,
                             height: 18 / 12,
-                            color: AppColors.muted,
+                            color: context.appMuted,
                           ),
                         ),
                         const SizedBox(height: 22),
@@ -71,8 +71,8 @@ class EmptyLibraryScreen extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.white,
-                            border: Border.all(color: AppColors.border),
+                            color: context.appCard,
+                            border: Border.all(color: context.appBorder),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Column(
@@ -84,15 +84,15 @@ class EmptyLibraryScreen extends StatelessWidget {
                                     'assets/icons/figma/folders.svg',
                                     width: 17,
                                     height: 17,
-                                    colorFilter: const ColorFilter.mode(
-                                      AppColors.primary,
+                                    colorFilter: ColorFilter.mode(
+                                      context.appPrimary,
                                       BlendMode.srcIn,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'A little order. A clearer mind.',
-                                    style: AppTextStyles.itemTitle,
+                                    style: AppTextStyles.itemTitle(context),
                                   ),
                                 ],
                               ),
@@ -100,10 +100,10 @@ class EmptyLibraryScreen extends StatelessWidget {
                               Text(
                                 'Once you import, group notes into folders '
                                 'and assign subjects to find them faster.',
-                                style: AppTextStyles.body.copyWith(
+                                style: AppTextStyles.body(context).copyWith(
                                   fontSize: 12,
                                   height: 18 / 12,
-                                  color: AppColors.muted,
+                                  color: context.appMuted,
                                 ),
                               ),
                             ],

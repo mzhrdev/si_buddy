@@ -17,14 +17,14 @@ class StudyProgressTrack extends StatelessWidget {
       borderRadius: BorderRadius.circular(100),
       child: Container(
         height: 5,
-        color: AppColors.surface,
+        color: context.appSurface,
         child: Align(
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(
             widthFactor: fraction.clamp(0, 1),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.appPrimary,
                 borderRadius: BorderRadius.circular(100),
               ),
             ),

@@ -1,21 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../model_management/domain/model_state.dart';
+import '../../../model_management/presentation/providers/model_providers.dart';
+import '../../../study/presentation/providers/reminder_providers.dart';
+import '../providers/settings_providers.dart';
 import '../widgets/settings_row.dart';
 
 /// Settings hub, implemented from the Figma frame
 /// "SI Buddy · Settings Hub" (5:20615).
 ///
 /// Tab-root screen: the shell provides the bottom navigation and the
-/// header uses the brand-lockup form.
-class SettingsHubScreen extends StatelessWidget {
+/// header uses the brand-lockup form. Every trailing value is real:
+/// Appearance from the persisted theme mode, Reminders from the
+/// persisted reminder settings, AI Model from the live model state.
+/// There is no Language row (the brief removed the setting).
+class SettingsHubScreen extends ConsumerWidget {
   const SettingsHubScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
+    final appearance = switch (themeMode) {
+      ThemeMode.light => 'Light',
+      ThemeMode.dark => 'Dark',
+      ThemeMode.system => 'System',
+    };
+    final dailyOn = ref.watch(dailyReminderEnabledProvider).value ?? false;
+    final revisionOn =
+        ref.watch(revisionRemindersEnabledProvider).value ?? false;
+    final modelState = ref.watch(modelProvider);
+    final (modelText, modelRoute) = switch (modelState.status) {
+      ModelStatus.ready => (
+        'Gemma 3 1B IT · Installed',
+        AppRoutes.readyOffline,
+      ),
+      ModelStatus.downloading => (
+        'Gemma 3 1B IT · Downloading',
+        AppRoutes.downloading,
+      ),
+      ModelStatus.failed => (
+        'Gemma 3 1B IT · Download failed',
+        AppRoutes.downloadFailed,
+      ),
+      ModelStatus.notInstalled => (
+        'Gemma 3 1B IT · Not installed',
+        AppRoutes.notInstalled,
+      ),
+      // Not yet probed this session: the Ready screen probes on
+      // open and redirects itself when the probe lands.
+      ModelStatus.unknown => (
+        'Gemma 3 1B IT · Checking…',
+        AppRoutes.readyOffline,
+      ),
+    };
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -27,7 +69,9 @@ class SettingsHubScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Make SI Buddy work for you.',
-                    style: AppTextStyles.muted.copyWith(height: 20 / 13),
+                    style: AppTextStyles.muted(
+                      context,
+                    ).copyWith(height: 20 / 13),
                   ),
                   const SizedBox(height: 16),
                   SettingsSection(
@@ -38,21 +82,14 @@ class SettingsHubScreen extends StatelessWidget {
                           SettingsRow(
                             iconAsset: 'assets/icons/figma/sun_moon.svg',
                             label: 'Appearance',
-                            trailingValue: 'System',
-                            showDivider: true,
-                            onTap: () => context.push(AppRoutes.preferences),
-                          ),
-                          SettingsRow(
-                            iconAsset: 'assets/icons/figma/languages.svg',
-                            label: 'Language',
-                            trailingValue: 'English',
+                            trailingValue: appearance,
                             showDivider: true,
                             onTap: () => context.push(AppRoutes.preferences),
                           ),
                           SettingsRow(
                             iconAsset: 'assets/icons/figma/bell.svg',
                             label: 'Reminders',
-                            trailingValue: 'Off',
+                            trailingValue: dailyOn || revisionOn ? 'On' : 'Off',
                             showDivider: true,
                             onTap: () => context.push(AppRoutes.preferences),
                           ),
@@ -67,8 +104,8 @@ class SettingsHubScreen extends StatelessWidget {
                       SettingsRow(
                         iconAsset: 'assets/icons/figma/model.svg',
                         label: 'AI Model',
-                        supportingText: 'Gemma 3 1B IT · AI Ready Offline',
-                        onTap: () => context.push(AppRoutes.readyOffline),
+                        supportingText: modelText,
+                        onTap: () => context.push(modelRoute),
                       ),
                       SettingsRow(
                         iconAsset: 'assets/icons/figma/storage.svg',
@@ -79,7 +116,7 @@ class SettingsHubScreen extends StatelessWidget {
                       SettingsRow(
                         iconAsset: 'assets/icons/figma/subscription.svg',
                         label: 'Subscription',
-                        supportingText: 'Plans & Google Play purchases',
+                        supportingText: 'Free plan · Premium coming soon',
                         onTap: () => context.push(AppRoutes.premium),
                       ),
                     ],

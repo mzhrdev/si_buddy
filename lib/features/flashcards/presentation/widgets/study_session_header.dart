@@ -50,24 +50,24 @@ class StudySessionHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTextStyles.screenTitle),
+        Text(title, style: AppTextStyles.screenTitle(context)),
         const SizedBox(height: 3),
-        Text(subtitle, style: AppTextStyles.caption),
+        Text(subtitle, style: AppTextStyles.caption(context)),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: Text(
                 'Card ${index + 1} of $total',
-                style: AppTextStyles.link.copyWith(height: 16 / 12),
+                style: AppTextStyles.link(context).copyWith(height: 16 / 12),
               ),
             ),
             Text(
               '$reviewed reviewed · $percent%',
-              style: AppTextStyles.body.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 fontSize: 12,
                 height: 18 / 12,
-                color: AppColors.muted,
+                color: context.appMuted,
               ),
             ),
           ],
@@ -76,7 +76,7 @@ class StudySessionHeader extends StatelessWidget {
         Container(
           height: 6,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.appSurface,
             borderRadius: BorderRadius.circular(100),
           ),
           child: FractionallySizedBox(
@@ -84,7 +84,7 @@ class StudySessionHeader extends StatelessWidget {
             widthFactor: fraction.clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.appPrimary,
                 borderRadius: BorderRadius.circular(100),
               ),
             ),
@@ -135,18 +135,18 @@ class _ToolAction extends StatelessWidget {
             iconAsset,
             width: 18,
             height: 18,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
           const SizedBox(width: 7),
           Text(
             label,
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.body(context).copyWith(
               fontSize: 12,
               height: 18 / 12,
-              color: AppColors.primary,
+              color: context.appPrimary,
             ),
           ),
         ],

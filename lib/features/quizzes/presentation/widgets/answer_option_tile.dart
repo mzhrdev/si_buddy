@@ -26,10 +26,10 @@ class AnswerOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.white,
+      color: selected ? context.appSurface : context.appCard,
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: selected ? context.appPrimary : context.appBorder,
         ),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -46,9 +46,9 @@ class AnswerOptionTile extends StatelessWidget {
                 height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.primary : AppColors.white,
+                  color: selected ? context.appPrimary : context.appCard,
                   border: Border.all(
-                    color: selected ? AppColors.primary : AppColors.border,
+                    color: selected ? context.appPrimary : context.appBorder,
                   ),
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -57,18 +57,18 @@ class AnswerOptionTile extends StatelessWidget {
                         'assets/icons/figma/check.svg',
                         width: 16,
                         height: 16,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.white,
+                        colorFilter: ColorFilter.mode(
+                          context.appCard,
                           BlendMode.srcIn,
                         ),
                       )
                     : Text(
                         marker,
-                        style: AppTextStyles.body.copyWith(
+                        style: AppTextStyles.body(context).copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           height: 16 / 12,
-                          color: AppColors.textSecondary,
+                          color: context.appTextSecondary,
                         ),
                       ),
               ),
@@ -77,12 +77,12 @@ class AnswerOptionTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: selected
-                      ? AppTextStyles.body.copyWith(
+                      ? AppTextStyles.body(context).copyWith(
                           fontWeight: FontWeight.w600,
                           height: 20 / 14,
-                          color: AppColors.primary,
+                          color: context.appPrimary,
                         )
-                      : AppTextStyles.body.copyWith(height: 22 / 14),
+                      : AppTextStyles.body(context).copyWith(height: 22 / 14),
                 ),
               ),
               if (selected)
@@ -90,8 +90,8 @@ class AnswerOptionTile extends StatelessWidget {
                   'assets/icons/figma/check.svg',
                   width: 18,
                   height: 18,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),

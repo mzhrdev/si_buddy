@@ -28,7 +28,7 @@ class StudyDestinationsBar extends StatelessWidget {
       height: 38,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -41,16 +41,16 @@ class StudyDestinationsBar extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: i == currentIndex
-                        ? AppColors.surface
-                        : AppColors.white,
+                        ? context.appSurface
+                        : context.appCard,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     _labels[i],
-                    style: AppTextStyles.navLabel.copyWith(
+                    style: AppTextStyles.navLabel(context).copyWith(
                       color: i == currentIndex
-                          ? AppColors.primary
-                          : AppColors.muted,
+                          ? context.appPrimary
+                          : context.appMuted,
                       fontWeight: i == currentIndex
                           ? FontWeight.w600
                           : FontWeight.w400,

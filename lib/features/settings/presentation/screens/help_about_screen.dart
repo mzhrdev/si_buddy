@@ -57,18 +57,18 @@ class HelpAboutScreen extends StatelessWidget {
                                 horizontal: 14,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceSubtle,
+                                color: context.appSurfaceSubtle,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Center(
                                 child: Text(
                                   format,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     height: 16 / 12,
-                                    color: AppColors.textSecondary,
+                                    color: context.appTextSecondary,
                                   ),
                                 ),
                               ),
@@ -98,7 +98,7 @@ class HelpAboutScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: context.appCard,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -151,14 +151,14 @@ class _Faq extends StatelessWidget {
       children: [
         Text(
           question,
-          style: AppTextStyles.body.copyWith(
+          style: AppTextStyles.body(context).copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             height: 18 / 13,
           ),
         ),
         const SizedBox(height: 4),
-        Text(answer, style: AppTextStyles.greeting.copyWith(height: 18 / 12)),
+        Text(answer, style: AppTextStyles.greeting(context).copyWith(height: 18 / 12)),
       ],
     );
   }
@@ -174,8 +174,8 @@ class _FeedbackRow extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(minHeight: 48),
       padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.appBorder)),
       ),
       child: Row(
         children: [
@@ -183,7 +183,7 @@ class _FeedbackRow extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.surfaceSubtle,
+              color: context.appSurfaceSubtle,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
@@ -191,8 +191,8 @@ class _FeedbackRow extends StatelessWidget {
                 'assets/icons/figma/message_square.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textSecondary,
+                colorFilter: ColorFilter.mode(
+                  context.appTextSecondary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -206,7 +206,7 @@ class _FeedbackRow extends StatelessWidget {
               children: [
                 Text(
                   'Send feedback',
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     fontWeight: FontWeight.w600,
                     height: 20 / 14,
                   ),
@@ -214,7 +214,7 @@ class _FeedbackRow extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   'Share an issue or suggestion',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
               ],
             ),
@@ -223,8 +223,8 @@ class _FeedbackRow extends StatelessWidget {
             'assets/icons/figma/arrow_up_right.svg',
             width: 16,
             height: 16,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
@@ -247,12 +247,12 @@ class _VersionRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyles.greeting.copyWith(height: 18 / 12)),
+        Text(label, style: AppTextStyles.greeting(context).copyWith(height: 18 / 12)),
         Text(
           value,
-          style: AppTextStyles.greeting.copyWith(
+          style: AppTextStyles.greeting(context).copyWith(
             height: 18 / 12,
-            color: AppColors.text,
+            color: context.appText,
           ),
         ),
       ],

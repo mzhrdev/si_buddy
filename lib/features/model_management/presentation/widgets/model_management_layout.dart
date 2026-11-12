@@ -26,10 +26,10 @@ class ModelManagementLayout extends StatelessWidget {
     required this.onPrimary,
     required this.secondaryLabel,
     required this.onSecondary,
-    this.readinessBackground = AppColors.white,
+    this.readinessBackground,
     this.readinessChild,
-    this.secondaryColor = AppColors.primary,
-    this.secondaryBorderColor = AppColors.border,
+    this.secondaryColor,
+    this.secondaryBorderColor,
     this.modelVersion = 'To be confirmed',
     this.downloadSize = 'To be confirmed',
     super.key,
@@ -41,7 +41,8 @@ class ModelManagementLayout extends StatelessWidget {
   final Color readinessIconColor;
   final String readinessTitle;
   final String readinessBody;
-  final Color readinessBackground;
+  /// Null reads as the card color.
+  final Color? readinessBackground;
 
   /// Optional extra content under the readiness body (download progress).
   final Widget? readinessChild;
@@ -53,8 +54,10 @@ class ModelManagementLayout extends StatelessWidget {
   final VoidCallback onPrimary;
   final String secondaryLabel;
   final VoidCallback onSecondary;
-  final Color secondaryColor;
-  final Color secondaryBorderColor;
+  /// Null reads as the primary color.
+  final Color? secondaryColor;
+  /// Null reads as the border color.
+  final Color? secondaryBorderColor;
 
   /// Package card metadata. Defaults keep the design's placeholder;
   /// wired screens pass the real model's values.
@@ -64,7 +67,7 @@ class ModelManagementLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -85,7 +88,8 @@ class ModelManagementLayout extends StatelessWidget {
                     iconColor: readinessIconColor,
                     title: readinessTitle,
                     body: readinessBody,
-                    background: readinessBackground,
+                    background:
+                        readinessBackground ?? context.appCard,
                     child: readinessChild,
                   ),
                   const SizedBox(height: 16),
@@ -96,8 +100,8 @@ class ModelManagementLayout extends StatelessWidget {
               ),
             ),
             Container(
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: context.appBorder)),
               ),
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: Column(
@@ -114,8 +118,8 @@ class ModelManagementLayout extends StatelessWidget {
                           'assets/icons/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
+                          colorFilter: ColorFilter.mode(
+                            context.appCard,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -127,17 +131,19 @@ class ModelManagementLayout extends StatelessWidget {
                     onPressed: onSecondary,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(44),
-                      side: BorderSide(color: secondaryBorderColor),
+                      side: BorderSide(
+                        color: secondaryBorderColor ?? context.appBorder,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                     child: Text(
                       secondaryLabel,
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontWeight: FontWeight.w600,
                         height: 20 / 14,
-                        color: secondaryColor,
+                        color: secondaryColor ?? context.appPrimary,
                       ),
                     ),
                   ),
@@ -169,8 +175,8 @@ class _ModelPackageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -183,15 +189,15 @@ class _ModelPackageCard extends StatelessWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(
                   'assets/icons/figma/cpu.svg',
                   width: 22,
                   height: 22,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -201,9 +207,9 @@ class _ModelPackageCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gemma 3 1B IT', style: AppTextStyles.screenTitle),
+                    Text('Gemma 3 1B IT', style: AppTextStyles.screenTitle(context)),
                     const SizedBox(height: 4),
-                    Text('On-device AI model', style: AppTextStyles.caption),
+                    Text('On-device AI model', style: AppTextStyles.caption(context)),
                   ],
                 ),
               ),
@@ -256,22 +262,22 @@ class _MetadataRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 12,
             fontWeight: FontWeight.w400,
             height: 18 / 12,
-            color: AppColors.muted,
+            color: context.appMuted,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 12,
             fontWeight: FontWeight.w600,
             height: 16 / 12,
-            color: AppColors.text,
+            color: context.appText,
           ),
         ),
       ],
@@ -320,7 +326,7 @@ class _ReadinessCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     fontWeight: FontWeight.w600,
                     height: 20 / 14,
                   ),
@@ -329,7 +335,7 @@ class _ReadinessCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(body, style: AppTextStyles.muted.copyWith(height: 20 / 13)),
+          Text(body, style: AppTextStyles.muted(context).copyWith(height: 20 / 13)),
           if (child != null) ...[const SizedBox(height: 8), child!],
         ],
       ),
@@ -349,7 +355,7 @@ class _OfflineAvailability extends StatelessWidget {
       children: [
         Text(
           'What works offline',
-          style: AppTextStyles.body.copyWith(
+          style: AppTextStyles.body(context).copyWith(
             fontWeight: FontWeight.w600,
             height: 20 / 14,
           ),
@@ -398,8 +404,8 @@ class _AvailabilityRow extends StatelessWidget {
           iconAsset,
           width: 16,
           height: 16,
-          colorFilter: const ColorFilter.mode(
-            AppColors.primary,
+          colorFilter: ColorFilter.mode(
+            context.appPrimary,
             BlendMode.srcIn,
           ),
         ),
@@ -410,23 +416,23 @@ class _AvailabilityRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
-                  color: AppColors.text,
+                  color: context.appText,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   height: 18 / 12,
-                  color: AppColors.muted,
+                  color: context.appMuted,
                 ),
               ),
             ],
@@ -455,14 +461,14 @@ class ModelDownloadProgress extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Model download', style: AppTextStyles.caption),
+            Text('Model download', style: AppTextStyles.caption(context)),
             Text(
               '${(fraction * 100).round()}%',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.text,
+                color: context.appText,
               ),
             ),
           ],
@@ -471,7 +477,7 @@ class ModelDownloadProgress extends StatelessWidget {
         Container(
           height: 5,
           decoration: BoxDecoration(
-            color: AppColors.border,
+            color: context.appBorder,
             borderRadius: BorderRadius.circular(100),
           ),
           child: FractionallySizedBox(
@@ -479,7 +485,7 @@ class ModelDownloadProgress extends StatelessWidget {
             widthFactor: fraction.clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.appPrimary,
                 borderRadius: BorderRadius.circular(100),
               ),
             ),

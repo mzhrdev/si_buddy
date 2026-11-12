@@ -16,7 +16,7 @@ class StudyProgressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(4),
       ),
       padding: const EdgeInsets.all(12),
@@ -31,8 +31,8 @@ class StudyProgressCard extends StatelessWidget {
                 height: 8,
                 colorFilter: progress.modelReady
                     ? null
-                    : const ColorFilter.mode(
-                        AppColors.navInactive,
+                    : ColorFilter.mode(
+                        context.appNavInactive,
                         BlendMode.srcIn,
                       ),
               ),
@@ -42,13 +42,13 @@ class StudyProgressCard extends StatelessWidget {
                     ? 'AI Ready Offline'
                     : 'AI Model Not Installed',
                 style: progress.modelReady
-                    ? AppTextStyles.successLabel
-                    : AppTextStyles.tileLabel,
+                    ? AppTextStyles.successLabel(context)
+                    : AppTextStyles.tileLabel(context),
               ),
               const Spacer(),
               Text(
                 '${progress.streakDays}-day streak',
-                style: AppTextStyles.captionStrong,
+                style: AppTextStyles.captionStrong(context),
               ),
             ],
           ),
@@ -75,12 +75,12 @@ class StudyProgressCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Daily goal · ${progress.minutesRemaining} min to go',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
               ),
               Text(
                 '${progress.minutesStudied} / ${progress.dailyGoalMinutes} min',
-                style: AppTextStyles.captionStrong,
+                style: AppTextStyles.captionStrong(context),
               ),
             ],
           ),
@@ -88,7 +88,7 @@ class StudyProgressCard extends StatelessWidget {
           Container(
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: context.appBorder,
               borderRadius: BorderRadius.circular(100),
             ),
             child: FractionallySizedBox(
@@ -96,7 +96,7 @@ class StudyProgressCard extends StatelessWidget {
               widthFactor: progress.goalFraction.clamp(0.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -119,9 +119,9 @@ class _Metric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: AppTextStyles.headline),
+        Text(value, style: AppTextStyles.headline(context)),
         const SizedBox(height: 2),
-        Text(label, style: AppTextStyles.caption),
+        Text(label, style: AppTextStyles.caption(context)),
       ],
     );
   }

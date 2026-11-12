@@ -67,7 +67,7 @@ class _ImportIllustration extends StatelessWidget {
               width: 90,
               height: 45,
               decoration: BoxDecoration(
-                color: AppColors.accentMuted,
+                color: context.appAccentMuted,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -79,7 +79,7 @@ class _ImportIllustration extends StatelessWidget {
               width: 239,
               height: 131,
               decoration: BoxDecoration(
-                color: AppColors.accentMuted,
+                color: context.appAccentMuted,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -115,7 +115,7 @@ class _ImportIllustration extends StatelessWidget {
               height: 118,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.appPrimary,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
@@ -124,14 +124,14 @@ class _ImportIllustration extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'My study notes',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           height: 22 / 16,
-                          color: AppColors.white,
+                          color: context.appCard,
                         ),
                       ),
                       SvgPicture.asset(
@@ -147,20 +147,20 @@ class _ImportIllustration extends StatelessWidget {
                       Container(
                         width: 5,
                         height: 5,
-                        decoration: const BoxDecoration(
-                          color: AppColors.white,
+                        decoration: BoxDecoration(
+                          color: context.appCard,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 7),
-                      const Text(
+                      Text(
                         'Ready for a fresh perspective',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           height: 18 / 12,
-                          color: AppColors.white,
+                          color: context.appCard,
                         ),
                       ),
                     ],

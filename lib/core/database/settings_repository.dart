@@ -95,4 +95,10 @@ class SettingsRepository {
   Future<void> remove(String key) async {
     await (db.delete(db.dbSettings)..where((t) => t.key.equals(key))).go();
   }
+
+  /// Deletes every settings row (all keys) — for "Clear All Local
+  /// Data". The next launch reads every setting as unset.
+  Future<void> clearAll() async {
+    await db.delete(db.dbSettings).go();
+  }
 }

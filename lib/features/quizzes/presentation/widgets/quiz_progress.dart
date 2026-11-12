@@ -26,9 +26,9 @@ class QuizIdentity extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: titleStyle ?? AppTextStyles.screenTitle),
+        Text(title, style: titleStyle ?? AppTextStyles.screenTitle(context)),
         const SizedBox(height: 3),
-        Text(meta, style: AppTextStyles.caption),
+        Text(meta, style: AppTextStyles.caption(context)),
       ],
     );
   }
@@ -42,17 +42,19 @@ class QuizProgressBar extends StatelessWidget {
     required this.leftLabel,
     required this.rightLabel,
     required this.fraction,
-    this.rightLabelColor = AppColors.muted,
+    this.rightLabelColor,
     super.key,
   });
 
   final String leftLabel;
   final String rightLabel;
   final double fraction;
-  final Color rightLabelColor;
+  /// Null reads as the muted color.
+  final Color? rightLabelColor;
 
   @override
   Widget build(BuildContext context) {
+    final rightColor = rightLabelColor ?? context.appMuted;
     final labelStyle = TextStyle(
       fontFamily: 'Inter',
       fontSize: 12,
@@ -67,16 +69,16 @@ class QuizProgressBar extends StatelessWidget {
           children: [
             Text(
               leftLabel,
-              style: labelStyle.copyWith(color: AppColors.primary),
+              style: labelStyle.copyWith(color: context.appPrimary),
             ),
             Text(
               rightLabel,
               style: labelStyle.copyWith(
-                color: rightLabelColor,
-                fontWeight: rightLabelColor == AppColors.muted
+                color: rightColor,
+                fontWeight: rightLabelColor == null
                     ? FontWeight.w400
                     : FontWeight.w600,
-                height: rightLabelColor == AppColors.muted ? 18 / 12 : 16 / 12,
+                height: rightLabelColor == null ? 18 / 12 : 16 / 12,
               ),
             ),
           ],
@@ -87,8 +89,8 @@ class QuizProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: fraction,
             minHeight: 6,
-            backgroundColor: AppColors.surface,
-            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            backgroundColor: context.appSurface,
+            valueColor: AlwaysStoppedAnimation(context.appPrimary),
           ),
         ),
       ],
@@ -118,10 +120,10 @@ class QuizTopicTimerRow extends StatelessWidget {
         children: [
           Text(
             topic,
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.body(context).copyWith(
               fontSize: 12,
               height: 18 / 12,
-              color: AppColors.muted,
+              color: context.appMuted,
             ),
           ),
           Row(
@@ -131,19 +133,19 @@ class QuizTopicTimerRow extends StatelessWidget {
                 'assets/icons/figma/timer.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
+                colorFilter: ColorFilter.mode(
+                  context.appPrimary,
                   BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 timeLeft,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ],

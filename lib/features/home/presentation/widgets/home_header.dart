@@ -19,9 +19,9 @@ class HomeHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(greeting, style: AppTextStyles.greeting),
+              Text(greeting, style: AppTextStyles.greeting(context)),
               const SizedBox(height: 4),
-              const Text("Let's make it stick.", style: AppTextStyles.display),
+              Text("Let's make it stick.", style: AppTextStyles.display(context)),
             ],
           ),
         ),

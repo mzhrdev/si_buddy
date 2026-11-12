@@ -42,7 +42,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
     final question = questions.isEmpty ? null : questions.first;
     if (question == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -79,7 +79,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
         ? null
         : (answers[question.prompt] == 0 ? 'T' : 'F');
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -109,7 +109,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -120,29 +120,29 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                               children: [
                                 Text(
                                   'TRUE/FALSE',
-                                  style: AppTextStyles.caption.copyWith(
+                                  style: AppTextStyles.caption(context).copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                                 Text(
                                   '01 / $total',
-                                  style: AppTextStyles.caption,
+                                  style: AppTextStyles.caption(context),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
                               question.prompt,
-                              style: AppTextStyles.screenTitle,
+                              style: AppTextStyles.screenTitle(context),
                             ),
                             const SizedBox(height: 20),
                             Text(
                               'Select one answer.',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
-                                color: AppColors.muted,
+                                color: context.appMuted,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -179,7 +179,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                       child: Text(
                         'Answers are saved as you move between questions.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ),
                   ],

@@ -6,14 +6,20 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
+import '../../../settings/presentation/widgets/confirmation_dialog.dart';
 import '../widgets/subscription_actions.dart';
 import '../widgets/subscription_guidance.dart';
 
 /// Upgrade to Premium, implemented from the Figma frame
 /// "SI Buddy · Upgrade to Premium" (5:23885).
 ///
-/// Free/Premium comparison, Monthly/Annual plan selection (Annual is
-/// selected in the design) and the sample-terms guidance copy.
+/// Free/Premium comparison and Monthly/Annual plan selection
+/// (Annual is selected in the design), with the sample-terms
+/// guidance copy. There is no billing backend, so the plans are a
+/// preview only and buying is honestly unavailable: the primary
+/// button says so in a dialog instead of leading into a purchase
+/// flow that cannot complete (the old flow dead-ended at a fake
+/// "verification pending" screen).
 class UpgradePremiumScreen extends StatefulWidget {
   const UpgradePremiumScreen({super.key});
 
@@ -33,7 +39,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -44,33 +50,32 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                 children: [
                   Text(
                     'More room for your study routine.',
-                    style: AppTextStyles.body.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 20 / 14,
-                    ),
+                    style: AppTextStyles.body(
+                      context,
+                    ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Preview only · Editable sample prices and daily limits, not live commercial terms.',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       height: 18 / 12,
-                      color: AppColors.muted,
+                      color: context.appMuted,
                     ),
                   ),
                   const SizedBox(height: 10),
                   const _ComparisonCard(),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'One run = one request to generate flashcards, a quiz or a summary. Offline generation counts toward the daily limit in this sample policy.',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       height: 18 / 12,
-                      color: AppColors.muted,
+                      color: context.appMuted,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -91,22 +96,22 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Both plans include the same Premium benefits. Annual renews at US\$39.99/year unless changed.',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       height: 18 / 12,
-                      color: AppColors.muted,
+                      color: context.appMuted,
                     ),
                   ),
                   const SizedBox(height: 10),
                   SubscriptionGuidanceSection(
                     title: 'Keep studying on Free, online or offline',
-                    titleStyle: AppTextStyles.itemTitle.copyWith(
-                      height: 18 / 13,
-                    ),
+                    titleStyle: AppTextStyles.itemTitle(
+                      context,
+                    ).copyWith(height: 18 / 13),
                     paragraphs: const [
                       'Saved documents, flashcards, quizzes and summaries stay available within plan limits. Local AI needs an installed model and sufficient memory and storage.',
                       'Internet is required for Google Play purchases, restore, verification, subscription management and model downloads. Premium does not install the model.',
@@ -117,24 +122,12 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
             ),
             SubscriptionActions(
               primaryLabel: 'Continue with ${_plans[_selectedPlan].name}',
-              onPrimary: () => context.push(AppRoutes.purchase),
-              footer: SizedBox(
-                height: 36,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.go(AppRoutes.home),
-                      child: Text(
-                        'Continue with Free',
-                        style: _footerLinkStyle,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => context.push(AppRoutes.restore),
-                      child: Text('Restore Purchases', style: _footerLinkStyle),
-                    ),
-                  ],
+              onPrimary: () => _showPremiumUnavailable(context),
+              footer: GestureDetector(
+                onTap: () => context.go(AppRoutes.home),
+                child: Text(
+                  'Continue with Free',
+                  style: _footerLinkStyle(context),
                 ),
               ),
             ),
@@ -144,12 +137,33 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
     );
   }
 
-  static const _footerLinkStyle = TextStyle(
+  /// Premium cannot be bought in this version — there is no billing
+  /// backend. Say so plainly instead of starting a purchase that
+  /// cannot complete.
+  Future<void> _showPremiumUnavailable(BuildContext context) async {
+    final goFree = await showConfirmationDialog(
+      context: context,
+      iconAsset: 'assets/icons/figma/subscription.svg',
+      indicatorColor: context.appSurface,
+      iconColor: context.appPrimary,
+      title: 'Premium isn’t available yet',
+      messageParagraphs: const [
+        'Subscriptions arrive with billing — there is nothing to buy in this version, and no payment is taken.',
+        'Everything you have stays available on the Free plan.',
+      ],
+      confirmLabel: 'Continue with Free',
+    );
+    if (goFree && context.mounted) {
+      context.go(AppRoutes.home);
+    }
+  }
+
+  static TextStyle _footerLinkStyle(BuildContext context) => TextStyle(
     fontFamily: 'Inter',
     fontSize: 13,
     fontWeight: FontWeight.w600,
     height: 18 / 13,
-    color: AppColors.primary,
+    color: context.appPrimary,
   );
 }
 
@@ -169,8 +183,8 @@ class _ComparisonCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -179,7 +193,7 @@ class _ComparisonCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 88,
                 child: Text(
                   'Included',
@@ -188,22 +202,22 @@ class _ComparisonCard extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     height: 18 / 12,
-                    color: AppColors.muted,
+                    color: context.appMuted,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               SizedBox(
                 width: 87,
-                child: Text('Free', style: AppTextStyles.itemTitle),
+                child: Text('Free', style: AppTextStyles.itemTitle(context)),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Premium',
-                  style: AppTextStyles.itemTitle.copyWith(
-                    color: AppColors.primary,
-                  ),
+                  style: AppTextStyles.itemTitle(
+                    context,
+                  ).copyWith(color: context.appPrimary),
                 ),
               ),
             ],
@@ -214,19 +228,19 @@ class _ComparisonCard extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 88,
-                  child: Text(row.$1, style: _cellStyle(AppColors.text)),
+                  child: Text(row.$1, style: _cellStyle(context.appText)),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 87,
-                  child: Text(row.$2, style: _cellStyle(AppColors.muted)),
+                  child: Text(row.$2, style: _cellStyle(context.appMuted)),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     row.$3,
                     style: _cellStyle(
-                      AppColors.primary,
+                      context.appPrimary,
                     ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -270,9 +284,9 @@ class _PlanOption extends StatelessWidget {
         height: 90,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: selected ? AppColors.surface : AppColors.white,
+          color: selected ? context.appSurface : context.appCard,
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
+            color: selected ? context.appPrimary : context.appBorder,
             width: selected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(4),
@@ -283,7 +297,7 @@ class _PlanOption extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(name, style: AppTextStyles.itemTitle),
+                Text(name, style: AppTextStyles.itemTitle(context)),
                 SvgPicture.asset(
                   selected
                       ? 'assets/icons/figma/radio_button_selected.svg'
@@ -291,16 +305,16 @@ class _PlanOption extends StatelessWidget {
                   width: 20,
                   height: 20,
                   colorFilter: ColorFilter.mode(
-                    selected ? AppColors.primary : AppColors.navInactive,
+                    selected ? context.appPrimary : context.appNavInactive,
                     BlendMode.srcIn,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            Text(price, style: AppTextStyles.title),
+            Text(price, style: AppTextStyles.title(context)),
             const SizedBox(height: 6),
-            Text('All Premium benefits', style: AppTextStyles.caption),
+            Text('All Premium benefits', style: AppTextStyles.caption(context)),
           ],
         ),
       ),

@@ -61,7 +61,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
     final question = questions.isEmpty ? null : questions.first;
     if (question == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -98,7 +98,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
         ? null
         : String.fromCharCode('A'.codeUnitAt(0) + answers[question.prompt]!);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -128,7 +128,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -139,29 +139,29 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                               children: [
                                 Text(
                                   'MULTIPLE CHOICE',
-                                  style: AppTextStyles.caption.copyWith(
+                                  style: AppTextStyles.caption(context).copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                                 Text(
                                   '01 / $total',
-                                  style: AppTextStyles.caption,
+                                  style: AppTextStyles.caption(context),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
                               question.prompt,
-                              style: AppTextStyles.screenTitle,
+                              style: AppTextStyles.screenTitle(context),
                             ),
                             const SizedBox(height: 20),
                             Text(
                               'Select one answer.',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
-                                color: AppColors.muted,
+                                color: context.appMuted,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -198,7 +198,7 @@ class _QuizMcqScreenState extends ConsumerState<QuizMcqScreen> {
                       child: Text(
                         'Answers are saved as you move between questions.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ),
                   ],

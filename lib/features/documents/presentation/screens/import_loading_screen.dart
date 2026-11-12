@@ -31,7 +31,7 @@ class ImportLoadingScreen extends ConsumerWidget {
     final file = job.file;
     if (file == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -52,7 +52,7 @@ class ImportLoadingScreen extends ConsumerWidget {
       );
     }
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -90,15 +90,15 @@ class ImportLoadingScreen extends ConsumerWidget {
                               'assets/icons/figma/folder_open.svg',
                               width: 18,
                               height: 18,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.navInactive,
+                              colorFilter: ColorFilter.mode(
+                                context.appNavInactive,
                                 BlendMode.srcIn,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Text(
                               'Next: save to ${job.subject} in your library',
-                              style: AppTextStyles.greeting,
+                              style: AppTextStyles.greeting(context),
                             ),
                           ],
                         ),
@@ -110,7 +110,7 @@ class ImportLoadingScreen extends ConsumerWidget {
                         Text(
                           'You can cancel safely. Your original file won’t change.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.greeting,
+                          style: AppTextStyles.greeting(context),
                         ),
                         const SizedBox(height: 14),
                         ImportSecondaryButton(
@@ -150,7 +150,7 @@ class _ReadingIllustration extends StatelessWidget {
         height: 156,
         child: Stack(
           children: [
-            const Positioned(
+            Positioned(
               left: 15,
               top: 13,
               child: SizedBox(
@@ -158,8 +158,8 @@ class _ReadingIllustration extends StatelessWidget {
                 height: 130,
                 child: CircularProgressIndicator(
                   strokeWidth: 8,
-                  backgroundColor: AppColors.border,
-                  color: AppColors.primary,
+                  backgroundColor: context.appBorder,
+                  color: context.appPrimary,
                 ),
               ),
             ),
@@ -171,8 +171,8 @@ class _ReadingIllustration extends StatelessWidget {
                 height: 70,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
+                  color: context.appCard,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Column(
@@ -182,16 +182,16 @@ class _ReadingIllustration extends StatelessWidget {
                       'assets/icons/figma/file_text.svg',
                       width: 25,
                       height: 30,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary,
+                      colorFilter: ColorFilter.mode(
+                        context.appPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       formatLabel,
-                      style: AppTextStyles.badge.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.badge(context).copyWith(
+                        color: context.appPrimary,
                       ),
                     ),
                   ],
@@ -216,25 +216,25 @@ class _ProgressDetailsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Reading text', style: AppTextStyles.itemTitle),
+          Text('Reading text', style: AppTextStyles.itemTitle(context)),
           const SizedBox(height: 12),
-          const ClipRRect(
+          ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(100)),
             child: LinearProgressIndicator(
               minHeight: 6,
-              backgroundColor: AppColors.border,
-              color: AppColors.primary,
+              backgroundColor: context.appBorder,
+              color: context.appPrimary,
             ),
           ),
           const SizedBox(height: 12),
-          Text('Reading your document…', style: AppTextStyles.greeting),
+          Text('Reading your document…', style: AppTextStyles.greeting(context)),
         ],
       ),
     );

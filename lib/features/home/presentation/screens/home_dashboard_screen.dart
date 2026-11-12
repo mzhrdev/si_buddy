@@ -66,19 +66,19 @@ class _NoModelSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Welcome to SI Buddy.', style: AppTextStyles.display),
+        Text('Welcome to SI Buddy.', style: AppTextStyles.display(context)),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Your personal study space. Download the AI model once, '
           'then everything works offline.',
-          style: AppTextStyles.body,
+          style: AppTextStyles.body(context),
         ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.border),
+            color: context.appCard,
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Column(
@@ -90,7 +90,7 @@ class _NoModelSection extends StatelessWidget {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Center(
@@ -102,24 +102,24 @@ class _NoModelSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'AI model not downloaded',
-                        style: AppTextStyles.itemTitle,
+                        style: AppTextStyles.itemTitle(context),
                       ),
                       SizedBox(height: 3),
                       Text(
                         'One download. Then AI works offline.',
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ],
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Connect to the internet to download the model before '
                 'generating study tools.',
                 style: TextStyle(
@@ -127,7 +127,7 @@ class _NoModelSection extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   height: 18 / 12,
-                  color: AppColors.muted,
+                  color: context.appMuted,
                 ),
               ),
             ],
@@ -155,9 +155,9 @@ class _NoModelSection extends StatelessWidget {
               height: 13,
             ),
             const SizedBox(width: 6),
-            const Text(
+            Text(
               'No account. No cloud. Just your notes.',
-              style: AppTextStyles.caption,
+              style: AppTextStyles.caption(context),
             ),
           ],
         ),
@@ -182,11 +182,11 @@ class _NoDocumentsSection extends StatelessWidget {
               height: 8,
             ),
             const SizedBox(width: 6),
-            const Text('AI Ready Offline', style: AppTextStyles.successLabel),
+            Text('AI Ready Offline', style: AppTextStyles.successLabel(context)),
           ],
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Big ideas start with\nyour first notes.',
           style: TextStyle(
             fontFamily: 'Inter',
@@ -194,11 +194,11 @@ class _NoDocumentsSection extends StatelessWidget {
             fontWeight: FontWeight.w700,
             height: 34 / 28,
             letterSpacing: -0.56,
-            color: AppColors.text,
+            color: context.appText,
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'No notes yet. Import a document to turn it into '
           'flashcards, quizzes and summaries.',
           style: TextStyle(
@@ -206,7 +206,7 @@ class _NoDocumentsSection extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w400,
             height: 22 / 14,
-            color: AppColors.muted,
+            color: context.appMuted,
           ),
         ),
         const SizedBox(height: 18),
@@ -221,8 +221,8 @@ class _NoDocumentsSection extends StatelessWidget {
                 'assets/icons/figma/arrow_right.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.white,
+                colorFilter: ColorFilter.mode(
+                  context.appCard,
                   BlendMode.srcIn,
                 ),
               ),
@@ -230,9 +230,9 @@ class _NoDocumentsSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'PDF or PPTX · Stored on your device',
-          style: AppTextStyles.caption,
+          style: AppTextStyles.caption(context),
           textAlign: TextAlign.center,
         ),
       ],
@@ -264,8 +264,8 @@ class _NoStudySetsSection extends ConsumerWidget {
                 'assets/icons/figma/arrow_right.svg',
                 width: 19,
                 height: 19,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.white,
+                colorFilter: ColorFilter.mode(
+                  context.appCard,
                   BlendMode.srcIn,
                 ),
               ),
@@ -364,9 +364,9 @@ class _CompletedOnlySection extends ConsumerWidget {
         ),
         const SizedBox(height: 6),
         if (data.history.isEmpty)
-          const Text(
+          Text(
             'No finished quizzes yet.',
-            style: TextStyle(color: AppColors.muted),
+            style: TextStyle(color: context.appMuted),
           ),
         for (final item in data.history) _HistoryRow(item: item),
       ],
@@ -409,8 +409,8 @@ class _NextStepCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -418,10 +418,10 @@ class _NextStepCard extends ConsumerWidget {
         children: [
           Text(
             'Next step: turn ${document.title} into study tools',
-            style: AppTextStyles.itemTitle,
+            style: AppTextStyles.itemTitle(context),
           ),
           const SizedBox(height: 4),
-          Text(document.details, style: AppTextStyles.caption),
+          Text(document.details, style: AppTextStyles.caption(context)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -472,8 +472,8 @@ class _PickUpCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -484,7 +484,7 @@ class _PickUpCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   pickUp.title,
-                  style: AppTextStyles.itemTitle,
+                  style: AppTextStyles.itemTitle(context),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -493,20 +493,20 @@ class _PickUpCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(pickUp.kindLabel, style: AppTextStyles.badge),
+                child: Text(pickUp.kindLabel, style: AppTextStyles.badge(context)),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(pickUp.progressText, style: AppTextStyles.caption),
+          Text(pickUp.progressText, style: AppTextStyles.caption(context)),
           const SizedBox(height: 8),
           Container(
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: context.appBorder,
               borderRadius: BorderRadius.circular(100),
             ),
             child: FractionallySizedBox(
@@ -514,7 +514,7 @@ class _PickUpCard extends ConsumerWidget {
               widthFactor: pickUp.fraction.clamp(0.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -544,21 +544,21 @@ class _HistoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.appBorder)),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
               item.title,
-              style: AppTextStyles.itemTitle,
+              style: AppTextStyles.itemTitle(context),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: 8),
-          Text(item.subtitle, style: AppTextStyles.caption),
+          Text(item.subtitle, style: AppTextStyles.caption(context)),
         ],
       ),
     );

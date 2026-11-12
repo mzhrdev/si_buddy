@@ -42,7 +42,7 @@ class LibraryTools extends ConsumerWidget {
     return Column(
       children: [
         Material(
-          color: AppColors.white,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(4),
           child: InkWell(
             onTap: onOrganizeTap,
@@ -51,7 +51,7 @@ class LibraryTools extends ConsumerWidget {
               height: 52,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.appBorder),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -60,8 +60,8 @@ class LibraryTools extends ConsumerWidget {
                     'assets/icons/figma/folders.svg',
                     width: 20,
                     height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                    colorFilter: ColorFilter.mode(
+                      context.appPrimary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -73,24 +73,24 @@ class LibraryTools extends ConsumerWidget {
                       children: [
                         Text(
                           'Folders & subjects',
-                          style: AppTextStyles.itemTitle,
+                          style: AppTextStyles.itemTitle(context),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           '${folders.length} folder${folders.length == 1 ? '' : 's'} · ${subjects.length} subject${subjects.length == 1 ? '' : 's'}',
-                          style: AppTextStyles.caption,
+                          style: AppTextStyles.caption(context),
                         ),
                       ],
                     ),
                   ),
-                  Text('Organize', style: AppTextStyles.link),
+                  Text('Organize', style: AppTextStyles.link(context)),
                   const SizedBox(width: 4),
                   SvgPicture.asset(
                     'assets/icons/figma/chevron_right.svg',
                     width: 14,
                     height: 14,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.muted,
+                    colorFilter: ColorFilter.mode(
+                      context.appMuted,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -114,15 +114,15 @@ class LibraryTools extends ConsumerWidget {
                       'assets/icons/figma/arrow_down_wide_narrow.svg',
                       width: 16,
                       height: 16,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.navInactive,
+                      colorFilter: ColorFilter.mode(
+                        context.appNavInactive,
                         BlendMode.srcIn,
                       ),
                     ),
                     const SizedBox(width: 5),
                     Text(
                       filter.sort.label,
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontSize: 12,
                         height: 18 / 12,
                       ),
@@ -132,8 +132,8 @@ class LibraryTools extends ConsumerWidget {
                       'assets/icons/figma/chevron_down.svg',
                       width: 12,
                       height: 12,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.navInactive,
+                      colorFilter: ColorFilter.mode(
+                        context.appNavInactive,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -149,15 +149,15 @@ class LibraryTools extends ConsumerWidget {
                       'assets/icons/figma/sliders_horizontal.svg',
                       width: 16,
                       height: 16,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.navInactive,
+                      colorFilter: ColorFilter.mode(
+                        context.appNavInactive,
                         BlendMode.srcIn,
                       ),
                     ),
                     const SizedBox(width: 5),
                     Text(
                       'Filters',
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontSize: 12,
                         height: 18 / 12,
                       ),
@@ -170,16 +170,16 @@ class LibraryTools extends ConsumerWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: context.appPrimary,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
                           '$activeFilters',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.white,
+                            color: context.appCard,
                           ),
                         ),
                       ),
@@ -191,8 +191,8 @@ class LibraryTools extends ConsumerWidget {
                 height: 34,
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
+                  color: context.appCard,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -235,7 +235,7 @@ class _ViewOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.white,
+      color: selected ? context.appSurface : context.appCard,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
         onTap: onTap,
@@ -249,7 +249,7 @@ class _ViewOption extends StatelessWidget {
               width: 17,
               height: 17,
               colorFilter: ColorFilter.mode(
-                selected ? AppColors.primary : AppColors.navInactive,
+                selected ? context.appPrimary : context.appNavInactive,
                 BlendMode.srcIn,
               ),
             ),

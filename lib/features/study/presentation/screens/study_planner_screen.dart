@@ -87,7 +87,7 @@ class StudyPlannerScreen extends ConsumerWidget {
                     goalComplete
                         ? 'Daily goal reached — nice work.'
                         : 'A little every day adds up.',
-                    style: AppTextStyles.greeting,
+                    style: AppTextStyles.greeting(context),
                   ),
                   const SizedBox(height: 12),
                   _DailyGoalCard(
@@ -106,11 +106,11 @@ class StudyPlannerScreen extends ConsumerWidget {
                   if (revisionsError)
                     const Text('Could not load your revisions.')
                   else if (revisions.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         'No revisions scheduled yet. Add one to plan your next review.',
-                        style: TextStyle(color: AppColors.muted),
+                        style: TextStyle(color: context.appMuted),
                       ),
                     )
                   else
@@ -341,8 +341,8 @@ class _DailyGoalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -350,16 +350,16 @@ class _DailyGoalCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
-                child: Text('Daily goal', style: AppTextStyles.itemTitle),
+              Expanded(
+                child: Text('Daily goal', style: AppTextStyles.itemTitle(context)),
               ),
               Text(
                 '$studiedMinutes / $goalMinutes min',
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ],
@@ -376,7 +376,7 @@ class _DailyGoalCard extends StatelessWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                  complete ? AppColors.primary : AppColors.navInactive,
+                  complete ? context.appPrimary : context.appNavInactive,
                   BlendMode.srcIn,
                 ),
               ),
@@ -386,7 +386,7 @@ class _DailyGoalCard extends StatelessWidget {
                   complete
                       ? 'Goal reached for today.'
                       : 'Study time today, tracked from your sessions. Resets at midnight.',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
               ),
             ],
@@ -464,7 +464,7 @@ class _RevisionRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -476,12 +476,12 @@ class _RevisionRow extends StatelessWidget {
                     Text(
                       _dayLabel,
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.badge.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.badge(context).copyWith(
+                        color: context.appPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(_timeLabel, style: AppTextStyles.caption),
+                    Text(_timeLabel, style: AppTextStyles.caption(context)),
                   ],
                 ),
               ),
@@ -492,7 +492,7 @@ class _RevisionRow extends StatelessWidget {
                   children: [
                     Text(
                       deckTitle,
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -503,8 +503,8 @@ class _RevisionRow extends StatelessWidget {
                                 ? 'Reminder on'
                                 : 'Reminder off')
                           : note,
-                      style: AppTextStyles.badge.copyWith(
-                        color: AppColors.muted,
+                      style: AppTextStyles.badge(context).copyWith(
+                        color: context.appMuted,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -513,7 +513,7 @@ class _RevisionRow extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppColors.muted),
+                icon: Icon(Icons.more_vert, color: context.appMuted),
                 onSelected: (value) {
                   if (value == 'edit') {
                     onEdit();
@@ -555,7 +555,7 @@ class _ReminderCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -567,15 +567,15 @@ class _ReminderCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Revision reminder',
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       enabled ? 'Optional · On' : 'Optional · Off',
-                      style: AppTextStyles.badge.copyWith(
-                        color: AppColors.muted,
+                      style: AppTextStyles.badge(context).copyWith(
+                        color: context.appMuted,
                       ),
                     ),
                   ],
@@ -601,8 +601,8 @@ class _ReminderCard extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Expanded(
-                child: Text('Preferred time', style: AppTextStyles.greeting),
+              Expanded(
+                child: Text('Preferred time', style: AppTextStyles.greeting(context)),
               ),
               GestureDetector(
                 onTap: () => _pickTime(context, ref, timeMinutes),
@@ -610,20 +610,20 @@ class _ReminderCard extends ConsumerWidget {
                   height: 30,
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.appBorder),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(timeLabel, style: AppTextStyles.greeting),
+                      Text(timeLabel, style: AppTextStyles.greeting(context)),
                       const SizedBox(width: 6),
                       SvgPicture.asset(
                         'assets/icons/figma/clock.svg',
                         width: 14,
                         height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.navInactive,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -638,7 +638,7 @@ class _ReminderCard extends ConsumerWidget {
             enabled
                 ? 'Revisions remind you at their scheduled time. The preferred time is for the daily study reminder.'
                 : 'No reminder is scheduled. Enabling will ask for notification permission if needed.',
-            style: AppTextStyles.badge.copyWith(color: AppColors.muted),
+            style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
           ),
         ],
       ),
@@ -679,7 +679,7 @@ class _ReminderToggle extends StatelessWidget {
         width: 40,
         height: 24,
         decoration: BoxDecoration(
-          color: value ? AppColors.primary : AppColors.border,
+          color: value ? context.appPrimary : context.appBorder,
           borderRadius: BorderRadius.circular(4),
         ),
         child: AnimatedAlign(
@@ -690,8 +690,8 @@ class _ReminderToggle extends StatelessWidget {
             child: Container(
               width: 18,
               height: 18,
-              decoration: const BoxDecoration(
-                color: AppColors.white,
+              decoration: BoxDecoration(
+                color: context.appCard,
                 shape: BoxShape.circle,
               ),
             ),
@@ -809,7 +809,7 @@ Future<_RevisionDraft?> _showRevisionDialog(
               ),
               if (error != null) ...[
                 const SizedBox(height: 8),
-                Text(error!, style: const TextStyle(color: AppColors.danger)),
+                Text(error!, style: TextStyle(color: context.appDanger)),
               ],
               const SizedBox(height: 12),
               TextField(

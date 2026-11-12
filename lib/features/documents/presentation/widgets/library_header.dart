@@ -31,16 +31,16 @@ class LibraryHeader extends StatelessWidget {
                 children: [
                   Text(
                     'Your library',
-                    style: AppTextStyles.display.copyWith(letterSpacing: -0.48),
+                    style: AppTextStyles.display(context).copyWith(letterSpacing: -0.48),
                   ),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: AppTextStyles.caption),
+                  Text(subtitle, style: AppTextStyles.caption(context)),
                 ],
               ),
             ),
             if (onImport != null)
               Material(
-                color: AppColors.surface,
+                color: context.appSurface,
                 borderRadius: BorderRadius.circular(4),
                 child: InkWell(
                   onTap: onImport,
@@ -53,8 +53,8 @@ class LibraryHeader extends StatelessWidget {
                         'assets/icons/figma/plus.svg',
                         width: 20,
                         height: 20,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.primary,
+                        colorFilter: ColorFilter.mode(
+                          context.appPrimary,
                           BlendMode.srcIn,
                         ),
                       ),

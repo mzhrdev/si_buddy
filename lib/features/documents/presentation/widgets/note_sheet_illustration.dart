@@ -26,8 +26,8 @@ class NoteSheetIllustration extends StatelessWidget {
             child: Container(
               width: 7,
               height: 7,
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 shape: BoxShape.circle,
               ),
             ),
@@ -38,8 +38,8 @@ class NoteSheetIllustration extends StatelessWidget {
             child: Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 shape: BoxShape.circle,
               ),
             ),
@@ -54,8 +54,8 @@ class NoteSheetIllustration extends StatelessWidget {
                 height: 96,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
+                  color: context.appCard,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Column(
@@ -65,8 +65,8 @@ class NoteSheetIllustration extends StatelessWidget {
                       'assets/icons/figma/file_text.svg',
                       width: 24,
                       height: 24,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary,
+                      colorFilter: ColorFilter.mode(
+                        context.appPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -75,7 +75,7 @@ class NoteSheetIllustration extends StatelessWidget {
                       width: 38,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.appSurface,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -84,7 +84,7 @@ class NoteSheetIllustration extends StatelessWidget {
                       width: 28,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.appSurface,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -101,16 +101,16 @@ class NoteSheetIllustration extends StatelessWidget {
               height: 64,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.white, width: 5),
+                color: context.appSurface,
+                border: Border.all(color: context.appCard, width: 5),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: SvgPicture.asset(
                 badgeIconAsset,
                 width: 29,
                 height: 29,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
+                colorFilter: ColorFilter.mode(
+                  context.appPrimary,
                   BlendMode.srcIn,
                 ),
               ),

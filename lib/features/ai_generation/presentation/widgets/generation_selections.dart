@@ -26,21 +26,21 @@ class GenerationSelections extends StatelessWidget {
       children: [
         Text(
           'Your selections',
-          style: AppTextStyles.caption.copyWith(
+          style: AppTextStyles.caption(context).copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppColors.text,
+            color: context.appText,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           summaryLine ?? 'No selections yet',
-          style: AppTextStyles.muted.copyWith(height: 20 / 13),
+          style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
         ),
         if (detailLine != null)
           Text(
             detailLine!,
-            style: AppTextStyles.muted.copyWith(height: 20 / 13),
+            style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
           ),
       ],
     );

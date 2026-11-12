@@ -67,7 +67,7 @@ class TextExtractionProcessingScreen extends ConsumerWidget {
         state.status != ExtractionStatus.idle && state.file != null;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -141,7 +141,7 @@ class _BottomBlock extends StatelessWidget {
       children: [
         Text(
           'Processing happens locally on this device. Your original file stays unchanged.',
-          style: AppTextStyles.muted.copyWith(fontSize: 12),
+          style: AppTextStyles.muted(context).copyWith(fontSize: 12),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 14),
@@ -151,16 +151,16 @@ class _BottomBlock extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onCancel,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: context.appBorder),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
             child: Text(
               'Cancel extraction',
-              style: AppTextStyles.body.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: context.appPrimary,
               ),
             ),
           ),
@@ -197,18 +197,18 @@ class _CurrentProgress extends StatelessWidget {
                 child: CircularProgressIndicator(
                   value: fraction,
                   strokeWidth: 4,
-                  backgroundColor: AppColors.border,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppColors.primary,
+                  backgroundColor: context.appBorder,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    context.appPrimary,
                   ),
                 ),
               ),
               Text(
                 '${(fraction * 100).round()}%',
-                style: AppTextStyles.display.copyWith(
+                style: AppTextStyles.display(context).copyWith(
                   fontSize: 28,
                   height: 34 / 28,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ],
@@ -217,14 +217,14 @@ class _CurrentProgress extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           'Making your notes readable.',
-          style: AppTextStyles.display.copyWith(fontSize: 28, height: 34 / 28),
+          style: AppTextStyles.display(context).copyWith(fontSize: 28, height: 34 / 28),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         Text(
           'Turning your document into text you can review before you study.',
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.muted,
+          style: AppTextStyles.body(context).copyWith(
+            color: context.appMuted,
             height: 22 / 14,
           ),
           textAlign: TextAlign.center,
@@ -245,32 +245,32 @@ class _LiveProcessingStages extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         children: [
           for (var i = 0; i < ExtractionStage.values.length; i++) ...[
             if (i > 0) const SizedBox(height: 20),
-            _stageBlock(ExtractionStage.values[i]),
+            _stageBlock(context, ExtractionStage.values[i]),
           ],
         ],
       ),
     );
   }
 
-  Widget _stageBlock(ExtractionStage stage) {
+  Widget _stageBlock(BuildContext context, ExtractionStage stage) {
     final status = state.statusOf(stage);
     final row = _StageRow(
       indicator: switch (status) {
-        StageStatus.complete => _completeStageIndicator(),
+        StageStatus.complete => _completeStageIndicator(context),
         StageStatus.active => _activeStageIndicator(),
         StageStatus.upcoming => _upcomingStageIndicator(),
       },
       title: stage.label,
       subtitle: state.subtitleFor(stage),
-      subtitleColor: status == StageStatus.active ? AppColors.primary : null,
+      subtitleColor: status == StageStatus.active ? context.appPrimary : null,
       muted: status == StageStatus.upcoming,
     );
     if (stage == ExtractionStage.extractingText &&
@@ -284,9 +284,9 @@ class _LiveProcessingStages extends StatelessWidget {
             child: LinearProgressIndicator(
               value: state.stageFraction,
               minHeight: 5,
-              backgroundColor: AppColors.border,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppColors.primary,
+              backgroundColor: context.appBorder,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                context.appPrimary,
               ),
             ),
           ),
@@ -297,21 +297,21 @@ class _LiveProcessingStages extends StatelessWidget {
   }
 }
 
-Widget _completeStageIndicator() {
+Widget _completeStageIndicator(BuildContext context) {
   return Container(
     width: 32,
     height: 32,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: AppColors.primary,
-      border: Border.all(color: AppColors.primary),
+      color: context.appPrimary,
+      border: Border.all(color: context.appPrimary),
       borderRadius: BorderRadius.circular(4),
     ),
     child: SvgPicture.asset(
       'assets/icons/figma/check.svg',
       width: 16,
       height: 16,
-      colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+      colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
     ),
   );
 }
@@ -349,10 +349,10 @@ class _StageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleStyle = AppTextStyles.body.copyWith(
+    final titleStyle = AppTextStyles.body(context).copyWith(
       fontWeight: FontWeight.w600,
       height: 20 / 14,
-      color: muted ? AppColors.muted : AppColors.text,
+      color: muted ? context.appMuted : context.appText,
     );
     return Row(
       children: [
@@ -366,7 +366,7 @@ class _StageRow extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: AppTextStyles.caption.copyWith(color: subtitleColor),
+                style: AppTextStyles.caption(context).copyWith(color: subtitleColor),
               ),
             ],
           ),

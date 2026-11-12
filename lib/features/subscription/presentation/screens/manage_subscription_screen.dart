@@ -21,7 +21,7 @@ class ManageSubscriptionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -43,11 +43,6 @@ class ManageSubscriptionScreen extends StatelessWidget {
                   SubscriptionEntryRow(
                     label: 'See Premium',
                     onTap: () => context.push(AppRoutes.premium),
-                  ),
-                  const SizedBox(height: 12),
-                  SubscriptionEntryRow(
-                    label: 'Restore Purchases',
-                    onTap: () => context.push(AppRoutes.restore),
                   ),
                 ],
               ),

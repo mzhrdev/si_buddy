@@ -38,7 +38,7 @@ class AppHeader extends StatelessWidget {
               IconButton(
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back, size: 22),
-                color: AppColors.text,
+                color: context.appText,
                 constraints: const BoxConstraints.tightFor(
                   width: 40,
                   height: 44,
@@ -49,7 +49,7 @@ class AppHeader extends StatelessWidget {
               brandMark,
               const SizedBox(width: 9),
             ],
-            Expanded(child: Text(title, style: AppTextStyles.screenTitle)),
+            Expanded(child: Text(title, style: AppTextStyles.screenTitle(context))),
             if (trailing != null) trailing! else if (onBack != null) brandMark,
           ],
         ),

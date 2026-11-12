@@ -32,7 +32,6 @@ import '../features/flashcards/presentation/screens/session_summary_screen.dart'
 import '../features/flashcards/presentation/screens/study_card_back_screen.dart';
 import '../features/flashcards/presentation/screens/study_card_front_screen.dart';
 import '../features/home/presentation/screens/home_dashboard_screen.dart';
-import '../features/model_management/presentation/screens/delete_model_confirmation_screen.dart';
 import '../features/model_management/presentation/screens/download_failed_screen.dart';
 import '../features/model_management/presentation/screens/downloading_screen.dart';
 import '../features/model_management/presentation/screens/low_memory_screen.dart'
@@ -53,9 +52,6 @@ import '../features/quizzes/presentation/screens/quiz_setup_screen.dart';
 import '../features/quizzes/presentation/screens/short_answer_screen.dart';
 import '../features/quizzes/presentation/screens/true_false_screen.dart';
 import '../features/quizzes/presentation/screens/unanswered_confirmation_screen.dart';
-import '../features/settings/presentation/screens/clear_all_local_data_confirmation_screen.dart';
-import '../features/settings/presentation/screens/clear_cache_confirmation_screen.dart';
-import '../features/settings/presentation/screens/delete_file_confirmation_screen.dart';
 import '../features/settings/presentation/screens/help_about_screen.dart';
 import '../features/settings/presentation/screens/preferences_screen.dart';
 import '../features/settings/presentation/screens/settings_hub_screen.dart';
@@ -63,11 +59,6 @@ import '../features/settings/presentation/screens/storage_screen.dart';
 import '../features/study/presentation/screens/statistics_dashboard_screen.dart';
 import '../features/study/presentation/screens/study_planner_screen.dart';
 import '../features/subscription/presentation/screens/manage_subscription_screen.dart';
-import '../features/subscription/presentation/screens/payment_failure_screen.dart';
-import '../features/subscription/presentation/screens/payment_processing_screen.dart';
-import '../features/subscription/presentation/screens/payment_success_screen.dart';
-import '../features/subscription/presentation/screens/purchase_confirmation_screen.dart';
-import '../features/subscription/presentation/screens/restore_purchases_screen.dart';
 import '../features/subscription/presentation/screens/upgrade_premium_screen.dart';
 
 // Route paths for the whole app. These constants are unchanged from the
@@ -122,21 +113,12 @@ abstract final class AppRoutes {
   static const downloadFailed = '/models/download-failed';
   static const modelLowMemory = '/models/low-memory';
   static const offline = '/models/offline';
-  static const deleteModel = '/models/delete';
   static const settings = '/settings';
   static const preferences = '/settings/preferences';
   static const storage = '/settings/storage';
   static const privacy = '/settings/privacy';
   static const help = '/settings/help';
-  static const clearCache = '/settings/clear-cache';
-  static const deleteFile = '/settings/delete-file';
-  static const clearData = '/settings/clear-data';
   static const premium = '/subscription/premium';
-  static const purchase = '/subscription/purchase';
-  static const processing = '/subscription/processing';
-  static const paymentSuccess = '/subscription/success';
-  static const paymentFailure = '/subscription/failure';
-  static const restore = '/subscription/restore';
   static const manage = '/subscription/manage';
 }
 
@@ -191,12 +173,6 @@ final appRouter = GoRouter(
             _route(AppRoutes.storage, const StorageScreen()),
             _route(AppRoutes.privacy, const PrivacyScreen()),
             _route(AppRoutes.help, const HelpAboutScreen()),
-            _route(AppRoutes.clearCache, const ClearCacheConfirmationScreen()),
-            _route(AppRoutes.deleteFile, const DeleteFileConfirmationScreen()),
-            _route(
-              AppRoutes.clearData,
-              const ClearAllLocalDataConfirmationScreen(),
-            ),
           ],
         ),
       ],
@@ -255,14 +231,8 @@ final appRouter = GoRouter(
     _route(AppRoutes.downloadFailed, const ModelDownloadFailedScreen()),
     _route(AppRoutes.modelLowMemory, const models.ModelLowMemoryScreen()),
     _route(AppRoutes.offline, const OfflineNotInstalledScreen()),
-    _route(AppRoutes.deleteModel, const DeleteModelConfirmationScreen()),
     // Subscription
     _route(AppRoutes.premium, const UpgradePremiumScreen()),
-    _route(AppRoutes.purchase, const PurchaseConfirmationScreen()),
-    _route(AppRoutes.processing, const PaymentProcessingScreen()),
-    _route(AppRoutes.paymentSuccess, const PaymentSuccessScreen()),
-    _route(AppRoutes.paymentFailure, const PaymentFailureScreen()),
-    _route(AppRoutes.restore, const RestorePurchasesScreen()),
     _route(AppRoutes.manage, const ManageSubscriptionScreen()),
   ],
   // Unknown routes show a real not-found screen instead of silently

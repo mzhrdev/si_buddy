@@ -22,10 +22,10 @@ class ModelLowMemoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ModelManagementLayout(
       statusLabel: 'Installed · Low memory',
-      statusColor: AppColors.danger,
-      readinessBackground: AppColors.dangerSurface,
+      statusColor: context.appDanger,
+      readinessBackground: context.appDangerSurface,
       readinessIconAsset: 'assets/icons/figma/circle_alert.svg',
-      readinessIconColor: AppColors.danger,
+      readinessIconColor: context.appDanger,
       readinessTitle: 'Not enough free memory',
       readinessBody:
           'Generation is temporarily unavailable. Close other apps or reduce generation size, then check again.',

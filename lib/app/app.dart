@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/model_management/presentation/providers/model_providers.dart';
+import '../features/settings/presentation/providers/settings_providers.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 
@@ -50,11 +51,18 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp.router(
-    title: 'SI Buddy',
-    debugShowCheckedModeBanner: false,
-    theme: AppTheme.light,
-    routerConfig: appRouter,
-    restorationScopeId: 'si-buddy',
-  );
+  Widget build(BuildContext context) {
+    // The persisted appearance; unset (or the DB not answering in
+    // widget tests) reads as System.
+    final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
+    return MaterialApp.router(
+      title: 'SI Buddy',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeMode,
+      routerConfig: appRouter,
+      restorationScopeId: 'si-buddy',
+    );
+  }
 }

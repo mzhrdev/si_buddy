@@ -29,7 +29,7 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
     final documentsAsync = ref.watch(documentsStreamProvider);
     final documents = ref.watch(filteredDocumentsProvider);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -57,7 +57,7 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                 loading: () => Center(
                   child: Text(
                     'Loading your library…',
-                    style: AppTextStyles.body,
+                    style: AppTextStyles.body(context),
                   ),
                 ),
                 error: (error, _) => Center(
@@ -66,7 +66,7 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                     child: Text(
                       'Could not load your library. Try reopening this tab.',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.body,
+                      style: AppTextStyles.body(context),
                     ),
                   ),
                 ),
@@ -79,13 +79,13 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'No documents yet.',
-                            style: AppTextStyles.title,
+                            style: AppTextStyles.title(context),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Import your first document to see it here.',
-                            style: AppTextStyles.body,
+                            style: AppTextStyles.body(context),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 24),
@@ -106,13 +106,13 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'No documents match your filters.',
-                            style: AppTextStyles.title,
+                            style: AppTextStyles.title(context),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Try a different filter, or reset them to see all ${all.length} document${all.length == 1 ? '' : 's'}.',
-                            style: AppTextStyles.body,
+                            style: AppTextStyles.body(context),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 24),
@@ -151,7 +151,7 @@ class DocumentLibraryGridScreen extends ConsumerWidget {
                         onShowGrid: () {},
                       ),
                       const SizedBox(height: 12),
-                      Text('All documents', style: AppTextStyles.title),
+                      Text('All documents', style: AppTextStyles.title(context)),
                       const SizedBox(height: 12),
                       GridView.builder(
                         shrinkWrap: true,

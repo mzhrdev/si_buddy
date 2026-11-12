@@ -85,8 +85,8 @@ class _PrivateIllustration extends StatelessWidget {
               height: 57,
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: AppColors.border),
+                color: context.appCard,
+                border: Border.all(color: context.appBorder),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -97,7 +97,7 @@ class _PrivateIllustration extends StatelessWidget {
                     height: 32,
                   ),
                   const SizedBox(width: 11),
-                  const Column(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -108,7 +108,7 @@ class _PrivateIllustration extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           height: 16 / 12,
-                          color: AppColors.text,
+                          color: context.appText,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -119,7 +119,7 @@ class _PrivateIllustration extends StatelessWidget {
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           height: 16 / 11,
-                          color: AppColors.muted,
+                          color: context.appMuted,
                         ),
                       ),
                     ],

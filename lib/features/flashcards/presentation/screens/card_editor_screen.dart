@@ -123,15 +123,15 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
                                 documentName:
                                     source?.document.originalFileName,
                               ),
-                              style: AppTextStyles.screenTitle,
+                              style: AppTextStyles.screenTitle(context),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Card ${index + 1} of ${cards.length} · Flashcards',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
-                                color: AppColors.muted,
+                                color: context.appMuted,
                               ),
                             ),
                             const SizedBox(height: 18),
@@ -164,13 +164,13 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
                               const SizedBox(height: 12),
                               Text(
                                 'Explanation: $_explanation',
-                                style: AppTextStyles.caption,
+                                style: AppTextStyles.caption(context),
                               ),
                             ],
                             const SizedBox(height: 18),
                             Text(
                               'Changes apply to this card only. Your original document stays unchanged.',
-                              style: AppTextStyles.caption,
+                              style: AppTextStyles.caption(context),
                             ),
                           ],
                         ),
@@ -188,8 +188,8 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
                             'assets/icons/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.white,
+                            colorFilter: ColorFilter.mode(
+                              context.appCard,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -203,17 +203,17 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
                       child: OutlinedButton(
                         onPressed: () => context.pop(),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.border),
+                          side: BorderSide(color: context.appBorder),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
                         child: Text(
                           'Cancel',
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontWeight: FontWeight.w600,
                             height: 20 / 14,
-                            color: AppColors.primary,
+                            color: context.appPrimary,
                           ),
                         ),
                       ),
@@ -249,7 +249,7 @@ class _EditableField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTextStyles.body.copyWith(
+          style: AppTextStyles.body(context).copyWith(
             fontWeight: FontWeight.w600,
             height: 20 / 14,
           ),
@@ -258,7 +258,7 @@ class _EditableField extends StatelessWidget {
         Container(
           height: height,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           padding: const EdgeInsets.all(16),
@@ -270,7 +270,7 @@ class _EditableField extends StatelessWidget {
                   maxLines: null,
                   expands: true,
                   textAlignVertical: TextAlignVertical.top,
-                  style: AppTextStyles.body.copyWith(height: 22 / 14),
+                  style: AppTextStyles.body(context).copyWith(height: 22 / 14),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isCollapsed: true,
@@ -282,7 +282,7 @@ class _EditableField extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: Text(
                   '${controller.text.length} characters',
-                  style: AppTextStyles.badge.copyWith(color: AppColors.muted),
+                  style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
                 ),
               ),
             ],

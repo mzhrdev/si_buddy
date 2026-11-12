@@ -26,12 +26,12 @@ class SubscriptionEntryRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   height: 18 / 13,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ),
@@ -39,8 +39,8 @@ class SubscriptionEntryRow extends StatelessWidget {
               'assets/icons/figma/chevron_right.svg',
               width: 16,
               height: 16,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
+              colorFilter: ColorFilter.mode(
+                context.appPrimary,
                 BlendMode.srcIn,
               ),
             ),

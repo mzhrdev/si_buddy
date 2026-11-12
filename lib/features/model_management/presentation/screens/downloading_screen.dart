@@ -31,9 +31,9 @@ class ModelDownloadingScreen extends ConsumerWidget {
     final state = ref.watch(modelProvider);
     return ModelManagementLayout(
       statusLabel: 'Downloading · Not installed',
-      statusColor: AppColors.primary,
+      statusColor: context.appPrimary,
       readinessIconAsset: 'assets/icons/figma/download_plain.svg',
-      readinessIconColor: AppColors.primary,
+      readinessIconColor: context.appPrimary,
       readinessTitle: 'Downloading model…',
       readinessBody:
           'Keep your internet connection on. AI generation becomes available only after installation completes.',

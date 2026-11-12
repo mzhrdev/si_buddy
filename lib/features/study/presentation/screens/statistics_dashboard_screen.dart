@@ -55,11 +55,11 @@ class StatisticsDashboardScreen extends ConsumerWidget {
                     ),
                   _StatsGrid(stats: stats),
                   const SizedBox(height: 20),
-                  Text('Last 7 days', style: AppTextStyles.title),
+                  Text('Last 7 days', style: AppTextStyles.title(context)),
                   const SizedBox(height: 4),
                   Text(
                     'Minutes studied per day, from your tracked sessions.',
-                    style: AppTextStyles.caption,
+                    style: AppTextStyles.caption(context),
                   ),
                   const SizedBox(height: 12),
                   _WeeklyChart(activity: activity),
@@ -157,8 +157,8 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -167,15 +167,15 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(
             value,
-            style: AppTextStyles.display.copyWith(fontSize: 24, height: 1.2),
+            style: AppTextStyles.display(context).copyWith(fontSize: 24, height: 1.2),
           ),
           const SizedBox(height: 4),
-          Text(label, style: AppTextStyles.caption),
+          Text(label, style: AppTextStyles.caption(context)),
           if (caption != null) ...[
             const SizedBox(height: 2),
             Text(
               caption!,
-              style: AppTextStyles.caption.copyWith(color: AppColors.muted),
+              style: AppTextStyles.caption(context).copyWith(color: context.appMuted),
             ),
           ],
         ],
@@ -203,21 +203,21 @@ class _WeeklyChart extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
-          border: Border.all(color: AppColors.border),
+          color: context.appCard,
+          border: Border.all(color: context.appBorder),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: const Text(
+        child: Text(
           'No study activity in the last 7 days. Study a deck or take a quiz and it will show up here.',
-          style: TextStyle(color: AppColors.muted),
+          style: TextStyle(color: context.appMuted),
         ),
       );
     }
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -232,8 +232,8 @@ class _WeeklyChart extends StatelessWidget {
                     activity[i].studyMinutes == 0
                         ? ''
                         : '${activity[i].studyMinutes}m',
-                    style: AppTextStyles.badge.copyWith(
-                      color: AppColors.primary,
+                    style: AppTextStyles.badge(context).copyWith(
+                      color: context.appPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -246,15 +246,15 @@ class _WeeklyChart extends StatelessWidget {
                         ),
                     decoration: BoxDecoration(
                       color: activity[i].studyMinutes == 0
-                          ? AppColors.border
-                          : AppColors.primary,
+                          ? context.appBorder
+                          : context.appPrimary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _dayLetters[(activity[i].date.weekday - 1) % 7],
-                    style: AppTextStyles.caption,
+                    style: AppTextStyles.caption(context),
                   ),
                 ],
               ),

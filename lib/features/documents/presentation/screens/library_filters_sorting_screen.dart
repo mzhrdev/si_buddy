@@ -84,7 +84,7 @@ class _LibraryFiltersSortingScreenState
     final matching = _draft.apply(documents, counts);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -193,7 +193,7 @@ class _LibraryFiltersSortingScreenState
                                 if (subjects.isEmpty)
                                   Text(
                                     'No subjects yet — create one from Organize documents.',
-                                    style: AppTextStyles.caption,
+                                    style: AppTextStyles.caption(context),
                                   ),
                               ],
                             ),
@@ -233,7 +233,7 @@ class _LibraryFiltersSortingScreenState
                               const SizedBox(height: 10),
                               Text(
                                 _customRangeLabel(),
-                                style: AppTextStyles.caption,
+                                style: AppTextStyles.caption(context),
                               ),
                             ],
                           ],
@@ -246,10 +246,10 @@ class _LibraryFiltersSortingScreenState
                         Text(
                           '${matching.length} of ${documents.length} document${documents.length == 1 ? '' : 's'} match${matching.length == 1 ? 'es' : ''} your filters',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontSize: 12,
                             height: 18 / 12,
-                            color: AppColors.muted,
+                            color: context.appMuted,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -290,11 +290,11 @@ class _SectionHeading extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: AppTextStyles.title),
+        Text(title, style: AppTextStyles.title(context)),
         if (actionLabel != null)
           GestureDetector(
             onTap: onAction,
-            child: Text(actionLabel!, style: AppTextStyles.link),
+            child: Text(actionLabel!, style: AppTextStyles.link(context)),
           ),
       ],
     );

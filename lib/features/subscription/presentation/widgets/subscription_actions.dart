@@ -29,8 +29,8 @@ class SubscriptionActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: context.appBorder)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       child: Column(
@@ -39,12 +39,12 @@ class SubscriptionActions extends StatelessWidget {
           if (note != null) ...[
             Text(
               note!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
                 height: 18 / 12,
-                color: AppColors.muted,
+                color: context.appMuted,
               ),
             ),
             const SizedBox(height: 8),
@@ -61,8 +61,8 @@ class SubscriptionActions extends StatelessWidget {
                     'assets/icons/figma/arrow_right.svg',
                     width: 18,
                     height: 18,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.white,
+                    colorFilter: ColorFilter.mode(
+                      context.appCard,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -76,17 +76,17 @@ class SubscriptionActions extends StatelessWidget {
               onPressed: onSecondary,
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(44),
-                side: const BorderSide(color: AppColors.border),
+                side: BorderSide(color: context.appBorder),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
               child: Text(
                 secondaryLabel!,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontWeight: FontWeight.w600,
                   height: 20 / 14,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ),

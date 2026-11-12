@@ -21,7 +21,7 @@ class StudySectionHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(title, style: AppTextStyles.title)),
+        Expanded(child: Text(title, style: AppTextStyles.title(context))),
         TextButton(
           onPressed: onAction,
           style: TextButton.styleFrom(
@@ -29,7 +29,7 @@ class StudySectionHeading extends StatelessWidget {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: Text(actionLabel, style: AppTextStyles.link),
+          child: Text(actionLabel, style: AppTextStyles.link(context)),
         ),
       ],
     );

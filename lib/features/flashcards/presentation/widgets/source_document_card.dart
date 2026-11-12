@@ -23,8 +23,8 @@ class SourceDocumentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       padding: const EdgeInsets.all(12),
@@ -34,14 +34,14 @@ class SourceDocumentCard extends StatelessWidget {
             width: 36,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             alignment: Alignment.center,
             child: Text(
               formatLabel ?? '—',
-              style: AppTextStyles.badge,
+              style: AppTextStyles.badge(context),
             ),
           ),
           const SizedBox(width: 10),
@@ -51,15 +51,15 @@ class SourceDocumentCard extends StatelessWidget {
               children: [
                 Text(
                   title ?? 'No source document',
-                  style: AppTextStyles.captionStrong.copyWith(
+                  style: AppTextStyles.captionStrong(context).copyWith(
                     fontSize: 12,
-                    color: AppColors.text,
+                    color: context.appText,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle ?? 'Import a document to generate from it',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
               ],
             ),

@@ -35,7 +35,7 @@ class QuizHistoryScreen extends ConsumerWidget {
     final questions = result?.questions ?? const [];
     if (questions.isEmpty) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -71,7 +71,7 @@ class QuizHistoryScreen extends ConsumerWidget {
       duration: 'Not tracked',
     );
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -89,7 +89,7 @@ class QuizHistoryScreen extends ConsumerWidget {
                       ),
                       meta:
                           '${config.language} · $total questions · ${config.difficulty.label} · ${config.materialType.label}',
-                      titleStyle: AppTextStyles.display,
+                      titleStyle: AppTextStyles.display(context),
                     ),
                     const SizedBox(height: 16),
                     QuizSourceCard(
@@ -108,17 +108,17 @@ class QuizHistoryScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Previous attempts',
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontWeight: FontWeight.w600,
                             height: 20 / 14,
                           ),
                         ),
                         Text(
                           '1 attempt',
-                          style: AppTextStyles.body.copyWith(
+                          style: AppTextStyles.body(context).copyWith(
                             fontSize: 12,
                             height: 18 / 12,
-                            color: AppColors.muted,
+                            color: context.appMuted,
                           ),
                         ),
                       ],
@@ -133,16 +133,16 @@ class QuizHistoryScreen extends ConsumerWidget {
                           'assets/icons/figma/check_circle_2.svg',
                           width: 14,
                           height: 14,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.primary,
+                          colorFilter: ColorFilter.mode(
+                            context.appPrimary,
                             BlendMode.srcIn,
                           ),
                         ),
                         const SizedBox(width: 7),
                         Text(
                           'Saved quizzes can be studied offline.',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.primary,
+                          style: AppTextStyles.caption(context).copyWith(
+                            color: context.appPrimary,
                           ),
                         ),
                       ],
@@ -188,8 +188,8 @@ class _AttemptCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -200,7 +200,7 @@ class _AttemptCard extends StatelessWidget {
             children: [
               Text(
                 attempt.date,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
@@ -209,7 +209,7 @@ class _AttemptCard extends StatelessWidget {
               if (attempt.latest)
                 Text(
                   'LATEST',
-                  style: AppTextStyles.badge.copyWith(color: AppColors.primary),
+                  style: AppTextStyles.badge(context).copyWith(color: context.appPrimary),
                 ),
             ],
           ),
@@ -218,23 +218,23 @@ class _AttemptCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(attempt.score, style: AppTextStyles.headline),
+              Text(attempt.score, style: AppTextStyles.headline(context)),
               const SizedBox(width: 8),
               Text(
                 attempt.percent,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontWeight: FontWeight.w600,
                   height: 20 / 14,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
               const Spacer(),
               Text(
                 attempt.duration,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   height: 18 / 12,
-                  color: AppColors.muted,
+                  color: context.appMuted,
                 ),
               ),
             ],
@@ -280,9 +280,9 @@ class _AttemptAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: context.appCard,
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: InkWell(
@@ -297,19 +297,19 @@ class _AttemptAction extends StatelessWidget {
                 iconAsset,
                 width: 15,
                 height: 15,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
+                colorFilter: ColorFilter.mode(
+                  context.appPrimary,
                   BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 label,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ],

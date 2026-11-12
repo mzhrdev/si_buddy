@@ -45,7 +45,7 @@ class DocumentDetailsScreen extends ConsumerWidget {
       }
       if (document == null) {
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: context.appBackground,
           body: SafeArea(
             child: Column(
               children: [
@@ -60,7 +60,7 @@ class DocumentDetailsScreen extends ConsumerWidget {
                       child: Text(
                         'This document is no longer in your library. It may have been deleted.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.body,
+                        style: AppTextStyles.body(context),
                       ),
                     ),
                   ),
@@ -123,7 +123,7 @@ class DocumentDetailsScreen extends ConsumerWidget {
     // route directly): an honest empty state, never the design's
     // sample document.
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -277,7 +277,7 @@ class _DetailsScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -286,7 +286,7 @@ class _DetailsScaffold extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                 children: [
-                  Text(title, style: AppTextStyles.display),
+                  Text(title, style: AppTextStyles.display(context)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -296,13 +296,13 @@ class _DetailsScaffold extends StatelessWidget {
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           subjectChip,
-                          style: AppTextStyles.captionStrong.copyWith(
-                            color: AppColors.primary,
+                          style: AppTextStyles.captionStrong(context).copyWith(
+                            color: context.appPrimary,
                           ),
                         ),
                       ),
@@ -314,11 +314,11 @@ class _DetailsScaffold extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Extracted text', style: AppTextStyles.title),
+                      Text('Extracted text', style: AppTextStyles.title(context)),
                       if (onViewAll != null)
                         GestureDetector(
                           onTap: onViewAll,
-                          child: Text('View all', style: AppTextStyles.link),
+                          child: Text('View all', style: AppTextStyles.link(context)),
                         ),
                     ],
                   ),
@@ -326,8 +326,8 @@ class _DetailsScaffold extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      border: Border.all(color: AppColors.border),
+                      color: context.appCard,
+                      border: Border.all(color: context.appBorder),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Column(
@@ -339,15 +339,15 @@ class _DetailsScaffold extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 previewTitle,
-                                style: AppTextStyles.itemTitle,
+                                style: AppTextStyles.itemTitle(context),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               previewPageLabel,
-                              style: AppTextStyles.badge.copyWith(
-                                color: AppColors.muted,
+                              style: AppTextStyles.badge(context).copyWith(
+                                color: context.appMuted,
                               ),
                             ),
                           ],
@@ -355,7 +355,7 @@ class _DetailsScaffold extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           previewText,
-                          style: AppTextStyles.muted.copyWith(height: 20 / 13),
+                          style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
                         ),
                       ],
                     ),
@@ -364,10 +364,10 @@ class _DetailsScaffold extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Associated study sets', style: AppTextStyles.title),
+                      Text('Associated study sets', style: AppTextStyles.title(context)),
                       Text(
                         '${studySets.length} set${studySets.length == 1 ? '' : 's'}',
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ],
                   ),
@@ -380,7 +380,7 @@ class _DetailsScaffold extends StatelessWidget {
                   else if (studySets.isEmpty) ...[
                     Text(
                       'No study sets generated yet for this document.',
-                      style: AppTextStyles.muted,
+                      style: AppTextStyles.muted(context),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -418,9 +418,9 @@ class _DetailsScaffold extends StatelessWidget {
               ),
             ),
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(top: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                color: context.appCard,
+                border: Border(top: BorderSide(color: context.appBorder)),
               ),
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 14),
               child: Column(
@@ -430,22 +430,22 @@ class _DetailsScaffold extends StatelessWidget {
                       _ManagementAction(
                         iconAsset: 'assets/icons/figma/pencil.svg',
                         label: 'Rename',
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                         onTap: onRename,
                       ),
                       const SizedBox(width: 8),
                       _ManagementAction(
                         iconAsset: 'assets/icons/figma/share_2.svg',
                         label: 'Export',
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                         onTap: onExport,
                       ),
                       const SizedBox(width: 8),
                       _ManagementAction(
                         iconAsset: 'assets/icons/figma/trash_2.svg',
                         label: 'Delete',
-                        color: AppColors.danger,
-                        backgroundColor: AppColors.dangerSurface,
+                        color: context.appDanger,
+                        backgroundColor: context.appDangerSurface,
                         onTap: onDelete,
                       ),
                     ],
@@ -477,8 +477,8 @@ class _OriginalFileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -488,11 +488,11 @@ class _OriginalFileCard extends StatelessWidget {
             height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(format, style: AppTextStyles.badge),
+            child: Text(format, style: AppTextStyles.badge(context)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -501,12 +501,12 @@ class _OriginalFileCard extends StatelessWidget {
               children: [
                 Text(
                   'Original file',
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(meta, style: AppTextStyles.muted.copyWith(fontSize: 12)),
+                Text(meta, style: AppTextStyles.muted(context).copyWith(fontSize: 12)),
               ],
             ),
           ),
@@ -514,8 +514,8 @@ class _OriginalFileCard extends StatelessWidget {
             'assets/icons/figma/file_text.svg',
             width: 18,
             height: 18,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
@@ -550,7 +550,7 @@ class _StudySetRow extends StatelessWidget {
           height: 68,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -560,15 +560,15 @@ class _StudySetRow extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(
                   iconAsset,
                   width: 18,
                   height: 18,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -579,9 +579,9 @@ class _StudySetRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppTextStyles.itemTitle),
+                    Text(title, style: AppTextStyles.itemTitle(context)),
                     const SizedBox(height: 5),
-                    Text(subtitle, style: AppTextStyles.caption),
+                    Text(subtitle, style: AppTextStyles.caption(context)),
                   ],
                 ),
               ),
@@ -589,8 +589,8 @@ class _StudySetRow extends StatelessWidget {
                 'assets/icons/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.navInactive,
+                colorFilter: ColorFilter.mode(
+                  context.appNavInactive,
                   BlendMode.srcIn,
                 ),
               ),
@@ -629,7 +629,7 @@ class _ManagementAction extends StatelessWidget {
           child: Container(
             height: 44,
             decoration: BoxDecoration(
-              color: backgroundColor ?? AppColors.white,
+              color: backgroundColor ?? context.appCard,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Row(
@@ -642,7 +642,7 @@ class _ManagementAction extends StatelessWidget {
                   colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                 ),
                 const SizedBox(width: 6),
-                Text(label, style: AppTextStyles.link.copyWith(color: color)),
+                Text(label, style: AppTextStyles.link(context).copyWith(color: color)),
               ],
             ),
           ),

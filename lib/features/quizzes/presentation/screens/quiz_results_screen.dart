@@ -77,7 +77,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     final questions = result?.questions ?? const [];
     if (questions.isEmpty) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -127,10 +127,10 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     ];
     final actionStyle = FilledButton.styleFrom(
       minimumSize: const Size.fromHeight(48),
-      textStyle: AppTextStyles.button,
+      textStyle: AppTextStyles.button(context),
     );
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -144,24 +144,24 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     Text(
                       'Nice work, study buddy.',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.display,
+                      style: AppTextStyles.display(context),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '${generatedMaterialTitle(config: config, documentName: job.source?.document.originalFileName)} · $total questions · ${config.difficulty.label}',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontSize: 12,
                         height: 18 / 12,
-                        color: AppColors.muted,
+                        color: context.appMuted,
                       ),
                     ),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
-                        border: Border.all(color: AppColors.border),
+                        color: context.appCard,
+                        border: Border.all(color: context.appBorder),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Column(
@@ -176,12 +176,12 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                                   children: [
                                     Text(
                                       '$correctCount / $total',
-                                      style: _scoreStyle(AppColors.text),
+                                      style: _scoreStyle(context.appText),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       'Questions correct',
-                                      style: _subStyle(),
+                                      style: _subStyle(context),
                                     ),
                                   ],
                                 ),
@@ -191,14 +191,14 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                                 children: [
                                   Text(
                                     '$percent%',
-                                    style: _scoreStyle(AppColors.primary),
+                                    style: _scoreStyle(context.appPrimary),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     _durationLabel == null
                                         ? 'Duration · —'
                                         : 'Duration · $_durationLabel',
-                                    style: _subStyle(),
+                                    style: _subStyle(context),
                                   ),
                                 ],
                               ),
@@ -210,9 +210,9 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                             child: LinearProgressIndicator(
                               value: fraction,
                               minHeight: 6,
-                              backgroundColor: AppColors.surface,
+                              backgroundColor: context.appSurface,
                               valueColor: AlwaysStoppedAnimation(
-                                AppColors.primary,
+                                context.appPrimary,
                               ),
                             ),
                           ),
@@ -222,18 +222,18 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                             children: [
                               Text(
                                 '$correctCount correct',
-                                style: _countStyle(AppColors.successText),
+                                style: _countStyle(context.appSuccessText),
                               ),
                               Text(
                                 '$incorrectCount incorrect',
-                                style: _countStyle(AppColors.danger),
+                                style: _countStyle(context.appDanger),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
                           Text(
                             'Includes $unanswered unanswered, counted as incorrect. Short answers are counted as answered, not scored.',
-                            style: AppTextStyles.caption,
+                            style: AppTextStyles.caption(context),
                           ),
                         ],
                       ),
@@ -241,7 +241,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Topic performance',
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontWeight: FontWeight.w600,
                         height: 20 / 14,
                       ),
@@ -277,7 +277,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     Text(
                       'Use your $incorrectCount missed questions to focus your next review.',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                     ),
                     const SizedBox(height: 6),
                     InkWell(
@@ -291,19 +291,19 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                               'assets/icons/figma/history.svg',
                               width: 16,
                               height: 16,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
+                              colorFilter: ColorFilter.mode(
+                                context.appPrimary,
                                 BlendMode.srcIn,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               'View Quiz History',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 height: 18 / 13,
-                                color: AppColors.primary,
+                                color: context.appPrimary,
                               ),
                             ),
                           ],
@@ -329,10 +329,11 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     color: color,
   );
 
-  static TextStyle _subStyle() => AppTextStyles.body.copyWith(
+  static TextStyle _subStyle(BuildContext context) =>
+      AppTextStyles.body(context).copyWith(
     fontSize: 12,
     height: 18 / 12,
-    color: AppColors.muted,
+    color: context.appMuted,
   );
 
   static TextStyle _countStyle(Color color) => TextStyle(
@@ -376,15 +377,15 @@ class _TopicResult extends StatelessWidget {
           children: [
             Text(
               name,
-              style: AppTextStyles.body.copyWith(fontSize: 13, height: 20 / 13),
+              style: AppTextStyles.body(context).copyWith(fontSize: 13, height: 20 / 13),
             ),
             Text(
               score,
-              style: AppTextStyles.body.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 height: 16 / 12,
-                color: AppColors.primary,
+                color: context.appPrimary,
               ),
             ),
           ],
@@ -395,8 +396,8 @@ class _TopicResult extends StatelessWidget {
           child: LinearProgressIndicator(
             value: fraction,
             minHeight: 6,
-            backgroundColor: AppColors.surface,
-            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            backgroundColor: context.appSurface,
+            valueColor: AlwaysStoppedAnimation(context.appPrimary),
           ),
         ),
       ],

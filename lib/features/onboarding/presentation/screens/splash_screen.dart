@@ -70,7 +70,7 @@ class _SplashDesignScreenState extends ConsumerState<SplashDesignScreen> {
                   height: 108,
                 ),
                 const SizedBox(height: 36),
-                const Text(
+                Text(
                   'SI Buddy',
                   style: TextStyle(
                     fontFamily: 'Inter',
@@ -78,18 +78,18 @@ class _SplashDesignScreenState extends ConsumerState<SplashDesignScreen> {
                     fontWeight: FontWeight.w700,
                     height: 48 / 40,
                     letterSpacing: -0.8,
-                    color: AppColors.text,
+                    color: context.appText,
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Your notes. Your AI. Your exam prep.',
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     height: 22 / 14,
-                    color: AppColors.muted,
+                    color: context.appMuted,
                   ),
                 ),
                 const Spacer(),

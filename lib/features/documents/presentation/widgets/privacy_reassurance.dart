@@ -20,13 +20,13 @@ class PrivacyReassurance extends StatelessWidget {
           'assets/icons/figma/shield_check.svg',
           width: 13,
           height: 13,
-          colorFilter: const ColorFilter.mode(
-            AppColors.navInactive,
+          colorFilter: ColorFilter.mode(
+            context.appNavInactive,
             BlendMode.srcIn,
           ),
         ),
         const SizedBox(width: 6),
-        Text(text, style: AppTextStyles.caption),
+        Text(text, style: AppTextStyles.caption(context)),
       ],
     );
   }

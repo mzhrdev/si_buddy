@@ -24,10 +24,10 @@ class _FormatBadge extends StatelessWidget {
       height: height,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(format, style: AppTextStyles.badge),
+      child: Text(format, style: AppTextStyles.badge(context)),
     );
   }
 }
@@ -57,7 +57,7 @@ class DocumentListCard extends StatelessWidget {
           height: 92,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -71,21 +71,21 @@ class DocumentListCard extends StatelessWidget {
                   children: [
                     Text(
                       document.title,
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 5),
                     Text(
                       document.listMeta,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 5),
                     Text(
                       document.subject,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -99,8 +99,8 @@ class DocumentListCard extends StatelessWidget {
                   'assets/icons/figma/ellipsis_vertical.svg',
                   width: 14,
                   height: 14,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.navInactive,
+                  colorFilter: ColorFilter.mode(
+                    context.appNavInactive,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -139,7 +139,7 @@ class DocumentGridCard extends StatelessWidget {
           height: 200,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Column(
@@ -155,8 +155,8 @@ class DocumentGridCard extends StatelessWidget {
                       'assets/icons/figma/ellipsis_vertical.svg',
                       width: 16,
                       height: 16,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.navInactive,
+                      colorFilter: ColorFilter.mode(
+                        context.appNavInactive,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -168,7 +168,7 @@ class DocumentGridCard extends StatelessWidget {
                 height: 34,
                 child: Text(
                   document.title,
-                  style: AppTextStyles.itemTitle.copyWith(
+                  style: AppTextStyles.itemTitle(context).copyWith(
                     fontSize: 12,
                     height: 16 / 12,
                   ),
@@ -177,11 +177,11 @@ class DocumentGridCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 9),
-              Text(document.date, style: AppTextStyles.caption),
+              Text(document.date, style: AppTextStyles.caption(context)),
               const SizedBox(height: 9),
               Text(
                 document.subject,
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption(context),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -192,13 +192,13 @@ class DocumentGridCard extends StatelessWidget {
                     'assets/icons/figma/layers.svg',
                     width: 13,
                     height: 13,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                    colorFilter: ColorFilter.mode(
+                      context.appPrimary,
                       BlendMode.srcIn,
                     ),
                   ),
                   const SizedBox(width: 5),
-                  Text(document.studySets, style: AppTextStyles.captionAccent),
+                  Text(document.studySets, style: AppTextStyles.captionAccent(context)),
                 ],
               ),
             ],

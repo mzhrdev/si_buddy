@@ -28,19 +28,19 @@ class CorruptedDocumentScreen extends ConsumerWidget {
         formatLabel: file?.format.label,
       ),
       iconAsset: 'assets/icons/figma/file_warning.svg',
-      iconColor: AppColors.danger,
-      surfaceColor: AppColors.dangerSurface,
+      iconColor: context.appDanger,
+      surfaceColor: context.appDangerSurface,
       headline: 'This document won’t open.',
       body:
           'The PDF appears to be damaged or incomplete, so we couldn’t read its contents.',
       guidance: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Try a fresh copy', style: AppTextStyles.itemTitle),
+          Text('Try a fresh copy', style: AppTextStyles.itemTitle(context)),
           const SizedBox(height: 8),
           Text(
             'Re-export the original document or download a fresh copy from its source. Check that it opens, then choose the new file.',
-            style: AppTextStyles.muted.copyWith(height: 20 / 13),
+            style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
           ),
         ],
       ),

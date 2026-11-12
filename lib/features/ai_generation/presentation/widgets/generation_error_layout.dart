@@ -37,7 +37,7 @@ class GenerationErrorLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -57,15 +57,15 @@ class GenerationErrorLayout extends StatelessWidget {
                         height: 44,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: AppColors.dangerSurface,
+                          color: context.appDangerSurface,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: SvgPicture.asset(
                           'assets/icons/figma/circle_alert.svg',
                           width: 24,
                           height: 24,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.danger,
+                          colorFilter: ColorFilter.mode(
+                            context.appDanger,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -74,15 +74,15 @@ class GenerationErrorLayout extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       headline,
-                      style: AppTextStyles.display.copyWith(
+                      style: AppTextStyles.display(context).copyWith(
                         letterSpacing: -0.48,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       body,
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.muted,
+                      style: AppTextStyles.body(context).copyWith(
+                        color: context.appMuted,
                         height: 22 / 14,
                       ),
                     ),
@@ -90,7 +90,7 @@ class GenerationErrorLayout extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
+                        color: context.appCard,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Column(
@@ -98,12 +98,12 @@ class GenerationErrorLayout extends StatelessWidget {
                         children: [
                           Text(
                             'What you can do',
-                            style: AppTextStyles.itemTitle,
+                            style: AppTextStyles.itemTitle(context),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             guidance,
-                            style: AppTextStyles.muted.copyWith(
+                            style: AppTextStyles.muted(context).copyWith(
                               height: 20 / 13,
                             ),
                           ),
@@ -132,8 +132,8 @@ class GenerationErrorLayout extends StatelessWidget {
                           'assets/icons/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
+                          colorFilter: ColorFilter.mode(
+                            context.appCard,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -145,17 +145,17 @@ class GenerationErrorLayout extends StatelessWidget {
                     onPressed: onSecondary,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: context.appBorder),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                     child: Text(
                       secondaryLabel,
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontWeight: FontWeight.w600,
                         height: 20 / 14,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
                   ),
@@ -167,15 +167,15 @@ class GenerationErrorLayout extends StatelessWidget {
                         'assets/icons/figma/shield_check.svg',
                         width: 14,
                         height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.navInactive,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
                           BlendMode.srcIn,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Your notes stay on your device.',
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ],
                   ),

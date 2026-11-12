@@ -5,12 +5,12 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
 /// Label style for settings rows and section titles (14, SemiBold, lh 20).
-const _labelStyle = TextStyle(
+TextStyle _labelStyle(BuildContext context) => TextStyle(
   fontFamily: 'Inter',
   fontSize: 14,
   fontWeight: FontWeight.w600,
   height: 20 / 14,
-  color: AppColors.text,
+  color: context.appText,
 );
 
 /// A settings section: a 14px semibold title above its rows (gap 8),
@@ -30,7 +30,7 @@ class SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: _labelStyle),
+        Text(title, style: _labelStyle(context)),
         const SizedBox(height: 8),
         ...children,
       ],
@@ -51,7 +51,7 @@ class SettingsCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(children: children),
@@ -71,7 +71,7 @@ class SettingsRow extends StatelessWidget {
     this.trailingValue,
     this.onTap,
     this.showDivider = false,
-    this.iconColor = AppColors.textSecondary,
+    this.iconColor,
     super.key,
   });
 
@@ -85,7 +85,8 @@ class SettingsRow extends StatelessWidget {
   final bool showDivider;
 
   /// Tint for the row icon (Figma icon stroke color).
-  final Color iconColor;
+  /// Null reads as the secondary text color.
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +96,8 @@ class SettingsRow extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 48),
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: showDivider
-            ? const BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.border)),
+            ? BoxDecoration(
+                border: Border(bottom: BorderSide(color: context.appBorder)),
               )
             : null,
         child: Row(
@@ -105,7 +106,7 @@ class SettingsRow extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: AppColors.surfaceSubtle,
+                color: context.appSurfaceSubtle,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Center(
@@ -113,7 +114,10 @@ class SettingsRow extends StatelessWidget {
                   iconAsset,
                   width: 18,
                   height: 18,
-                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                iconColor ?? context.appTextSecondary,
+                BlendMode.srcIn,
+              ),
                 ),
               ),
             ),
@@ -123,24 +127,24 @@ class SettingsRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(label, style: _labelStyle),
+                  Text(label, style: _labelStyle(context)),
                   if (supportingText != null) ...[
                     const SizedBox(height: 3),
-                    Text(supportingText!, style: AppTextStyles.caption),
+                    Text(supportingText!, style: AppTextStyles.caption(context)),
                   ],
                 ],
               ),
             ),
             if (trailingValue != null) ...[
-              Text(trailingValue!, style: AppTextStyles.greeting),
+              Text(trailingValue!, style: AppTextStyles.greeting(context)),
               const SizedBox(width: 4),
             ],
             SvgPicture.asset(
               'assets/icons/figma/chevron_right.svg',
               width: 16,
               height: 16,
-              colorFilter: const ColorFilter.mode(
-                AppColors.navInactive,
+              colorFilter: ColorFilter.mode(
+                context.appNavInactive,
                 BlendMode.srcIn,
               ),
             ),

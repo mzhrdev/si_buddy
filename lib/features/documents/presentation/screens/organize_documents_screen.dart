@@ -30,7 +30,7 @@ class OrganizeDocumentsScreen extends ConsumerWidget {
     final documents = ref.watch(documentsStreamProvider).value ?? const [];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -46,9 +46,9 @@ class OrganizeDocumentsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   if (folders.isEmpty)
-                    const Text(
+                    Text(
                       'No folders yet. Create one to group documents together.',
-                      style: TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: context.appMuted),
                     ),
                   for (final folder in folders)
                     _FolderTile(
@@ -68,9 +68,9 @@ class OrganizeDocumentsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   if (subjects.isEmpty && documents.isEmpty)
-                    const Text(
+                    Text(
                       'No subjects yet. Create one to categorize documents.',
-                      style: TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: context.appMuted),
                     ),
                   for (final subject in subjects)
                     _SubjectTile(
@@ -302,10 +302,10 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: AppTextStyles.title),
+        Text(title, style: AppTextStyles.title(context)),
         GestureDetector(
           onTap: onAction,
-          child: Text(actionLabel, style: AppTextStyles.link),
+          child: Text(actionLabel, style: AppTextStyles.link(context)),
         ),
       ],
     );
@@ -392,17 +392,17 @@ class _OrganizeTile extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: ExpansionTile(
-        leading: Icon(icon, color: AppColors.primary),
-        title: Text(title, style: AppTextStyles.itemTitle),
-        subtitle: Text(countLabel, style: AppTextStyles.caption),
+        leading: Icon(icon, color: context.appPrimary),
+        title: Text(title, style: AppTextStyles.itemTitle(context)),
+        subtitle: Text(countLabel, style: AppTextStyles.caption(context)),
         trailing: onRename == null
             ? null
             : PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppColors.muted),
+                icon: Icon(Icons.more_vert, color: context.appMuted),
                 onSelected: (value) {
                   if (value == 'rename') {
                     onRename!();
@@ -417,13 +417,13 @@ class _OrganizeTile extends ConsumerWidget {
               ),
         children: [
           if (documents.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'No documents here yet.',
-                  style: TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: context.appMuted),
                 ),
               ),
             ),
@@ -431,13 +431,13 @@ class _OrganizeTile extends ConsumerWidget {
             ListTile(
               title: Text(
                 documentDisplayName(document),
-                style: AppTextStyles.itemTitle,
+                style: AppTextStyles.itemTitle(context),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
                 '${document.format.label} · ${formatLibraryDate(document.createdAt)}',
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption(context),
               ),
               onTap: () {
                 ref

@@ -74,7 +74,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                                 width: 52,
                                 height: 52,
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: context.appSurface,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 alignment: Alignment.center,
@@ -82,8 +82,8 @@ class SessionSummaryScreen extends ConsumerWidget {
                                   'assets/icons/figma/check_primary.svg',
                                   width: 26,
                                   height: 26,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.primary,
+                                  colorFilter: ColorFilter.mode(
+                                    context.appPrimary,
                                     BlendMode.srcIn,
                                   ),
                                 ),
@@ -95,7 +95,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                               child: Text(
                                 'Nice work, study buddy.',
                                 textAlign: TextAlign.center,
-                                style: AppTextStyles.display.copyWith(
+                                style: AppTextStyles.display(context).copyWith(
                                   letterSpacing: -0.48,
                                 ),
                               ),
@@ -106,7 +106,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                               child: Text(
                                 '${generatedMaterialTitle(config: config, documentName: job.source?.document.originalFileName)} · $total flashcards',
                                 textAlign: TextAlign.center,
-                                style: AppTextStyles.muted.copyWith(
+                                style: AppTextStyles.muted(context).copyWith(
                                   height: 20 / 13,
                                 ),
                               ),
@@ -139,7 +139,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                               const SizedBox(height: 22),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.white,
+                                  color: context.appCard,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 padding: const EdgeInsets.all(12),
@@ -148,18 +148,18 @@ class SessionSummaryScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       'Keep the momentum',
-                                      style: AppTextStyles.muted.copyWith(
+                                      style: AppTextStyles.muted(context).copyWith(
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.text,
+                                        color: context.appText,
                                       ),
                                     ),
                                     const SizedBox(height: 5),
                                     Text(
                                       'Review the $toReview learning and difficult cards again to make them stick.',
-                                      style: AppTextStyles.body.copyWith(
+                                      style: AppTextStyles.body(context).copyWith(
                                         fontSize: 12,
                                         height: 18 / 12,
-                                        color: AppColors.muted,
+                                        color: context.appMuted,
                                       ),
                                     ),
                                   ],
@@ -182,8 +182,8 @@ class SessionSummaryScreen extends ConsumerWidget {
                             'assets/icons/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.white,
+                            colorFilter: ColorFilter.mode(
+                              context.appCard,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -219,8 +219,8 @@ class _SessionTotalsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       padding: const EdgeInsets.all(16),
@@ -245,7 +245,7 @@ class _SessionTotalsCard extends StatelessWidget {
           Container(
             height: 6,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               borderRadius: BorderRadius.circular(100),
             ),
             child: FractionallySizedBox(
@@ -253,7 +253,7 @@ class _SessionTotalsCard extends StatelessWidget {
               widthFactor: total == 0 ? 0 : (reviewed / total).clamp(0.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -264,7 +264,7 @@ class _SessionTotalsCard extends StatelessWidget {
             reviewed >= total
                 ? 'All cards reviewed this session'
                 : 'Ratings are tracked this session only.',
-            style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+            style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
           ),
         ],
       ),
@@ -285,7 +285,7 @@ class _Total extends StatelessWidget {
       children: [
         Text(
           value,
-          style: AppTextStyles.display.copyWith(
+          style: AppTextStyles.display(context).copyWith(
             fontSize: 28,
             height: 34 / 28,
             letterSpacing: -0.56,
@@ -294,10 +294,10 @@ class _Total extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: AppTextStyles.body.copyWith(
+          style: AppTextStyles.body(context).copyWith(
             fontSize: 12,
             height: 18 / 12,
-            color: AppColors.muted,
+            color: context.appMuted,
           ),
         ),
       ],
@@ -327,7 +327,7 @@ class _RatingRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.appSurface,
             borderRadius: BorderRadius.circular(4),
           ),
           alignment: Alignment.center,
@@ -335,8 +335,8 @@ class _RatingRow extends StatelessWidget {
             iconAsset,
             width: 18,
             height: 18,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
@@ -348,19 +348,19 @@ class _RatingRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontWeight: FontWeight.w600,
                   height: 20 / 14,
                 ),
               ),
               const SizedBox(height: 2),
-              Text(subtitle, style: AppTextStyles.caption),
+              Text(subtitle, style: AppTextStyles.caption(context)),
             ],
           ),
         ),
         Text(
           value,
-          style: AppTextStyles.headline.copyWith(letterSpacing: -0.48),
+          style: AppTextStyles.headline(context).copyWith(letterSpacing: -0.48),
         ),
       ],
     );

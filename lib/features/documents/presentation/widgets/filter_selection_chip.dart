@@ -24,7 +24,7 @@ class FilterSelectionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.white,
+      color: selected ? context.appSurface : context.appCard,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
         onTap: onTap,
@@ -34,7 +34,7 @@ class FilterSelectionChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.border,
+              color: selected ? context.appPrimary : context.appBorder,
             ),
             borderRadius: BorderRadius.circular(4),
           ),
@@ -46,8 +46,8 @@ class FilterSelectionChip extends StatelessWidget {
                   'assets/icons/figma/check.svg',
                   width: 13,
                   height: 13,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -57,8 +57,8 @@ class FilterSelectionChip extends StatelessWidget {
                   iconAsset!,
                   width: 14,
                   height: 14,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -71,7 +71,7 @@ class FilterSelectionChip extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   height: selected ? 16 / 12 : 18 / 12,
-                  color: selected ? AppColors.primary : AppColors.muted,
+                  color: selected ? context.appPrimary : context.appMuted,
                 ),
               ),
             ],

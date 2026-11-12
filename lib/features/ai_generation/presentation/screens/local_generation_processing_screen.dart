@@ -84,7 +84,7 @@ class _LocalGenerationProcessingScreenState
     final live = job.status != GenerationJobStatus.idle;
     if (!live) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -109,7 +109,7 @@ class _LocalGenerationProcessingScreenState
     final subject = ref.watch(extractionProvider).subject;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -134,15 +134,15 @@ class _LocalGenerationProcessingScreenState
                     const SizedBox(height: 24),
                     Text(
                       'Creating your flashcards',
-                      style: AppTextStyles.display.copyWith(
+                      style: AppTextStyles.display(context).copyWith(
                         letterSpacing: -0.48,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'The local AI is turning your reviewed text into study material.',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.muted,
+                      style: AppTextStyles.body(context).copyWith(
+                        color: context.appMuted,
                         height: 22 / 14,
                       ),
                     ),
@@ -152,11 +152,11 @@ class _LocalGenerationProcessingScreenState
                       children: [
                         Text(
                           'Generating cards',
-                          style: AppTextStyles.link.copyWith(height: 16 / 12),
+                          style: AppTextStyles.link(context).copyWith(height: 16 / 12),
                         ),
                         Text(
                           '${(job.fraction * 100).round()}%',
-                          style: AppTextStyles.link.copyWith(height: 16 / 12),
+                          style: AppTextStyles.link(context).copyWith(height: 16 / 12),
                         ),
                       ],
                     ),
@@ -166,16 +166,16 @@ class _LocalGenerationProcessingScreenState
                       child: LinearProgressIndicator(
                         value: job.fraction,
                         minHeight: 6,
-                        backgroundColor: AppColors.surface,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.primary,
+                        backgroundColor: context.appSurface,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          context.appPrimary,
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'This may take a minute. Keep SI Buddy open.',
-                      style: AppTextStyles.caption.copyWith(
+                      style: AppTextStyles.caption(context).copyWith(
                         fontSize: 12,
                         height: 18 / 12,
                       ),
@@ -204,10 +204,10 @@ class _LocalGenerationProcessingScreenState
                   Text(
                     'Model installed · Running on this device',
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
+                    style: AppTextStyles.caption(context).copyWith(
                       fontSize: 12,
                       height: 18 / 12,
-                      color: AppColors.successText,
+                      color: context.appSuccessText,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -220,17 +220,17 @@ class _LocalGenerationProcessingScreenState
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: context.appBorder),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                     child: Text(
                       'Cancel',
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontWeight: FontWeight.w600,
                         height: 20 / 14,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
                   ),
@@ -242,15 +242,15 @@ class _LocalGenerationProcessingScreenState
                         'assets/icons/figma/shield_check.svg',
                         width: 14,
                         height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.navInactive,
+                        colorFilter: ColorFilter.mode(
+                          context.appNavInactive,
                           BlendMode.srcIn,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Your notes stay on your device.',
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ],
                   ),
@@ -315,7 +315,7 @@ class _GenerationStages extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -329,15 +329,15 @@ class _GenerationStages extends StatelessWidget {
                   height: 28,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.appSurface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: SvgPicture.asset(
                     'assets/icons/figma/check.svg',
                     width: 16,
                     height: 16,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                    colorFilter: ColorFilter.mode(
+                      context.appPrimary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -355,7 +355,7 @@ class _GenerationStages extends StatelessWidget {
               },
               title: rows[i].title,
               titleColor: rows[i].status == JobStageStatus.active
-                  ? AppColors.primary
+                  ? context.appPrimary
                   : null,
               subtitle: rows[i].subtitle,
             ),
@@ -391,12 +391,12 @@ class _StageRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.itemTitle.copyWith(color: titleColor),
+                style: AppTextStyles.itemTitle(context).copyWith(color: titleColor),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: AppTextStyles.caption.copyWith(
+                style: AppTextStyles.caption(context).copyWith(
                   fontSize: 12,
                   height: 18 / 12,
                 ),

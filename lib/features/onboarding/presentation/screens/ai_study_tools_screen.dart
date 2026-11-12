@@ -52,12 +52,12 @@ class AiStudyToolsScreen extends StatelessWidget {
 class _StudyToolsIllustration extends StatelessWidget {
   const _StudyToolsIllustration();
 
-  static const _cardLabel = TextStyle(
+  static TextStyle _cardLabel(BuildContext context) => TextStyle(
     fontFamily: 'Inter',
     fontSize: 10,
     fontWeight: FontWeight.w700,
     height: 14 / 10,
-    color: AppColors.white,
+    color: context.appCard,
   );
 
   @override
@@ -77,7 +77,7 @@ class _StudyToolsIllustration extends StatelessWidget {
                 width: 196,
                 height: 150,
                 decoration: BoxDecoration(
-                  color: AppColors.accentMuted,
+                  color: context.appAccentMuted,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -92,7 +92,7 @@ class _StudyToolsIllustration extends StatelessWidget {
               height: 148,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.appPrimary,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
@@ -104,28 +104,28 @@ class _StudyToolsIllustration extends StatelessWidget {
                         'assets/icons/figma/layers.svg',
                         width: 14,
                         height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.white,
+                        colorFilter: ColorFilter.mode(
+                          context.appCard,
                           BlendMode.srcIn,
                         ),
                       ),
                       const SizedBox(width: 7),
-                      const Text('FLASHCARDS', style: _cardLabel),
+                      Text('FLASHCARDS', style: _cardLabel(context)),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'What makes a memory stick?',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       height: 26 / 20,
-                      color: AppColors.white,
+                      color: context.appCard,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text('Tap. Recall. Repeat.', style: _cardLabel),
+                  Text('Tap. Recall. Repeat.', style: _cardLabel(context)),
                 ],
               ),
             ),
@@ -138,14 +138,14 @@ class _StudyToolsIllustration extends StatelessWidget {
               width: 215,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: AppColors.border),
+                color: context.appCard,
+                border: Border.all(color: context.appBorder),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -155,7 +155,7 @@ class _StudyToolsIllustration extends StatelessWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           height: 14 / 10,
-                          color: AppColors.primary,
+                          color: context.appPrimary,
                         ),
                       ),
                       Text(
@@ -165,20 +165,20 @@ class _StudyToolsIllustration extends StatelessWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           height: 14 / 10,
-                          color: AppColors.muted,
+                          color: context.appMuted,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 9),
-                  const Text(
+                  Text(
                     'The best way to remember?',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       height: 16 / 12,
-                      color: AppColors.text,
+                      color: context.appText,
                     ),
                   ),
                   const SizedBox(height: 9),
@@ -187,7 +187,7 @@ class _StudyToolsIllustration extends StatelessWidget {
                     height: 30,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -198,14 +198,14 @@ class _StudyToolsIllustration extends StatelessWidget {
                           height: 12,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Active recall',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             height: 16 / 11,
-                            color: AppColors.primary,
+                            color: context.appPrimary,
                           ),
                         ),
                       ],
@@ -222,20 +222,20 @@ class _StudyToolsIllustration extends StatelessWidget {
                           width: 12,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: AppColors.white,
-                            border: Border.all(color: AppColors.border),
+                            color: context.appCard,
+                            border: Border.all(color: context.appBorder),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Reading it again',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
                             height: 16 / 11,
-                            color: AppColors.muted,
+                            color: context.appMuted,
                           ),
                         ),
                       ],

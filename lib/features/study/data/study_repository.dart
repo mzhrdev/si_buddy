@@ -163,6 +163,13 @@ abstract class StudyRepository {
   /// Finished quiz attempts, newest first, with their deck titles —
   /// the study history. Limited to [limit] entries.
   Future<List<CompletedAttempt>> listCompletedAttempts({int limit = 5});
+
+  /// Deletes every persisted study row — decks (with their cards,
+  /// questions, attempts, answers and reviews), sessions, revisions
+  /// and subjects — for "Clear All Local Data". Documents are
+  /// deleted separately (their delete also removes stored files and
+  /// extracted text).
+  Future<void> deleteAllStudyData();
 }
 
 class StudyRepositoryImpl implements StudyRepository {
@@ -646,6 +653,22 @@ class StudyRepositoryImpl implements StudyRepository {
     await (db.delete(
       db.dbStudySessions,
     )..where((t) => t.id.equals(sessionId))).go();
+  }
+
+  @override
+  Future<void> deleteAllStudyData() async {
+    // Child rows first (foreign keys cascade anyway, but explicit
+    // order keeps the wipe correct even if a cascade is ever
+    // relaxed), then the parents.
+    await db.delete(db.dbQuestionAnswers).go();
+    await db.delete(db.dbQuizAttempts).go();
+    await db.delete(db.dbCardReviews).go();
+    await db.delete(db.dbQuizQuestions).go();
+    await db.delete(db.dbFlashcards).go();
+    await db.delete(db.dbStudySessions).go();
+    await db.delete(db.dbRevisions).go();
+    await db.delete(db.dbDecks).go();
+    await db.delete(db.dbSubjects).go();
   }
 
   @override

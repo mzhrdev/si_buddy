@@ -21,9 +21,9 @@ class OfflineNotInstalledScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ModelManagementLayout(
       statusLabel: 'Not installed · Offline',
-      statusColor: AppColors.primary,
+      statusColor: context.appPrimary,
       readinessIconAsset: 'assets/icons/figma/wifi_off.svg',
-      readinessIconColor: AppColors.primary,
+      readinessIconColor: context.appPrimary,
       readinessTitle: 'Connect to download the model',
       readinessBody:
           'You\u2019re offline, so the download can\u2019t start. Connect to the internet to download and install the model.',

@@ -42,9 +42,9 @@ class _ModelNotInstalledScreenState
     });
     return ModelManagementLayout(
       statusLabel: 'Not installed',
-      statusColor: AppColors.primary,
+      statusColor: context.appPrimary,
       readinessIconAsset: 'assets/icons/figma/download_plain.svg',
-      readinessIconColor: AppColors.primary,
+      readinessIconColor: context.appPrimary,
       readinessTitle: 'Download once. Generate offline.',
       readinessBody:
           'The initial model download requires internet. AI generation is unavailable until installation completes.',

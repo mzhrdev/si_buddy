@@ -64,7 +64,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
     final question = questions.isEmpty ? null : questions.first;
     if (question == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -99,7 +99,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
       _controller.text = shortAnswers[question.prompt] ?? '';
     }
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -129,7 +129,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: context.appBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Column(
@@ -140,29 +140,29 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                               children: [
                                 Text(
                                   'SHORT ANSWER',
-                                  style: AppTextStyles.caption.copyWith(
+                                  style: AppTextStyles.caption(context).copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                                 Text(
                                   '01 / $total',
-                                  style: AppTextStyles.caption,
+                                  style: AppTextStyles.caption(context),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Text(
                               question.prompt,
-                              style: AppTextStyles.screenTitle,
+                              style: AppTextStyles.screenTitle(context),
                             ),
                             const SizedBox(height: 20),
                             Text(
                               'Your answer',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 height: 18 / 12,
-                                color: AppColors.muted,
+                                color: context.appMuted,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -175,20 +175,20 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                               },
                               maxLines: null,
                               minLines: 6,
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 height: 22 / 14,
                               ),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(14),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                    color: AppColors.primary,
+                                  borderSide: BorderSide(
+                                    color: context.appPrimary,
                                   ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                    color: AppColors.primary,
+                                  borderSide: BorderSide(
+                                    color: context.appPrimary,
                                   ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
@@ -203,7 +203,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                       child: Text(
                         'Answers are saved as you move between questions.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                       ),
                     ),
                   ],

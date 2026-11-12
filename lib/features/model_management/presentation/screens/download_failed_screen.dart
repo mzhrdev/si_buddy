@@ -23,10 +23,10 @@ class ModelDownloadFailedScreen extends ConsumerWidget {
     final failure = ref.watch(modelProvider).failure;
     return ModelManagementLayout(
       statusLabel: 'Download failed · Not installed',
-      statusColor: AppColors.danger,
-      readinessBackground: AppColors.dangerSurface,
+      statusColor: context.appDanger,
+      readinessBackground: context.appDangerSurface,
       readinessIconAsset: 'assets/icons/figma/circle_alert.svg',
-      readinessIconColor: AppColors.danger,
+      readinessIconColor: context.appDanger,
       readinessTitle: 'Model download interrupted',
       readinessBody:
           failure?.message ??

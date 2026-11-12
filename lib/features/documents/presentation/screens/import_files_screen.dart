@@ -91,7 +91,7 @@ class ImportFilesScreen extends ConsumerWidget {
       );
     }).toList();
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -120,11 +120,11 @@ class ImportFilesScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Recently imported',
-                              style: AppTextStyles.title,
+                              style: AppTextStyles.title(context),
                             ),
                             Text(
                               '${recent.length} document${recent.length == 1 ? '' : 's'}',
-                              style: AppTextStyles.caption,
+                              style: AppTextStyles.caption(context),
                             ),
                           ],
                         ),
@@ -132,7 +132,7 @@ class ImportFilesScreen extends ConsumerWidget {
                         if (recentItems.isEmpty)
                           Text(
                             'Nothing imported yet.',
-                            style: AppTextStyles.caption,
+                            style: AppTextStyles.caption(context),
                           ),
                         for (final doc in recentItems)
                           _RecentDocumentRow(
@@ -179,8 +179,8 @@ class _DeviceBrowserCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -189,17 +189,17 @@ class _DeviceBrowserCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'Your files. One study space.',
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.body(context).copyWith(
               fontWeight: FontWeight.w600,
               height: 20 / 14,
             ),
           ),
           const SizedBox(height: 14),
-          Text('Supports PDF and PPTX', style: AppTextStyles.greeting),
+          Text('Supports PDF and PPTX', style: AppTextStyles.greeting(context)),
           const SizedBox(height: 14),
           ImportPrimaryButton(label: 'Browse files', onPressed: onBrowse),
           const SizedBox(height: 14),
-          Text('Opens your Android file picker', style: AppTextStyles.caption),
+          Text('Opens your Android file picker', style: AppTextStyles.caption(context)),
         ],
       ),
     );
@@ -257,8 +257,8 @@ class _SourceFileCard extends StatelessWidget {
       height: 70,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -268,15 +268,15 @@ class _SourceFileCard extends StatelessWidget {
             'assets/icons/figma/file_text.svg',
             width: 17,
             height: 21,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: AppTextStyles.badge.copyWith(color: AppColors.primary),
+            style: AppTextStyles.badge(context).copyWith(color: context.appPrimary),
           ),
         ],
       ),
@@ -314,11 +314,11 @@ class _RecentDocumentRow extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
+                  color: context.appCard,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(doc.format, style: AppTextStyles.badge),
+                child: Text(doc.format, style: AppTextStyles.badge(context)),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -328,14 +328,14 @@ class _RecentDocumentRow extends StatelessWidget {
                   children: [
                     Text(
                       doc.title,
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 5),
                     Text(
                       doc.meta,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -345,7 +345,7 @@ class _RecentDocumentRow extends StatelessWidget {
               IconButton(
                 onPressed: onDetails,
                 icon: const Icon(Icons.info_outline, size: 20),
-                color: AppColors.muted,
+                color: context.appMuted,
                 tooltip: 'Document details',
                 constraints: const BoxConstraints.tightFor(
                   width: 36,
@@ -357,8 +357,8 @@ class _RecentDocumentRow extends StatelessWidget {
                 'assets/icons/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.muted,
+                colorFilter: ColorFilter.mode(
+                  context.appMuted,
                   BlendMode.srcIn,
                 ),
               ),

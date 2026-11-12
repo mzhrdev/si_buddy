@@ -28,12 +28,12 @@ class QuizBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonStyle = FilledButton.styleFrom(
       minimumSize: const Size(0, 48),
-      textStyle: AppTextStyles.button,
+      textStyle: AppTextStyles.button(context),
     );
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: context.appCard,
+        border: Border(top: BorderSide(color: context.appBorder)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
       child: SafeArea(
@@ -73,11 +73,11 @@ class QuizBottomBar extends StatelessWidget {
                   ),
                   child: Text(
                     linkLabel,
-                    style: AppTextStyles.body.copyWith(
+                    style: AppTextStyles.body(context).copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       height: 18 / 13,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
                   ),
                 ),

@@ -30,7 +30,7 @@ class StateMessage extends StatelessWidget {
         Text(
           headline,
           textAlign: align,
-          style: AppTextStyles.display.copyWith(
+          style: AppTextStyles.display(context).copyWith(
             fontSize: 28,
             height: 34 / 28,
             letterSpacing: -0.56,
@@ -40,8 +40,8 @@ class StateMessage extends StatelessWidget {
         Text(
           body,
           textAlign: align,
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.muted,
+          style: AppTextStyles.body(context).copyWith(
+            color: context.appMuted,
             height: 22 / 14,
           ),
         ),

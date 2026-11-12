@@ -74,7 +74,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
     const materialTypes = GenerationMaterialType.values;
     const difficulties = GenerationDifficulty.values;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -104,7 +104,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'What would you like to create?',
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.body(context).copyWith(
                         fontWeight: FontWeight.w600,
                         height: 20 / 14,
                       ),
@@ -152,7 +152,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                           children: [
                             Text(
                               'Count',
-                              style: AppTextStyles.body.copyWith(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontWeight: FontWeight.w600,
                                 height: 20 / 14,
                               ),
@@ -160,14 +160,14 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                             const SizedBox(height: 3),
                             Text(
                               'Cards / questions',
-                              style: AppTextStyles.caption,
+                              style: AppTextStyles.caption(context),
                             ),
                           ],
                         ),
                         Container(
                           height: 44,
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.appBorder),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(
@@ -182,7 +182,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                                 child: Text(
                                   '${config.count}',
                                   textAlign: TextAlign.center,
-                                  style: AppTextStyles.title,
+                                  style: AppTextStyles.title(context),
                                 ),
                               ),
                               _StepperButton(
@@ -195,7 +195,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Text('Difficulty', style: AppTextStyles.itemTitle),
+                    Text('Difficulty', style: AppTextStyles.itemTitle(context)),
                     const SizedBox(height: 7),
                     Row(
                       children: [
@@ -251,7 +251,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                             children: [
                               Text(
                                 'Include explanations',
-                                style: AppTextStyles.body.copyWith(
+                                style: AppTextStyles.body(context).copyWith(
                                   fontWeight: FontWeight.w600,
                                   height: 20 / 14,
                                 ),
@@ -259,7 +259,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 'Add context to each answer',
-                                style: AppTextStyles.caption,
+                                style: AppTextStyles.caption(context),
                               ),
                             ],
                           ),
@@ -274,7 +274,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
+                        color: context.appCard,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -284,8 +284,8 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                             'assets/icons/figma/info.svg',
                             width: 16,
                             height: 16,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.navInactive,
+                            colorFilter: ColorFilter.mode(
+                              context.appNavInactive,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -293,8 +293,8 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                           Expanded(
                             child: Text(
                               'For summaries, choose content length instead of count and difficulty.',
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.muted,
+                              style: AppTextStyles.caption(context).copyWith(
+                                color: context.appMuted,
                               ),
                             ),
                           ),
@@ -306,8 +306,8 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
               ),
             ),
             Container(
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: context.appBorder)),
               ),
               padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
               child: Column(
@@ -326,10 +326,10 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         modelReady
                             ? 'Model installed · AI ready offline'
                             : 'No model installed · Download the model to generate',
-                        style: AppTextStyles.caption.copyWith(
+                        style: AppTextStyles.caption(context).copyWith(
                           color: modelReady
-                              ? AppColors.successText
-                              : AppColors.danger,
+                              ? context.appSuccessText
+                              : context.appDanger,
                         ),
                       ),
                     ],
@@ -346,8 +346,8 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                           'assets/icons/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
+                          colorFilter: ColorFilter.mode(
+                            context.appCard,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -381,7 +381,7 @@ class _ChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.white,
+      color: selected ? context.appSurface : context.appCard,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
         onTap: onTap,
@@ -391,7 +391,7 @@ class _ChoiceChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.border,
+              color: selected ? context.appPrimary : context.appBorder,
             ),
             borderRadius: BorderRadius.circular(4),
           ),
@@ -403,8 +403,8 @@ class _ChoiceChip extends StatelessWidget {
                   'assets/icons/figma/check.svg',
                   width: 14,
                   height: 14,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -420,7 +420,7 @@ class _ChoiceChip extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     height: 16 / 12,
-                    color: selected ? AppColors.primary : AppColors.text,
+                    color: selected ? context.appPrimary : context.appText,
                   ),
                 ),
               ),
@@ -451,8 +451,8 @@ class _StepperButton extends StatelessWidget {
             iconAsset,
             width: 16,
             height: 16,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
+            colorFilter: ColorFilter.mode(
+              context.appPrimary,
               BlendMode.srcIn,
             ),
           ),
@@ -480,10 +480,10 @@ class _SelectionField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.itemTitle),
+        Text(label, style: AppTextStyles.itemTitle(context)),
         const SizedBox(height: 7),
         Material(
-          color: AppColors.background,
+          color: context.appBackground,
           borderRadius: BorderRadius.circular(4),
           child: InkWell(
             onTap: onTap,
@@ -492,7 +492,7 @@ class _SelectionField extends StatelessWidget {
               height: 44,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.appBorder),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -502,8 +502,8 @@ class _SelectionField extends StatelessWidget {
                       value,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.muted.copyWith(
-                        color: AppColors.text,
+                      style: AppTextStyles.muted(context).copyWith(
+                        color: context.appText,
                         height: 20 / 13,
                       ),
                     ),
@@ -512,8 +512,8 @@ class _SelectionField extends StatelessWidget {
                     'assets/icons/figma/chevron_down.svg',
                     width: 16,
                     height: 16,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.navInactive,
+                    colorFilter: ColorFilter.mode(
+                      context.appNavInactive,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -538,7 +538,7 @@ class _NoSourceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: context.appCard,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
         onTap: onTap,
@@ -546,7 +546,7 @@ class _NoSourceCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -556,16 +556,16 @@ class _NoSourceCard extends StatelessWidget {
                 height: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border.all(color: AppColors.border),
+                  color: context.appSurface,
+                  border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(
                   'assets/icons/figma/file_text.svg',
                   width: 16,
                   height: 16,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.muted,
+                  colorFilter: ColorFilter.mode(
+                    context.appMuted,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -577,12 +577,12 @@ class _NoSourceCard extends StatelessWidget {
                   children: [
                     Text(
                       'No document selected',
-                      style: AppTextStyles.itemTitle.copyWith(fontSize: 12),
+                      style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       'Import a document to generate from it',
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                     ),
                   ],
                 ),
@@ -591,8 +591,8 @@ class _NoSourceCard extends StatelessWidget {
                 'assets/icons/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.navInactive,
+                colorFilter: ColorFilter.mode(
+                  context.appNavInactive,
                   BlendMode.srcIn,
                 ),
               ),
@@ -620,7 +620,7 @@ class _Toggle extends StatelessWidget {
         height: 28,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value ? AppColors.primary : AppColors.chip,
+          color: value ? context.appPrimary : context.appChip,
           borderRadius: BorderRadius.circular(100),
         ),
         child: Align(
@@ -628,8 +628,8 @@ class _Toggle extends StatelessWidget {
           child: Container(
             width: 22,
             height: 22,
-            decoration: const BoxDecoration(
-              color: AppColors.white,
+            decoration: BoxDecoration(
+              color: context.appCard,
               shape: BoxShape.circle,
             ),
           ),

@@ -21,18 +21,18 @@ class DocumentTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           height: 54,
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.border)),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: context.appBorder)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceSubtle,
+                  color: context.appSurfaceSubtle,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(document.format, style: AppTextStyles.badge),
+                child: Text(document.format, style: AppTextStyles.badge(context)),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -42,14 +42,14 @@ class DocumentTile extends StatelessWidget {
                   children: [
                     Text(
                       document.title,
-                      style: AppTextStyles.itemTitle,
+                      style: AppTextStyles.itemTitle(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       document.details,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -61,8 +61,8 @@ class DocumentTile extends StatelessWidget {
                 'assets/icons/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.muted,
+                colorFilter: ColorFilter.mode(
+                  context.appMuted,
                   BlendMode.srcIn,
                 ),
               ),

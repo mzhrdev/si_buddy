@@ -112,10 +112,10 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                       child: Text(
                         'Reveal the answer before rating this card.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.body.copyWith(
+                        style: AppTextStyles.body(context).copyWith(
                           fontSize: 12,
                           height: 18 / 12,
-                          color: AppColors.muted,
+                          color: context.appMuted,
                         ),
                       ),
                     ),
@@ -131,8 +131,8 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                             'assets/icons/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.white,
+                            colorFilter: ColorFilter.mode(
+                              context.appCard,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -168,10 +168,10 @@ class _QuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: context.appCard,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.appBorder),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -186,13 +186,13 @@ class _QuestionCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'QUESTION',
-                      style: AppTextStyles.caption.copyWith(
+                      style: AppTextStyles.caption(context).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
                   ),
-                  Text(counter, style: AppTextStyles.caption),
+                  Text(counter, style: AppTextStyles.caption(context)),
                 ],
               ),
               const Spacer(),
@@ -201,7 +201,7 @@ class _QuestionCard extends StatelessWidget {
                 child: Text(
                   question,
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.display.copyWith(letterSpacing: -0.48),
+                  style: AppTextStyles.display(context).copyWith(letterSpacing: -0.48),
                 ),
               ),
               const Spacer(),
@@ -212,18 +212,18 @@ class _QuestionCard extends StatelessWidget {
                     'assets/icons/figma/rotate_3d.svg',
                     width: 16,
                     height: 16,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                    colorFilter: ColorFilter.mode(
+                      context.appPrimary,
                       BlendMode.srcIn,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     'Tap card to reveal',
-                    style: AppTextStyles.body.copyWith(
+                    style: AppTextStyles.body(context).copyWith(
                       fontSize: 12,
                       height: 18 / 12,
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                     ),
                   ),
                 ],

@@ -78,7 +78,7 @@ class _SelectedFilePreviewScreenState
               ListTile(
                 title: Text(subject),
                 trailing: subject == current
-                    ? const Icon(Icons.check, color: AppColors.primary)
+                    ? Icon(Icons.check, color: context.appPrimary)
                     : null,
                 onTap: () => Navigator.of(sheetContext).pop(subject),
               ),
@@ -111,7 +111,7 @@ class _SelectedFilePreviewScreenState
     final file = job.file;
     if (file == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -138,7 +138,7 @@ class _SelectedFilePreviewScreenState
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -168,7 +168,7 @@ class _SelectedFilePreviewScreenState
                           onRename: () => _rename(filename),
                         ),
                         const SizedBox(height: 22),
-                        Text('Subject', style: AppTextStyles.itemTitle),
+                        Text('Subject', style: AppTextStyles.itemTitle(context)),
                         const SizedBox(height: 8),
                         _SubjectField(
                           subject: job.subject,
@@ -177,7 +177,7 @@ class _SelectedFilePreviewScreenState
                         const SizedBox(height: 8),
                         Text(
                           'Keep related notes together in your library.',
-                          style: AppTextStyles.caption,
+                          style: AppTextStyles.caption(context),
                         ),
                       ],
                     ),
@@ -223,8 +223,8 @@ class _DocumentPreview extends StatelessWidget {
       height: 188,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -234,8 +234,8 @@ class _DocumentPreview extends StatelessWidget {
             height: 132,
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.border),
+              color: context.appCard,
+              border: Border.all(color: context.appBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Column(
@@ -246,15 +246,15 @@ class _DocumentPreview extends StatelessWidget {
                   'assets/icons/figma/file_text.svg',
                   width: 32,
                   height: 38,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   filename,
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
@@ -265,7 +265,7 @@ class _DocumentPreview extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             pageCount == null ? 'Page 1' : 'Page 1 of $pageCount',
-            style: AppTextStyles.caption,
+            style: AppTextStyles.caption(context),
           ),
         ],
       ),
@@ -296,7 +296,7 @@ class _FileDetails extends StatelessWidget {
           children: [
             Text(
               'Filename',
-              style: AppTextStyles.greeting.copyWith(
+              style: AppTextStyles.greeting(context).copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -310,13 +310,13 @@ class _FileDetails extends StatelessWidget {
                       'assets/icons/figma/pencil.svg',
                       width: 14,
                       height: 14,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary,
+                      colorFilter: ColorFilter.mode(
+                        context.appPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
                     const SizedBox(width: 5),
-                    Text('Rename', style: AppTextStyles.link),
+                    Text('Rename', style: AppTextStyles.link(context)),
                   ],
                 ),
               ),
@@ -324,7 +324,7 @@ class _FileDetails extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Text(filename, style: AppTextStyles.title),
+        Text(filename, style: AppTextStyles.title(context)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -336,10 +336,10 @@ class _FileDetails extends StatelessWidget {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: context.appCard,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(chip, style: AppTextStyles.caption),
+                child: Text(chip, style: AppTextStyles.caption(context)),
               ),
           ],
         ),
@@ -367,7 +367,7 @@ class _SubjectField extends StatelessWidget {
           height: 54,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
@@ -376,19 +376,19 @@ class _SubjectField extends StatelessWidget {
                 'assets/icons/figma/book_open.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
+                colorFilter: ColorFilter.mode(
+                  context.appPrimary,
                   BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(subject, style: AppTextStyles.body)),
+              Expanded(child: Text(subject, style: AppTextStyles.body(context))),
               SvgPicture.asset(
                 'assets/icons/figma/chevron_down.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.navInactive,
+                colorFilter: ColorFilter.mode(
+                  context.appNavInactive,
                   BlendMode.srcIn,
                 ),
               ),

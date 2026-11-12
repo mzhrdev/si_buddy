@@ -116,10 +116,10 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                       child: Text(
                         'How well did you know it? Choose a rating.',
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.body.copyWith(
+                        style: AppTextStyles.body(context).copyWith(
                           fontSize: 12,
                           height: 18 / 12,
-                          color: AppColors.muted,
+                          color: context.appMuted,
                         ),
                       ),
                     ),
@@ -201,8 +201,8 @@ class _AnswerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       padding: const EdgeInsets.all(20),
@@ -214,19 +214,19 @@ class _AnswerCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'ANSWER',
-                  style: AppTextStyles.caption.copyWith(
+                  style: AppTextStyles.caption(context).copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                   ),
                 ),
               ),
-              Text(counter, style: AppTextStyles.caption),
+              Text(counter, style: AppTextStyles.caption(context)),
             ],
           ),
           const Spacer(),
           Text(
             question,
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.body(context).copyWith(
               fontWeight: FontWeight.w600,
               height: 20 / 14,
             ),
@@ -234,7 +234,7 @@ class _AnswerCard extends StatelessWidget {
           const SizedBox(height: 9),
           Text(
             answer,
-            style: AppTextStyles.display.copyWith(
+            style: AppTextStyles.display(context).copyWith(
               fontSize: 28,
               height: 34 / 28,
               letterSpacing: -0.56,
@@ -244,12 +244,12 @@ class _AnswerCard extends StatelessWidget {
           if (explanation.isNotEmpty)
             Text(
               explanation,
-              style: AppTextStyles.muted.copyWith(height: 20 / 13),
+              style: AppTextStyles.muted(context).copyWith(height: 20 / 13),
             ),
           const Spacer(),
           Text(
             'Generated on this device',
-            style: AppTextStyles.badge.copyWith(color: AppColors.muted),
+            style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
           ),
           const SizedBox(height: 9),
           InkWell(
@@ -261,13 +261,13 @@ class _AnswerCard extends StatelessWidget {
                   'assets/icons/figma/rotate_ccw.svg',
                   width: 14,
                   height: 14,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                  colorFilter: ColorFilter.mode(
+                    context.appPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
                 const SizedBox(width: 6),
-                Text('Show question', style: AppTextStyles.link),
+                Text('Show question', style: AppTextStyles.link(context)),
               ],
             ),
           ),
@@ -294,11 +294,11 @@ class _RatingOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surface : AppColors.background,
+      color: selected ? context.appSurface : context.appBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
         side: BorderSide(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: selected ? context.appPrimary : context.appBorder,
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -309,16 +309,16 @@ class _RatingOption extends StatelessWidget {
           children: [
             Text(
               label,
-              style: AppTextStyles.body.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 fontWeight: FontWeight.w600,
                 height: 20 / 14,
-                color: AppColors.primary,
+                color: context.appPrimary,
               ),
             ),
             const SizedBox(height: 3),
             Text(
               sublabel,
-              style: AppTextStyles.badge.copyWith(color: AppColors.muted),
+              style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
             ),
           ],
         ),

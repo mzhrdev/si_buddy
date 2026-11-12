@@ -29,7 +29,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
     final document = result?.document;
     if (document == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -52,7 +52,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
         'All ${document.pageCount} ${document.format.unitLabel} are ready in your $subject library. Choose how you’d like to study next.';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -69,7 +69,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                         const SizedBox(height: 20),
                         Text(
                           'Text extracted. All yours.',
-                          style: AppTextStyles.display.copyWith(
+                          style: AppTextStyles.display(context).copyWith(
                             fontSize: 28,
                             height: 34 / 28,
                           ),
@@ -78,8 +78,8 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text(
                           body,
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.muted,
+                          style: AppTextStyles.body(context).copyWith(
+                            color: context.appMuted,
                             height: 22 / 14,
                           ),
                           textAlign: TextAlign.center,
@@ -99,15 +99,15 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                               'assets/icons/figma/check_check.svg',
                               width: 14,
                               height: 14,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
+                              colorFilter: ColorFilter.mode(
+                                context.appPrimary,
                                 BlendMode.srcIn,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               'Extraction completed · Text reviewed',
-                              style: AppTextStyles.link,
+                              style: AppTextStyles.link(context),
                             ),
                           ],
                         ),
@@ -118,12 +118,12 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Your next study step',
-                          style: AppTextStyles.title,
+                          style: AppTextStyles.title(context),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           'No study materials have been generated yet.',
-                          style: AppTextStyles.muted.copyWith(fontSize: 12),
+                          style: AppTextStyles.muted(context).copyWith(fontSize: 12),
                         ),
                         const SizedBox(height: 12),
                         FilledButton(
@@ -138,8 +138,8 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                                 'assets/icons/figma/arrow_right.svg',
                                 width: 18,
                                 height: 18,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.white,
+                                colorFilter: ColorFilter.mode(
+                                  context.appCard,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -158,8 +158,8 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                                 'assets/icons/figma/arrow_right.svg',
                                 width: 18,
                                 height: 18,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.white,
+                                colorFilter: ColorFilter.mode(
+                                  context.appCard,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -173,7 +173,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                           child: OutlinedButton(
                             onPressed: () => context.push(AppRoutes.details),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: context.appBorder),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -185,17 +185,17 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                                   'assets/icons/figma/file_text.svg',
                                   width: 18,
                                   height: 18,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.primary,
+                                  colorFilter: ColorFilter.mode(
+                                    context.appPrimary,
                                     BlendMode.srcIn,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   'View Document',
-                                  style: AppTextStyles.body.copyWith(
+                                  style: AppTextStyles.body(context).copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                               ],
@@ -239,8 +239,8 @@ class _SuccessIllustration extends StatelessWidget {
               height: 68,
               padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: AppColors.border),
+                color: context.appCard,
+                border: Border.all(color: context.appBorder),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
@@ -250,7 +250,7 @@ class _SuccessIllustration extends StatelessWidget {
                     width: 20,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: context.appPrimary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -259,7 +259,7 @@ class _SuccessIllustration extends StatelessWidget {
                     width: 28,
                     height: 3,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.appBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -268,7 +268,7 @@ class _SuccessIllustration extends StatelessWidget {
                     width: 28,
                     height: 3,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.appBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -277,7 +277,7 @@ class _SuccessIllustration extends StatelessWidget {
                     width: 19,
                     height: 3,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.appBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -293,16 +293,16 @@ class _SuccessIllustration extends StatelessWidget {
               height: 34,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.primary,
-                border: Border.all(color: AppColors.white, width: 3),
+                color: context.appPrimary,
+                border: Border.all(color: context.appCard, width: 3),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: SvgPicture.asset(
                 'assets/icons/figma/check.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.white,
+                colorFilter: ColorFilter.mode(
+                  context.appCard,
                   BlendMode.srcIn,
                 ),
               ),

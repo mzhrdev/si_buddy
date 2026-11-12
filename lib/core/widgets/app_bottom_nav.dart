@@ -44,9 +44,9 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: context.appCard,
+        border: Border(top: BorderSide(color: context.appBorder)),
       ),
       child: SafeArea(
         top: false,
@@ -83,7 +83,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.primary : AppColors.navInactive;
+    final color = selected ? context.appPrimary : context.appNavInactive;
     return InkWell(
       onTap: onTap,
       child: Column(
@@ -91,7 +91,7 @@ class _NavItem extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: selected ? AppColors.surface : Colors.transparent,
+              color: selected ? context.appSurface : Colors.transparent,
               borderRadius: BorderRadius.circular(100),
             ),
             child: SizedBox(
@@ -110,7 +110,7 @@ class _NavItem extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             destination.label,
-            style: AppTextStyles.navLabel.copyWith(
+            style: AppTextStyles.navLabel(context).copyWith(
               color: color,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),

@@ -29,8 +29,8 @@ class ImportPrimaryButton extends StatelessWidget {
             'assets/icons/figma/arrow_right.svg',
             width: 18,
             height: 18,
-            colorFilter: const ColorFilter.mode(
-              AppColors.white,
+            colorFilter: ColorFilter.mode(
+              context.appCard,
               BlendMode.srcIn,
             ),
           ),
@@ -58,7 +58,7 @@ class ImportSecondaryButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.appBorder),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         textStyle: const TextStyle(
           fontFamily: 'Inter',
@@ -66,15 +66,15 @@ class ImportSecondaryButton extends StatelessWidget {
           fontWeight: FontWeight.w600,
           height: 20 / 14,
         ),
-        foregroundColor: AppColors.primary,
+        foregroundColor: context.appPrimary,
       ),
       child: Text(
         label,
-        style: AppTextStyles.body.copyWith(
+        style: AppTextStyles.body(context).copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           height: 20 / 14,
-          color: AppColors.primary,
+          color: context.appPrimary,
         ),
       ),
     );

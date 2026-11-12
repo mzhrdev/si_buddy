@@ -8,26 +8,29 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../study/presentation/providers/reminder_providers.dart';
 import '../../../study/presentation/providers/study_providers.dart';
+import '../providers/settings_providers.dart';
 import '../widgets/settings_row.dart';
 import '../widgets/settings_toggle.dart';
 
 /// Note text under sections/cards (12, Regular, muted, lh 18).
-const _noteStyle = TextStyle(
+TextStyle _noteStyle(BuildContext context) => TextStyle(
   fontFamily: 'Inter',
   fontSize: 12,
   fontWeight: FontWeight.w400,
   height: 18 / 12,
-  color: AppColors.muted,
+  color: context.appMuted,
 );
 
 /// Preferences, implemented from the Figma frame
 /// "SI Buddy · Preferences" (5:20736).
 ///
-/// Theme single-selection defaults to "System" (Phase 6 wires it to
-/// the persisted appearance). The reminder toggles and preferred
-/// time are real (Phase 5): they read and write the persisted
-/// reminder settings and schedule/cancel actual Android
-/// notifications, asking for the notification permission first.
+/// The appearance single-selection is real: it reads and writes the
+/// persisted theme mode (Light/Dark/System) and the whole app
+/// re-themes. The reminder toggles and preferred time are real
+/// (Phase 5): they read and write the persisted reminder settings
+/// and schedule/cancel actual Android notifications, asking for the
+/// notification permission first. There is no Language setting (the
+/// brief removed it — generated content is English-only).
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
 
@@ -37,10 +40,12 @@ class PreferencesScreen extends ConsumerStatefulWidget {
 
 class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   static const _themes = ['Light', 'Dark', 'System'];
-  int _theme = 2; // "System" is selected in the design.
+  static const _modes = [ThemeMode.light, ThemeMode.dark, ThemeMode.system];
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
+    final themeIndex = _modes.indexOf(themeMode);
     final dailyOn = ref.watch(dailyReminderEnabledProvider).value ?? false;
     final revisionOn =
         ref.watch(revisionRemindersEnabledProvider).value ?? false;
@@ -68,67 +73,17 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             Expanded(
                               child: _ThemeOption(
                                 label: _themes[i],
-                                selected: _theme == i,
-                                onTap: () => setState(() => _theme = i),
+                                selected: themeIndex == i,
+                                onTap: () => setThemeMode(ref, _modes[i]),
                               ),
                             ),
                           ],
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'System follows your device’s appearance.',
-                        style: _noteStyle,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SettingsSection(
-                    title: 'Language',
-                    children: [
-                      _BorderedCard(
-                        children: [
-                          Container(
-                            constraints: const BoxConstraints(minHeight: 48),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColors.border),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Expanded(
-                                  child: Text(
-                                    'Generated-content language',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      height: 20 / 14,
-                                      color: AppColors.text,
-                                    ),
-                                  ),
-                                ),
-                                Text('English', style: AppTextStyles.greeting),
-                                const SizedBox(width: 4),
-                                SvgPicture.asset(
-                                  'assets/icons/figma/chevron_right.svg',
-                                  width: 16,
-                                  height: 16,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.navInactive,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Text(
-                            'For new flashcards, quizzes and summaries. '
-                            'Existing study materials stay unchanged.',
-                            style: _noteStyle,
-                          ),
-                        ],
+                        style: _noteStyle(context),
                       ),
                     ],
                   ),
@@ -157,10 +112,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             children: [
                               Text(
                                 'Preferred time',
-                                style: AppTextStyles.body.copyWith(
+                                style: AppTextStyles.body(context).copyWith(
                                   fontSize: 13,
                                   height: 20 / 13,
-                                  color: AppColors.muted,
+                                  color: context.appMuted,
                                 ),
                               ),
                               GestureDetector(
@@ -172,7 +127,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                     horizontal: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: AppColors.border),
+                                    border: Border.all(
+                                      color: context.appBorder,
+                                    ),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Row(
@@ -180,19 +137,20 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                     children: [
                                       Text(
                                         _formatTime(timeMinutes),
-                                        style: AppTextStyles.body.copyWith(
-                                          fontSize: 13,
-                                          height: 20 / 13,
-                                          color: AppColors.muted,
-                                        ),
+                                        style: AppTextStyles.body(context)
+                                            .copyWith(
+                                              fontSize: 13,
+                                              height: 20 / 13,
+                                              color: context.appMuted,
+                                            ),
                                       ),
                                       const SizedBox(width: 8),
                                       SvgPicture.asset(
                                         'assets/icons/figma/clock.svg',
                                         width: 16,
                                         height: 16,
-                                        colorFilter: const ColorFilter.mode(
-                                          AppColors.navInactive,
+                                        colorFilter: ColorFilter.mode(
+                                          context.appNavInactive,
                                           BlendMode.srcIn,
                                         ),
                                       ),
@@ -206,16 +164,16 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             dailyOn || revisionOn
                                 ? 'Reminders are scheduled. The daily reminder fires at the preferred time; revision reminders fire at each revision’s scheduled time.'
                                 : 'No reminders are scheduled. Time becomes available when a reminder is enabled.',
-                            style: _noteStyle,
+                            style: _noteStyle(context),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Enabling will ask for Android notification '
                         'permission if needed. Reminders require permission; '
                         'if you deny it, the toggle stays off.',
-                        style: _noteStyle,
+                        style: _noteStyle(context),
                       ),
                     ],
                   ),
@@ -290,8 +248,8 @@ String _formatTime(int minutes) {
   return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
 }
 
-/// White card with a border and 14px padding, used by the Language and
-/// Reminders sections of the Preferences design.
+/// White card with a border and 14px padding, used by the Reminders
+/// section of the Preferences design.
 class _BorderedCard extends StatelessWidget {
   const _BorderedCard({required this.children});
 
@@ -303,8 +261,8 @@ class _BorderedCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -341,9 +299,9 @@ class _ThemeOption extends StatelessWidget {
       child: Container(
         height: 76,
         decoration: BoxDecoration(
-          color: selected ? AppColors.surface : AppColors.white,
+          color: selected ? context.appSurface : context.appCard,
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
+            color: selected ? context.appPrimary : context.appBorder,
           ),
           borderRadius: BorderRadius.circular(4),
         ),
@@ -362,17 +320,16 @@ class _ThemeOption extends StatelessWidget {
               Text(
                 label,
                 style: selected
-                    ? const TextStyle(
+                    ? TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         height: 18 / 13,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       )
-                    : AppTextStyles.body.copyWith(
-                        fontSize: 13,
-                        height: 20 / 13,
-                      ),
+                    : AppTextStyles.body(
+                        context,
+                      ).copyWith(fontSize: 13, height: 20 / 13),
               ),
             ],
           ),
@@ -409,16 +366,16 @@ class _ReminderRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     height: 20 / 14,
-                    color: AppColors.text,
+                    color: context.appText,
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(supportingText, style: AppTextStyles.caption),
+                Text(supportingText, style: AppTextStyles.caption(context)),
               ],
             ),
           ),

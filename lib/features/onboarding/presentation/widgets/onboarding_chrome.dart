@@ -32,22 +32,22 @@ Future<void> _saveOnboardingCompleted(WidgetRef ref) async {
 /// brand lockup + Skip, page dots, primary button and the caption below it.
 
 /// 32px bold onboarding headline (lh 38, tracking -0.64).
-const onboardingHeadline = TextStyle(
+TextStyle onboardingHeadline(BuildContext context) => TextStyle(
   fontFamily: 'Inter',
   fontSize: 32,
   fontWeight: FontWeight.w700,
   height: 38 / 32,
   letterSpacing: -0.64,
-  color: AppColors.text,
+  color: context.appText,
 );
 
 /// 14px body copy in the muted tone (lh 22), as used under the headline.
-const onboardingBody = TextStyle(
+TextStyle onboardingBody(BuildContext context) => TextStyle(
   fontFamily: 'Inter',
   fontSize: 14,
   fontWeight: FontWeight.w400,
   height: 22 / 14,
-  color: AppColors.muted,
+  color: context.appMuted,
 );
 
 /// Header row: 34px brand mark + "SI Buddy" on the left, "Skip" on the right.
@@ -74,7 +74,7 @@ class OnboardingHeader extends ConsumerWidget {
               height: 34,
             ),
             const SizedBox(width: 9),
-            const Text('SI Buddy', style: AppTextStyles.screenTitle),
+            Text('SI Buddy', style: AppTextStyles.screenTitle(context)),
             const Spacer(),
             TextButton(
               onPressed: () {
@@ -88,10 +88,10 @@ class OnboardingHeader extends ConsumerWidget {
               ),
               child: Text(
                 'Skip',
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.body(context).copyWith(
                   fontWeight: FontWeight.w600,
                   height: 20 / 14,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ),
@@ -122,11 +122,11 @@ class OnboardingIntro extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(eyebrow, style: AppTextStyles.captionAccent),
+          Text(eyebrow, style: AppTextStyles.captionAccent(context)),
           const SizedBox(height: 12),
-          Text(headline, style: onboardingHeadline),
+          Text(headline, style: onboardingHeadline(context)),
           const SizedBox(height: 12),
-          Text(body, style: onboardingBody),
+          Text(body, style: onboardingBody(context)),
         ],
       ),
     );
@@ -166,8 +166,8 @@ class OnboardingActions extends StatelessWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     color: i == pageIndex
-                        ? AppColors.primary
-                        : AppColors.accentMuted,
+                        ? context.appPrimary
+                        : context.appAccentMuted,
                     borderRadius: BorderRadius.circular(100),
                   ),
                 ),
@@ -186,8 +186,8 @@ class OnboardingActions extends StatelessWidget {
                   'assets/icons/figma/arrow_right.svg',
                   width: 18,
                   height: 18,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.white,
+                  colorFilter: ColorFilter.mode(
+                    context.appCard,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -195,7 +195,7 @@ class OnboardingActions extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(caption, style: AppTextStyles.greeting),
+          Text(caption, style: AppTextStyles.greeting(context)),
         ],
       ),
     );
@@ -233,8 +233,8 @@ class SourceFileCard extends StatelessWidget {
       height: height,
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -250,12 +250,12 @@ class SourceFileCard extends StatelessWidget {
             label,
             style:
                 labelStyle ??
-                const TextStyle(
+                TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 16 / 12,
-                  color: AppColors.textSecondary,
+                  color: context.appTextSecondary,
                 ),
           ),
         ],

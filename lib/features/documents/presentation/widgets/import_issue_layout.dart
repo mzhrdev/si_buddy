@@ -46,7 +46,7 @@ class ImportIssueLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -91,8 +91,8 @@ class ImportIssueLayout extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.white,
-                            border: Border.all(color: AppColors.border),
+                            color: context.appCard,
+                            border: Border.all(color: context.appBorder),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: guidance,

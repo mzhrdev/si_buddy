@@ -53,15 +53,15 @@ class StudyMaterialRow extends StatelessWidget {
               height: 40,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.appSurface,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: SvgPicture.asset(
                 iconAsset,
                 width: 19,
                 height: 19,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary,
+                colorFilter: ColorFilter.mode(
+                  context.appPrimary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -73,20 +73,20 @@ class StudyMaterialRow extends StatelessWidget {
                 children: [
                   Text(
                     typeLabel,
-                    style: AppTextStyles.badge.copyWith(
-                      color: AppColors.primary,
+                    style: AppTextStyles.badge(context).copyWith(
+                      color: context.appPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(title, style: AppTextStyles.itemTitle),
+                  Text(title, style: AppTextStyles.itemTitle(context)),
                   const SizedBox(height: 2),
-                  Text(meta, style: AppTextStyles.caption),
+                  Text(meta, style: AppTextStyles.caption(context)),
                   if (status != null) ...[
                     const SizedBox(height: 2),
                     Text(
                       status!,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.caption(context).copyWith(
+                        color: context.appPrimary,
                       ),
                     ),
                   ],
@@ -98,8 +98,8 @@ class StudyMaterialRow extends StatelessWidget {
               'assets/icons/figma/chevron_right.svg',
               width: 10,
               height: 10,
-              colorFilter: const ColorFilter.mode(
-                AppColors.navInactive,
+              colorFilter: ColorFilter.mode(
+                context.appNavInactive,
                 BlendMode.srcIn,
               ),
             ),

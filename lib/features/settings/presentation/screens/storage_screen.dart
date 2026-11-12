@@ -11,28 +11,28 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../documents/domain/document_models.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../../model_management/presentation/providers/model_providers.dart';
+import '../providers/storage_providers.dart';
+import '../widgets/confirmation_dialog.dart';
 import '../widgets/settings_row.dart';
 
 /// Storage, implemented from the Figma frame "SI Buddy · Storage"
 /// (5:20835).
 ///
 /// Every figure comes from real state: the documents total from the
-/// library's live stream, the model from the model provider, and
-/// study materials honestly at zero (decks and quizzes are kept in
-/// memory this session only — nothing is persisted yet). Temporary
-/// cache is not measured, so it is not listed. The local-files
-/// section lists the real imported documents.
+/// library, the model size from the model file on disk, the cache
+/// and database sizes from the device's directories, and the study
+/// materials from the persisted decks and stats. Clear Cache really
+/// clears the temp directory; deleting a file really deletes it
+/// (record, extracted text and the app's stored copy) behind a
+/// confirmation dialog.
 class StorageScreen extends ConsumerWidget {
   const StorageScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final documents = ref.watch(documentsStreamProvider).value ?? const [];
+    final figures = ref.watch(storageFiguresProvider).value;
     final modelReady = ref.watch(modelProvider).isReady;
-    final documentsBytes = documents.fold<int>(
-      0,
-      (sum, doc) => sum + doc.sizeBytes,
-    );
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -42,10 +42,7 @@ class StorageScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 children: [
-                  _UsageCard(
-                    documentsBytes: documentsBytes,
-                    fileCount: documents.length,
-                  ),
+                  _UsageCard(figures: figures),
                   const SizedBox(height: 16),
                   SettingsRow(
                     iconAsset: 'assets/icons/figma/cpu.svg',
@@ -53,17 +50,21 @@ class StorageScreen extends ConsumerWidget {
                     supportingText: modelReady
                         ? 'Gemma 3 1B IT · Installed'
                         : 'Gemma 3 1B IT · Not installed',
-                    trailingValue: modelReady ? '~0.5 GB' : 'Not installed',
+                    trailingValue: modelReady
+                        ? (figures == null
+                              ? '…'
+                              : formatFileSize(figures.modelBytes))
+                        : 'Not installed',
                     showDivider: true,
                     onTap: () => context.push(AppRoutes.readyOffline),
                   ),
                   const SizedBox(height: 16),
                   GestureDetector(
-                    onTap: () => context.push(AppRoutes.clearCache),
+                    onTap: () => _confirmClearCache(context, ref, figures),
                     child: Container(
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.appSurface,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -73,18 +74,18 @@ class StorageScreen extends ConsumerWidget {
                             'assets/icons/figma/eraser.svg',
                             width: 16,
                             height: 16,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.primary,
+                            colorFilter: ColorFilter.mode(
+                              context.appPrimary,
                               BlendMode.srcIn,
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'Clear Cache',
-                            style: AppTextStyles.body.copyWith(
+                            style: AppTextStyles.body(context).copyWith(
                               fontWeight: FontWeight.w600,
                               height: 20 / 14,
-                              color: AppColors.primary,
+                              color: context.appPrimary,
                             ),
                           ),
                         ],
@@ -99,8 +100,7 @@ class StorageScreen extends ConsumerWidget {
                         const EmptyState(
                           icon: Icons.folder_outlined,
                           title: 'No local files yet',
-                          message:
-                              'Import a document to see it listed here.',
+                          message: 'Import a document to see it listed here.',
                         )
                       else ...[
                         for (var i = 0; i < documents.length; i++) ...[
@@ -111,9 +111,9 @@ class StorageScreen extends ConsumerWidget {
                         Text(
                           'Deleting a file also removes its extracted text. '
                           'Generated study sets and progress remain.',
-                          style: AppTextStyles.greeting.copyWith(
-                            height: 18 / 12,
-                          ),
+                          style: AppTextStyles.greeting(
+                            context,
+                          ).copyWith(height: 18 / 12),
                         ),
                       ],
                     ],
@@ -126,11 +126,44 @@ class StorageScreen extends ConsumerWidget {
       ),
     );
   }
+
+  /// Clears the temporary cache behind the Figma confirmation
+  /// dialog, then reports how much was freed.
+  Future<void> _confirmClearCache(
+    BuildContext context,
+    WidgetRef ref,
+    StorageFigures? figures,
+  ) async {
+    final cacheText = figures == null
+        ? 'temporary cache'
+        : formatFileSize(figures.cacheBytes);
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      iconAsset: 'assets/icons/figma/eraser.svg',
+      indicatorColor: context.appSurface,
+      iconColor: context.appPrimary,
+      title: 'Clear Cache?',
+      messageParagraphs: [
+        'Only temporary cache is removed ($cacheText). It may be rebuilt as you use the app.',
+        'Your source documents, extracted text, downloaded model, study sets and study progress are preserved.',
+      ],
+      confirmLabel: 'Clear Cache',
+    );
+    if (!confirmed) return;
+    final freed = await clearCache(ref);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cache cleared · ${formatFileSize(freed)} freed.'),
+        ),
+      );
+    }
+  }
 }
 
 /// One imported document's storage card: name, format/size/pages,
-/// and the details and delete actions (both select the document
-/// first, like the library does).
+/// and the details and delete actions. Deleting asks first, then
+/// really deletes the document.
 class _LocalFileCard extends ConsumerWidget {
   const _LocalFileCard({required this.document});
 
@@ -142,7 +175,7 @@ class _LocalFileCard extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -150,15 +183,14 @@ class _LocalFileCard extends ConsumerWidget {
         children: [
           Text(
             document.originalFileName,
-            style: AppTextStyles.body.copyWith(
-              fontWeight: FontWeight.w600,
-              height: 20 / 14,
-            ),
+            style: AppTextStyles.body(
+              context,
+            ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
           ),
           const SizedBox(height: 8),
           Text(
             '${document.format.label} · ${formatFileSize(document.sizeBytes)} · ${document.pageCount} ${document.format.unitLabel}',
-            style: AppTextStyles.greeting,
+            style: AppTextStyles.greeting(context),
           ),
           const SizedBox(height: 8),
           Row(
@@ -171,28 +203,23 @@ class _LocalFileCard extends ConsumerWidget {
                       .select(document.id);
                   context.push(AppRoutes.details);
                 },
-                child: Text('View details', style: AppTextStyles.link),
+                child: Text('View details', style: AppTextStyles.link(context)),
               ),
               GestureDetector(
-                onTap: () {
-                  ref
-                      .read(selectedDocumentIdProvider.notifier)
-                      .select(document.id);
-                  context.push(AppRoutes.deleteFile);
-                },
+                onTap: () => _confirmDelete(context, ref),
                 child: Container(
                   height: 40,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.dangerSurface,
+                    color: context.appDangerSurface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Center(
                     child: Text(
                       'Delete File',
-                      style: AppTextStyles.link.copyWith(
-                        color: AppColors.danger,
-                      ),
+                      style: AppTextStyles.link(
+                        context,
+                      ).copyWith(color: context.appDanger),
                     ),
                   ),
                 ),
@@ -203,59 +230,94 @@ class _LocalFileCard extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      iconAsset: 'assets/icons/figma/trash_2.svg',
+      indicatorColor: context.appDangerSurface,
+      iconColor: context.appDanger,
+      title: 'Delete File?',
+      messageParagraphs: const [
+        'Permanently remove this app’s copy of the document and its '
+            'extracted text. This cannot be undone.',
+        'Already generated study sets and progress remain. Files and '
+            'exports outside SI Buddy are not removed.',
+      ],
+      confirmLabel: 'Delete File',
+      confirmColor: AppColors.danger,
+    );
+    if (!confirmed) return;
+    await ref.read(documentRepositoryProvider).delete(document.id);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Deleted ${document.originalFileName}.')),
+      );
+    }
+  }
 }
 
 /// The "Known content usage" card: total, breakdown bar and
-/// per-category totals — all from the real documents total.
+/// per-category totals — all measured. While the figures are
+/// loading the card shows zeros with a "measuring…" note rather
+/// than estimates.
 class _UsageCard extends StatelessWidget {
-  const _UsageCard({required this.documentsBytes, required this.fileCount});
+  const _UsageCard({required this.figures});
 
-  /// Sum of the imported files' sizes, in bytes.
-  final int documentsBytes;
-
-  /// Number of imported files.
-  final int fileCount;
+  final StorageFigures? figures;
 
   @override
   Widget build(BuildContext context) {
+    final figures = this.figures;
+    final total = figures?.totalBytes ?? 0;
+    final documentsBytes = figures?.documentsBytes ?? 0;
+    final fileCount = figures?.fileCount ?? 0;
+    final modelBytes = figures?.modelBytes ?? 0;
+    final modelInstalled = figures?.modelInstalled ?? false;
+    final cacheBytes = figures?.cacheBytes ?? 0;
+    final databaseBytes = figures?.databaseBytes ?? 0;
+    final deckCount = figures?.deckCount ?? 0;
+    final quizCount = figures?.quizCount ?? 0;
+    final cardCount = figures?.cardCount ?? 0;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.border),
+        color: context.appCard,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Known-content usage',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 12,
               fontWeight: FontWeight.w600,
               height: 16 / 12,
-              color: AppColors.muted,
+              color: context.appMuted,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            formatFileSize(documentsBytes),
-            style: const TextStyle(
+            formatFileSize(total),
+            style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 28,
               fontWeight: FontWeight.w700,
               height: 34 / 28,
               letterSpacing: -0.56,
-              color: AppColors.text,
+              color: context.appText,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Excludes the AI model and temporary cache. Not a complete '
-            'app or device total.',
-            style: AppTextStyles.greeting.copyWith(height: 18 / 12),
+            figures == null
+                ? 'Measuring storage…'
+                : 'Documents, model, cache and the local database, measured on this device.',
+            style: AppTextStyles.greeting(context).copyWith(height: 18 / 12),
           ),
           const SizedBox(height: 12),
           Row(
@@ -264,9 +326,7 @@ class _UsageCard extends StatelessWidget {
                 child: Container(
                   height: 6,
                   decoration: BoxDecoration(
-                    color: documentsBytes > 0
-                        ? AppColors.primary
-                        : AppColors.border,
+                    color: total > 0 ? context.appPrimary : context.appBorder,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -282,10 +342,36 @@ class _UsageCard extends StatelessWidget {
                 : '$fileCount file${fileCount == 1 ? '' : 's'}',
           ),
           const SizedBox(height: 12),
-          const _UsageCategory(
+          _UsageCategory(
+            name: 'AI model',
+            amount: modelInstalled
+                ? formatFileSize(modelBytes)
+                : 'Not installed',
+            detail: modelInstalled
+                ? 'Gemma 3 1B IT · On-device model file'
+                : 'Download the model to generate offline',
+          ),
+          const SizedBox(height: 12),
+          _UsageCategory(
             name: 'Study materials',
-            amount: '0 B',
-            detail: 'Decks and quizzes are kept in memory this session only',
+            amount: deckCount + quizCount == 0
+                ? 'None yet'
+                : '$deckCount deck${deckCount == 1 ? '' : 's'} · $quizCount quiz${quizCount == 1 ? '' : 'zes'}',
+            detail:
+                '$cardCount flashcard${cardCount == 1 ? '' : 's'} generated · Kept in the local database',
+          ),
+          const SizedBox(height: 12),
+          _UsageCategory(
+            name: 'Local database',
+            amount: formatFileSize(databaseBytes),
+            detail: 'Documents, extracted text, study data and settings',
+          ),
+          const SizedBox(height: 12),
+          _UsageCategory(
+            name: 'Temporary cache',
+            amount: formatFileSize(cacheBytes),
+            detail:
+                'Staged imports and scratch files · Cleared with Clear Cache',
           ),
         ],
       ),
@@ -304,11 +390,9 @@ class _UsageCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalStyle = AppTextStyles.body.copyWith(
-      fontSize: 13,
-      fontWeight: FontWeight.w600,
-      height: 18 / 13,
-    );
+    final totalStyle = AppTextStyles.body(
+      context,
+    ).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -321,7 +405,7 @@ class _UsageCategory extends StatelessWidget {
         ),
         if (detail != null) ...[
           const SizedBox(height: 3),
-          Text(detail!, style: AppTextStyles.caption),
+          Text(detail!, style: AppTextStyles.caption(context)),
         ],
       ],
     );

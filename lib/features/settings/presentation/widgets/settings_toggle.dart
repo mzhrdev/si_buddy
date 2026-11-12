@@ -25,7 +25,7 @@ class SettingsToggle extends StatelessWidget {
         width: 40,
         height: 24,
         decoration: BoxDecoration(
-          color: value ? AppColors.primary : AppColors.border,
+          color: value ? context.appPrimary : context.appBorder,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Align(
@@ -34,8 +34,8 @@ class SettingsToggle extends StatelessWidget {
             width: 18,
             height: 18,
             margin: const EdgeInsets.symmetric(horizontal: 3),
-            decoration: const BoxDecoration(
-              color: AppColors.white,
+            decoration: BoxDecoration(
+              color: context.appCard,
               shape: BoxShape.circle,
             ),
           ),

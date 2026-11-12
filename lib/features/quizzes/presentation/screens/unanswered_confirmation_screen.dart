@@ -35,7 +35,7 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
     }
     final buttonStyle = FilledButton.styleFrom(
       minimumSize: const Size.fromHeight(48),
-      textStyle: AppTextStyles.button,
+      textStyle: AppTextStyles.button(context),
     );
     return Scaffold(
       backgroundColor: const Color(0x99172033),
@@ -45,7 +45,7 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: context.appCard,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Column(
@@ -56,7 +56,7 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
                   unanswered.isEmpty
                       ? 'All questions answered'
                       : 'Submit with ${unanswered.length} unanswered question${unanswered.length == 1 ? '' : 's'}?',
-                  style: AppTextStyles.screenTitle,
+                  style: AppTextStyles.screenTitle(context),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -64,9 +64,9 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
                       ? 'Every question has an answer. You can submit now.'
                       : 'Question${unanswered.length == 1 ? '' : 's'} ${unanswered.join(', ')} ${unanswered.length == 1 ? 'is' : 'are'} unanswered. They will count '
                           'as incorrect if you submit now.',
-                  style: AppTextStyles.body.copyWith(
+                  style: AppTextStyles.body(context).copyWith(
                     height: 22 / 14,
-                    color: AppColors.muted,
+                    color: context.appMuted,
                   ),
                 ),
                 const SizedBox(height: 16),

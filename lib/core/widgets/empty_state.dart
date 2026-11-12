@@ -46,22 +46,22 @@ class EmptyState extends StatelessWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 28, color: AppColors.primary),
+              child: Icon(icon, size: 28, color: context.appPrimary),
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: AppTextStyles.screenTitle,
+              style: AppTextStyles.screenTitle(context),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTextStyles.muted,
+              style: AppTextStyles.muted(context),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[
