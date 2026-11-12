@@ -11,13 +11,13 @@ class AiModelInfo {
   const AiModelInfo();
 
   /// Name shown on the model screens' package card.
-  String get displayName => 'Gemma 3 1B IT';
+  String get displayName => 'Qwen3 0.6B';
 
   /// The card's "Model version" row.
-  String get versionLabel => 'Gemma 3 1B IT · q4 (.litertlm)';
+  String get versionLabel => 'Qwen3 0.6B · q4 (.litertlm)';
 
   /// The card's "Download size" row (the catalogue's rounded size).
-  String get downloadSizeLabel => '0.5 GB';
+  String get downloadSizeLabel => '343 MB';
 
   /// The single model the app manages.
   static const AiModelInfo current = AiModelInfo();

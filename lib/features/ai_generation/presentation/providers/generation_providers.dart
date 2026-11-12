@@ -24,7 +24,7 @@ final edgeAiEngineProvider = Provider<EdgeAiEngine>((ref) {
 
 /// The generation repository generation jobs run on: the real
 /// implementation over the [edgeAiEngineProvider] seam
-/// (flutter_edge_ai + LiteRT-LM, Gemma 3 1B — see
+/// (flutter_edge_ai + LiteRT-LM, Qwen3 0.6B — see
 /// MODEL_RUNTIME_EVALUATION.md).
 final generationRepositoryProvider = Provider<GenerationRepository>((ref) {
   return GenerationRepositoryImpl(engine: ref.watch(edgeAiEngineProvider));

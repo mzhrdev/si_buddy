@@ -21,6 +21,7 @@ Future<void> main() async {
   // loaded until generation runs. The Hugging Face token is NOT read
   // here: it is passed per download by the model data layer, from the
   // HF_TOKEN dart-define (see ai_generation/data/flutter_edge_ai_engine.dart).
+  // The current Qwen model is ungated, so no token is needed.
   await FlutterEdgeAi.initialize(inferenceEngines: const [LiteRtLmEngine()]);
   // Open the database once, here: the splash screen needs the
   // persisted onboarding flag before the first frame, and the

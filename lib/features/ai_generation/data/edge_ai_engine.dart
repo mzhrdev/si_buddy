@@ -14,7 +14,9 @@ enum EngineDownloadErrorKind {
   unauthorized,
 
   /// HTTP 403 — the token has not been granted access to the gated
-  /// model (the Gemma license has not been accepted for the account).
+  /// model (the model's license has not been accepted for the
+  /// account). Unreachable for the current ungated Qwen model;
+  /// kept for any future gated model.
   forbidden,
 
   /// HTTP 404 — the model file was not found at the source URL.

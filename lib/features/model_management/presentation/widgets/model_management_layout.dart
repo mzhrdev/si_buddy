@@ -207,7 +207,7 @@ class _ModelPackageCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gemma 3 1B IT', style: AppTextStyles.screenTitle(context)),
+                    Text('Qwen3 0.6B', style: AppTextStyles.screenTitle(context)),
                     const SizedBox(height: 4),
                     Text('On-device AI model', style: AppTextStyles.caption(context)),
                   ],

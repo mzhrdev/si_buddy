@@ -122,7 +122,7 @@ void main() {
       ModelDownloadErrorKind.authentication,
     );
     // The message explains the license gate a user must satisfy.
-    expect(failure.message, contains('Gemma license'));
+    expect(failure.message, contains("model's license"));
   });
 
   test('a network failure lands failed with the network kind', () async {

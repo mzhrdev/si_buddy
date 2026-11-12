@@ -34,29 +34,24 @@ class SettingsHubScreen extends ConsumerWidget {
     final revisionOn =
         ref.watch(revisionRemindersEnabledProvider).value ?? false;
     final modelState = ref.watch(modelProvider);
+    final modelName = AiModelInfo.current.displayName;
     final (modelText, modelRoute) = switch (modelState.status) {
-      ModelStatus.ready => (
-        'Gemma 3 1B IT · Installed',
-        AppRoutes.readyOffline,
-      ),
+      ModelStatus.ready => ('$modelName · Installed', AppRoutes.readyOffline),
       ModelStatus.downloading => (
-        'Gemma 3 1B IT · Downloading',
+        '$modelName · Downloading',
         AppRoutes.downloading,
       ),
       ModelStatus.failed => (
-        'Gemma 3 1B IT · Download failed',
+        '$modelName · Download failed',
         AppRoutes.downloadFailed,
       ),
       ModelStatus.notInstalled => (
-        'Gemma 3 1B IT · Not installed',
+        '$modelName · Not installed',
         AppRoutes.notInstalled,
       ),
       // Not yet probed this session: the Ready screen probes on
       // open and redirects itself when the probe lands.
-      ModelStatus.unknown => (
-        'Gemma 3 1B IT · Checking…',
-        AppRoutes.readyOffline,
-      ),
+      ModelStatus.unknown => ('$modelName · Checking…', AppRoutes.readyOffline),
     };
     return Scaffold(
       body: SafeArea(

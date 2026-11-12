@@ -19,8 +19,9 @@ abstract class ModelFailure implements Exception {
 /// Why a model download failed, in user terms.
 enum ModelDownloadErrorKind {
   /// 401/403: the model is license-gated and the download had no
-  /// accepted token (none supplied, or the Gemma license has not
-  /// been accepted for the token's account).
+  /// accepted token (none supplied, or the model's license has not
+  /// been accepted for the token's account). Unreachable for the
+  /// current ungated Qwen model; kept for a future gated model.
   authentication,
 
   /// The connection failed or dropped mid-download.
@@ -56,7 +57,7 @@ class ModelDownloadFailure extends ModelFailure {
   @override
   String get message => switch (kind) {
     ModelDownloadErrorKind.authentication =>
-      'The AI model is license-gated. Accept the Gemma license on '
+      "The AI model is license-gated. Accept the model's license on "
           'Hugging Face and provide an access token (HF_TOKEN) to '
           'download it.',
     ModelDownloadErrorKind.network =>

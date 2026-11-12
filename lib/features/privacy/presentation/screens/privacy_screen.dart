@@ -76,7 +76,7 @@ class PrivacyScreen extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text(
                           'Document reading and text extraction happen '
-                          'locally. With Gemma 3 1B IT installed, AI '
+                          'locally. With Qwen3 0.6B installed, AI '
                           'study-material generation also runs on your '
                           'device.',
                           style: _bodyMutedStyle(context),

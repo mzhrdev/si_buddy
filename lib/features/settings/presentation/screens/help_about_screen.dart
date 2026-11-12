@@ -23,7 +23,7 @@ class HelpAboutScreen extends StatelessWidget {
     (
       'How do I download the model?',
       'Open AI Model in Settings. Use internet for the download; once '
-          'installed, Gemma runs locally.',
+          'installed, Qwen3 runs locally.',
     ),
     (
       'Why can’t I read a scanned PDF?',
@@ -111,7 +111,7 @@ class HelpAboutScreen extends StatelessWidget {
                             const SizedBox(height: 10),
                             SettingsRow(
                               iconAsset: 'assets/icons/figma/cpu.svg',
-                              label: 'Gemma 3 1B IT',
+                              label: 'Qwen3 0.6B',
                               supportingText:
                                   'AI Ready Offline · Manage AI Model',
                               showDivider: true,

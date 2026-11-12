@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_header.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../documents/domain/document_models.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
+import '../../../model_management/domain/model_state.dart';
 import '../../../model_management/presentation/providers/model_providers.dart';
 import '../providers/storage_providers.dart';
 import '../widgets/confirmation_dialog.dart';
@@ -48,8 +49,8 @@ class StorageScreen extends ConsumerWidget {
                     iconAsset: 'assets/icons/figma/cpu.svg',
                     label: 'AI Model',
                     supportingText: modelReady
-                        ? 'Gemma 3 1B IT · Installed'
-                        : 'Gemma 3 1B IT · Not installed',
+                        ? '${AiModelInfo.current.displayName} · Installed'
+                        : '${AiModelInfo.current.displayName} · Not installed',
                     trailingValue: modelReady
                         ? (figures == null
                               ? '…'
@@ -357,7 +358,7 @@ class _UsageCard extends StatelessWidget {
                 ? formatFileSize(modelBytes)
                 : 'Not installed',
             detail: modelInstalled
-                ? 'Gemma 3 1B IT · On-device model file'
+                ? '${AiModelInfo.current.displayName} · On-device model file'
                 : 'Download the model to generate offline',
           ),
           const SizedBox(height: 12),
