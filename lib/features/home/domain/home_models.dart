@@ -10,10 +10,10 @@ import '../../study/domain/study_models.dart';
 
 /// The Home state machine.
 ///
-/// - [noModel] (A): no AI model installed — welcome + Download
-///   Model only.
-/// - [noDocuments] (B): model installed, nothing imported — model
-///   status + Import Notes.
+/// - [noModel] (A): no AI service configured — welcome + AI
+///   service setup only.
+/// - [noDocuments] (B): service configured, nothing imported —
+///   service status + Import Notes.
 /// - [noStudySets] (C): documents imported, no study sets — Import
 ///   action + Recent Documents + a generate next step.
 /// - [active] (D/F): unfinished study work exists — statistics +
@@ -60,7 +60,7 @@ class StudyProgress {
   final int dailyGoalMinutes;
   final int streakDays;
 
-  /// Whether the on-device AI model is installed and ready offline.
+  /// Whether the AI service is configured and ready.
   final bool modelReady;
 
   int get minutesRemaining => dailyGoalMinutes - minutesStudied;

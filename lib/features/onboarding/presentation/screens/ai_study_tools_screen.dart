@@ -30,7 +30,7 @@ class AiStudyToolsScreen extends StatelessWidget {
               eyebrow: 'MEET YOUR STUDY BUDDY',
               headline: 'Less prep.\nMore lightbulbs.',
               body:
-                  'Let on-device AI turn your notes into flashcards, quizzes '
+                  'Let AI turn your notes into flashcards, quizzes '
                   'and summaries. Study your way.',
             ),
             const Spacer(),

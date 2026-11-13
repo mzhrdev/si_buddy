@@ -9,7 +9,7 @@ import '../widgets/onboarding_chrome.dart';
 
 /// Onboarding page 3, implemented from the Figma frame
 /// "SI Buddy · Private and offline" (3:1141): a personal-device
-/// illustration with a model-download reminder card, above the
+/// illustration with an online-generation reminder card, above the
 /// "Big ideas. Small footprint." intro.
 ///
 /// "Get Started" finishes onboarding: the completion flag is
@@ -34,8 +34,9 @@ class PrivateOfflineScreen extends ConsumerWidget {
               eyebrow: 'YOUR DEVICE. YOUR SPACE.',
               headline: 'Big ideas.\nSmall footprint.',
               body:
-                  'Your notes stay on your device. Download the AI model '
-                  'when you’re ready, then study offline.',
+                  'Your notes stay on your device. Study material '
+                  'you already made works offline; new AI generation '
+                  'needs the internet.',
             ),
             const Spacer(),
             OnboardingActions(
@@ -57,7 +58,7 @@ class PrivateOfflineScreen extends ConsumerWidget {
 }
 
 /// The 337×316 illustration: the personal device (163×257 SVG) with the
-/// "One model download" reminder card overlapping its base.
+/// "Online AI generation" reminder card overlapping its base.
 class _PrivateIllustration extends StatelessWidget {
   const _PrivateIllustration();
 
@@ -92,37 +93,39 @@ class _PrivateIllustration extends StatelessWidget {
               child: Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/figma/download.svg',
+                    'assets/icons/figma/wifi.svg',
                     width: 32,
                     height: 32,
                   ),
                   const SizedBox(width: 11),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'One model download',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          height: 16 / 12,
-                          color: context.appText,
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Online AI generation',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            height: 16 / 12,
+                            color: context.appText,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Then AI works offline.',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                          height: 16 / 11,
-                          color: context.appMuted,
+                        SizedBox(height: 4),
+                        Text(
+                          'Your notes are sent to your AI service.',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            height: 16 / 11,
+                            color: context.appMuted,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

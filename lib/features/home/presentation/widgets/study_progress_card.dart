@@ -5,7 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../domain/home_models.dart';
 
-/// The summary card at the top of Home: on-device model status,
+/// The summary card at the top of Home: AI service status,
 /// today's study metrics, and the daily-goal progress bar.
 class StudyProgressCard extends StatelessWidget {
   const StudyProgressCard({required this.progress, super.key});
@@ -37,8 +37,8 @@ class StudyProgressCard extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 progress.modelReady
-                    ? 'AI Ready Offline'
-                    : 'AI Model Not Installed',
+                    ? 'AI Service Ready'
+                    : 'AI Service Not Configured',
                 style: progress.modelReady
                     ? AppTextStyles.successLabel(context)
                     : AppTextStyles.tileLabel(context),
