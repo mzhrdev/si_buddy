@@ -1,42 +1,19 @@
-// The engine seam: everything above the data layer talks to the
-// AI runtime through this small interface, never through a plugin
-// or an HTTP client directly. The real implementation is
-// `ProxyGenerationEngine` (proxy_generation_engine.dart), which
-// calls the app's backend proxy; `FlutterEdgeAiEngine` remains
-// only for deleting a legacy on-device model file. Tests
-// substitute a fake. No plugin types appear here or anywhere above
-// this file.
-
-/// Why a model download failed, in app terms. The plugin's typed
-/// download errors (401/403/404/429/5xx/network) are mapped onto
-/// these kinds by the engine implementation, so the model layer can
-/// build its own user-facing failures without knowing the plugin.
 enum EngineDownloadErrorKind {
-  /// HTTP 401 — no token, or the token was rejected.
+  // HTTP 401 — no token, or the token was rejected.
   unauthorized,
-
-  /// HTTP 403 — the token has not been granted access to the gated
-  /// model (the model's license has not been accepted for the
-  /// account). Unreachable for the retired on-device model (it was
-  /// ungated); kept because the legacy engine still maps it.
+  // HTTP 403 — the token has not been granted access to the gated
   forbidden,
-
-  /// HTTP 404 — the model file was not found at the source URL.
+  // HTTP 404 — the model file was not found at the source URL.
   notFound,
-
-  /// HTTP 429 — rate limited by the host.
+  // HTTP 429 — rate limited by the host.
   rateLimited,
-
-  /// HTTP 5xx — the host failed.
+  // HTTP 5xx — the host failed.
   server,
-
-  /// No connectivity / transport failure.
+  // No connectivity / transport failure.
   network,
-
-  /// The download was cancelled through the plugin's cancel token.
+  // The download was cancelled through the plugin's cancel token.
   cancelled,
-
-  /// Anything else.
+  // Anything else.
   unknown,
 }
 
