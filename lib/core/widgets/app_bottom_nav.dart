@@ -27,18 +27,18 @@ class AppBottomNav extends StatelessWidget {
   final ValueChanged<int> onDestinationSelected;
 
   static const destinations = <AppNavDestination>[
-    AppNavDestination(label: 'Home', iconAsset: 'assets/icons/figma/house.svg'),
+    AppNavDestination(label: 'Home', iconAsset: 'assets/svgs/figma/house.svg'),
     AppNavDestination(
       label: 'Library',
-      iconAsset: 'assets/icons/figma/folder_open.svg',
+      iconAsset: 'assets/svgs/figma/folder_open.svg',
     ),
     AppNavDestination(
       label: 'Study',
-      iconAsset: 'assets/icons/figma/layers_nav.svg',
+      iconAsset: 'assets/svgs/figma/layers_nav.svg',
     ),
     AppNavDestination(
       label: 'Settings',
-      iconAsset: 'assets/icons/figma/settings.svg',
+      iconAsset: 'assets/svgs/figma/settings.svg',
     ),
   ];
 

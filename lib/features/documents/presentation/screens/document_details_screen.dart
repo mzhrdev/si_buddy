@@ -420,8 +420,8 @@ class _DetailsScaffold extends StatelessWidget {
                     for (final deck in studySets) ...[
                       _StudySetRow(
                         iconAsset: deck.isQuiz
-                            ? 'assets/icons/figma/list_checks.svg'
-                            : 'assets/icons/figma/gallery_vertical_end.svg',
+                            ? 'assets/svgs/figma/list_checks.svg'
+                            : 'assets/svgs/figma/gallery_vertical_end.svg',
                         title: deck.title,
                         subtitle: deck.isQuiz
                             ? '${deck.totalItems}-question quiz'
@@ -444,21 +444,21 @@ class _DetailsScaffold extends StatelessWidget {
                   Row(
                     children: [
                       _ManagementAction(
-                        iconAsset: 'assets/icons/figma/pencil.svg',
+                        iconAsset: 'assets/svgs/figma/pencil.svg',
                         label: 'Rename',
                         color: context.appPrimary,
                         onTap: onRename,
                       ),
                       const SizedBox(width: 8),
                       _ManagementAction(
-                        iconAsset: 'assets/icons/figma/share_2.svg',
+                        iconAsset: 'assets/svgs/figma/share_2.svg',
                         label: 'Export',
                         color: context.appPrimary,
                         onTap: onExport,
                       ),
                       const SizedBox(width: 8),
                       _ManagementAction(
-                        iconAsset: 'assets/icons/figma/trash_2.svg',
+                        iconAsset: 'assets/svgs/figma/trash_2.svg',
                         label: 'Delete',
                         color: context.appDanger,
                         backgroundColor: context.appDangerSurface,
@@ -529,7 +529,7 @@ class _OriginalFileCard extends StatelessWidget {
             ),
           ),
           SvgPicture.asset(
-            'assets/icons/figma/file_text.svg',
+            'assets/svgs/figma/file_text.svg',
             width: 18,
             height: 18,
             colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
@@ -601,7 +601,7 @@ class _StudySetRow extends StatelessWidget {
                 ),
               ),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_right.svg',
+                'assets/svgs/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(

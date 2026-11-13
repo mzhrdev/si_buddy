@@ -203,7 +203,7 @@ class _DocumentPreview extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SvgPicture.asset(
-                  'assets/icons/figma/file_text.svg',
+                  'assets/svgs/figma/file_text.svg',
                   width: 32,
                   height: 38,
                   colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
@@ -253,7 +253,7 @@ class _FileDetails extends StatelessWidget {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/figma/pencil.svg',
+                      'assets/svgs/figma/pencil.svg',
                       width: 14,
                       height: 14,
                       colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
@@ -314,7 +314,7 @@ class _SubjectField extends StatelessWidget {
           child: Row(
             children: [
               SvgPicture.asset(
-                'assets/icons/figma/book_open.svg',
+                'assets/svgs/figma/book_open.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
@@ -322,7 +322,7 @@ class _SubjectField extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(child: Text(subject, style: AppTextStyles.body(context))),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_down.svg',
+                'assets/svgs/figma/chevron_down.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),

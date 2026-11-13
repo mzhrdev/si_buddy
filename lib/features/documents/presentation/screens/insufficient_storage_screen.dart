@@ -28,7 +28,7 @@ class InsufficientStorageScreen extends ConsumerWidget {
             : '${file.format.label} · ${file.sizeLabel}',
         formatLabel: file?.format.label,
       ),
-      iconAsset: 'assets/icons/figma/hard_drive.svg',
+      iconAsset: 'assets/svgs/figma/hard_drive.svg',
       // Figma: warning-text
       iconColor: context.appWarningText,
       // Figma: warning-surface

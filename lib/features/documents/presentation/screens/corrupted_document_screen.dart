@@ -27,7 +27,7 @@ class CorruptedDocumentScreen extends ConsumerWidget {
             : '${file.format.label} · ${file.sizeLabel}',
         formatLabel: file?.format.label,
       ),
-      iconAsset: 'assets/icons/figma/file_warning.svg',
+      iconAsset: 'assets/svgs/figma/file_warning.svg',
       iconColor: context.appDanger,
       surfaceColor: context.appDangerSurface,
       headline: 'This document won’t open.',

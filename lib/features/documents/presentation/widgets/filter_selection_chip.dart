@@ -43,7 +43,7 @@ class FilterSelectionChip extends StatelessWidget {
             children: [
               if (selected) ...[
                 SvgPicture.asset(
-                  'assets/icons/figma/check.svg',
+                  'assets/svgs/figma/check.svg',
                   width: 13,
                   height: 13,
                   colorFilter: ColorFilter.mode(

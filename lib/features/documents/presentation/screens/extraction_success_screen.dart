@@ -92,7 +92,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/check_check.svg',
+                              'assets/svgs/figma/check_check.svg',
                               width: 14,
                               height: 14,
                               colorFilter: ColorFilter.mode(
@@ -133,7 +133,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                               const Text('Generate Flashcards'),
                               const SizedBox(width: 8),
                               SvgPicture.asset(
-                                'assets/icons/figma/arrow_right.svg',
+                                'assets/svgs/figma/arrow_right.svg',
                                 width: 18,
                                 height: 18,
                                 colorFilter: ColorFilter.mode(
@@ -153,7 +153,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                               const Text('Create Quiz'),
                               const SizedBox(width: 8),
                               SvgPicture.asset(
-                                'assets/icons/figma/arrow_right.svg',
+                                'assets/svgs/figma/arrow_right.svg',
                                 width: 18,
                                 height: 18,
                                 colorFilter: ColorFilter.mode(
@@ -180,7 +180,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SvgPicture.asset(
-                                  'assets/icons/figma/file_text.svg',
+                                  'assets/svgs/figma/file_text.svg',
                                   width: 18,
                                   height: 18,
                                   colorFilter: ColorFilter.mode(

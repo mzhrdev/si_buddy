@@ -173,7 +173,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               _StepperButton(
-                                iconAsset: 'assets/icons/figma/minus.svg',
+                                iconAsset: 'assets/svgs/figma/minus.svg',
                                 onTap: notifier.decrementCount,
                               ),
                               SizedBox(
@@ -185,7 +185,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                                 ),
                               ),
                               _StepperButton(
-                                iconAsset: 'assets/icons/figma/plus.svg',
+                                iconAsset: 'assets/svgs/figma/plus.svg',
                                 onTap: notifier.incrementCount,
                               ),
                             ],
@@ -280,7 +280,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SvgPicture.asset(
-                            'assets/icons/figma/info.svg',
+                            'assets/svgs/figma/info.svg',
                             width: 16,
                             height: 16,
                             colorFilter: ColorFilter.mode(
@@ -316,7 +316,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/ready_indicator.svg',
+                        'assets/svgs/figma/ready_indicator.svg',
                         width: 6,
                         height: 6,
                       ),
@@ -342,7 +342,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                         const Text('Generate flashcards'),
                         const SizedBox(width: 12),
                         SvgPicture.asset(
-                          'assets/icons/figma/arrow_right.svg',
+                          'assets/svgs/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
                           colorFilter: ColorFilter.mode(
@@ -399,7 +399,7 @@ class _ChoiceChip extends StatelessWidget {
             children: [
               if (selected) ...[
                 SvgPicture.asset(
-                  'assets/icons/figma/check.svg',
+                  'assets/svgs/figma/check.svg',
                   width: 14,
                   height: 14,
                   colorFilter: ColorFilter.mode(
@@ -504,7 +504,7 @@ class _SelectionField extends StatelessWidget {
                     ),
                   ),
                   SvgPicture.asset(
-                    'assets/icons/figma/chevron_down.svg',
+                    'assets/svgs/figma/chevron_down.svg',
                     width: 16,
                     height: 16,
                     colorFilter: ColorFilter.mode(
@@ -555,7 +555,7 @@ class _NoSourceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(
-                  'assets/icons/figma/file_text.svg',
+                  'assets/svgs/figma/file_text.svg',
                   width: 16,
                   height: 16,
                   colorFilter: ColorFilter.mode(
@@ -584,7 +584,7 @@ class _NoSourceCard extends StatelessWidget {
                 ),
               ),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_right.svg',
+                'assets/svgs/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(
