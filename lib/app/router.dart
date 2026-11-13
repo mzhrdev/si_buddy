@@ -17,14 +17,12 @@ import '../features/documents/presentation/screens/document_library_list_screen.
 import '../features/documents/presentation/screens/extracted_text_review_screen.dart';
 import '../features/documents/presentation/screens/extraction_success_screen.dart';
 import '../features/documents/presentation/screens/import_files_screen.dart';
-import '../features/documents/presentation/screens/import_loading_screen.dart';
 import '../features/documents/presentation/screens/insufficient_storage_screen.dart';
 import '../features/documents/presentation/screens/library_filters_sorting_screen.dart';
 import '../features/documents/presentation/screens/organize_documents_screen.dart';
 import '../features/documents/presentation/screens/scanned_pdf_ocr_screen.dart';
 import '../features/documents/presentation/screens/selected_file_preview_screen.dart';
 import '../features/documents/presentation/screens/text_extraction_processing_screen.dart';
-import '../features/documents/presentation/screens/unreadable_text_screen.dart';
 import '../features/documents/presentation/screens/unsupported_file_screen.dart';
 import '../features/flashcards/presentation/screens/card_editor_screen.dart';
 import '../features/flashcards/presentation/screens/deck_overview_screen.dart';
@@ -52,7 +50,6 @@ import '../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../features/settings/presentation/screens/storage_screen.dart';
 import '../features/study/presentation/screens/statistics_dashboard_screen.dart';
 import '../features/study/presentation/screens/study_planner_screen.dart';
-import '../features/subscription/presentation/screens/manage_subscription_screen.dart';
 import '../features/subscription/presentation/screens/upgrade_premium_screen.dart';
 
 // Route paths for the whole app. These constants are unchanged from the
@@ -66,10 +63,8 @@ abstract final class AppRoutes {
   static const onboardingPrivate = '/onboarding/private';
   static const importFiles = '/documents/import';
   static const selectedPreview = '/documents/preview';
-  static const importLoading = '/documents/import-loading';
   static const unsupported = '/documents/unsupported';
   static const corrupted = '/documents/corrupted';
-  static const unreadable = '/documents/unreadable';
   static const ocr = '/documents/ocr';
   static const storageError = '/documents/storage-error';
   static const extractionProcessing = '/documents/extraction-processing';
@@ -112,7 +107,6 @@ abstract final class AppRoutes {
   static const privacy = '/settings/privacy';
   static const help = '/settings/help';
   static const premium = '/subscription/premium';
-  static const manage = '/subscription/manage';
 }
 
 GoRoute _route(String path, Widget page) =>
@@ -173,10 +167,8 @@ final appRouter = GoRouter(
     // Documents · import, extraction, details, search
     _route(AppRoutes.importFiles, const ImportFilesScreen()),
     _route(AppRoutes.selectedPreview, const SelectedFilePreviewScreen()),
-    _route(AppRoutes.importLoading, const ImportLoadingScreen()),
     _route(AppRoutes.unsupported, const UnsupportedFileScreen()),
     _route(AppRoutes.corrupted, const CorruptedDocumentScreen()),
-    _route(AppRoutes.unreadable, const UnreadableTextScreen()),
     _route(AppRoutes.ocr, const ScannedPdfOcrScreen()),
     _route(AppRoutes.storageError, const InsufficientStorageScreen()),
     _route(
@@ -221,7 +213,6 @@ final appRouter = GoRouter(
     _route(AppRoutes.aiService, const ApiServiceScreen()),
     // Subscription
     _route(AppRoutes.premium, const UpgradePremiumScreen()),
-    _route(AppRoutes.manage, const ManageSubscriptionScreen()),
   ],
   // Unknown routes show a real not-found screen instead of silently
   // landing on Home, which used to mask broken links.

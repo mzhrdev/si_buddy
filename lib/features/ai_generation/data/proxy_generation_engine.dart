@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'edge_ai_engine.dart';
@@ -153,6 +154,7 @@ class ProxyGenerationEngine implements EdgeAiEngine {
                 'The AI service returned an unexpected response.',
               );
             }
+            _logReplyDetails(response.body);
             controller.add(text);
           case 400:
             throw const EngineGenerationException(
@@ -229,6 +231,39 @@ class ProxyGenerationEngine implements EdgeAiEngine {
       return null;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Diagnostic logging for the 2026-11-13 truncation bug: gpt-oss
+  /// spends part of the token budget on hidden reasoning, so a reply
+  /// can be cut off mid-item. The proxy passes Groq's finish reason
+  /// and token usage through; "length" means the budget ran out,
+  /// "stop" means the model ended the turn itself, and
+  /// `reasoning_tokens` shows what the hidden reasoning consumed.
+  /// Debug builds only. Safe to remove once generation is proven
+  /// on device.
+  void _logReplyDetails(String body) {
+    try {
+      final data = jsonDecode(body);
+      if (data is! Map<String, dynamic>) return;
+      final finishReason = data['finish_reason'];
+      final usage = data['usage'];
+      var detail = '';
+      if (usage is Map<String, dynamic>) {
+        final completion = usage['completion_tokens'];
+        final details = usage['completion_tokens_details'];
+        final reasoning = details is Map<String, dynamic>
+            ? details['reasoning_tokens']
+            : null;
+        detail =
+            ' completionTokens=$completion reasoningTokens=$reasoning';
+      }
+      debugPrint(
+        '[SI Buddy] PROXY REPLY finish_reason=$finishReason$detail',
+      );
+    } catch (_) {
+      // A malformed body is already handled by _textFrom; never let
+      // diagnostic logging break generation.
     }
   }
 }

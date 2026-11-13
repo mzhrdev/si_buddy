@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
@@ -94,64 +93,6 @@ class QuizProgressBar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Row under the progress bar on the question screens: the current
-/// topic on the left and the remaining time (timer icon + label in
-/// primary) on the right.
-class QuizTopicTimerRow extends StatelessWidget {
-  const QuizTopicTimerRow({
-    required this.topic,
-    required this.timeLeft,
-    super.key,
-  });
-
-  final String topic;
-  final String timeLeft;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            topic,
-            style: AppTextStyles.body(context).copyWith(
-              fontSize: 12,
-              height: 18 / 12,
-              color: context.appMuted,
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                'assets/icons/figma/timer.svg',
-                width: 16,
-                height: 16,
-                colorFilter: ColorFilter.mode(
-                  context.appPrimary,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                timeLeft,
-                style: AppTextStyles.body(context).copyWith(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  height: 16 / 12,
-                  color: context.appPrimary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

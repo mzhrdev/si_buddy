@@ -164,30 +164,6 @@ class QuestionAnswerRecord {
   final DateTime answeredAt;
 }
 
-/// One study session (a run through a deck, or a quiz attempt
-/// window), the raw material for tracked study minutes.
-class StudySessionRecord {
-  const StudySessionRecord({
-    required this.id,
-    this.deckId,
-    required this.startedAt,
-    this.endedAt,
-    required this.durationSeconds,
-    required this.cardsReviewed,
-    required this.type,
-  });
-
-  final int id;
-  final int? deckId;
-  final DateTime startedAt;
-  final DateTime? endedAt;
-  final int durationSeconds;
-  final int cardsReviewed;
-
-  /// `flashcards` or `quiz`.
-  final String type;
-}
-
 /// What kind of unfinished study work a deck holds.
 enum IncompleteActivityKind {
   /// A quiz attempt was started but never finished; the user can
