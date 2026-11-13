@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../layout/responsive_spacing.dart';
 
 /// Destination in the app's bottom navigation bar.
 class AppNavDestination {
@@ -51,7 +52,9 @@ class AppBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveSpacing.scale(context, 8),
+          ),
           child: Row(
             children: [
               for (var i = 0; i < destinations.length; i++)
@@ -95,8 +98,8 @@ class _NavItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
             ),
             child: SizedBox(
-              width: 56,
-              height: 30,
+              width: ResponsiveSpacing.scale(context, 56),
+              height: ResponsiveSpacing.scale(context, 30),
               child: Center(
                 child: SvgPicture.asset(
                   destination.iconAsset,

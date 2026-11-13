@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../domain/home_models.dart';
@@ -40,17 +41,24 @@ class HomeDashboardScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          padding: ResponsiveSpacing.page(context),
           children: [
-            HomeHeader(greeting: greeting),
-            const SizedBox(height: 16),
-            switch (data.state) {
-              HomeState.noModel => _NoModelSection(),
-              HomeState.noDocuments => _NoDocumentsSection(),
-              HomeState.noStudySets => _NoStudySetsSection(data: data),
-              HomeState.active => _ActiveSection(data: data),
-              HomeState.completedOnly => _CompletedOnlySection(data: data),
-            },
+            ResponsiveContent(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HomeHeader(greeting: greeting),
+                  ResponsiveSpacing.gap(context, 16),
+                  switch (data.state) {
+                    HomeState.noModel => _NoModelSection(),
+                    HomeState.noDocuments => _NoDocumentsSection(),
+                    HomeState.noStudySets => _NoStudySetsSection(data: data),
+                    HomeState.active => _ActiveSection(data: data),
+                    HomeState.completedOnly => _CompletedOnlySection(data: data),
+                  },
+                ],
+              ),
+            ),
           ],
         ),
       ),

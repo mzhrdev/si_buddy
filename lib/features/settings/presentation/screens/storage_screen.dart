@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../documents/domain/document_models.dart';
@@ -41,7 +42,7 @@ class StorageScreen extends ConsumerWidget {
             AppHeader(title: 'Storage', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 children: [
                   _UsageCard(figures: figures),
                   const SizedBox(height: 16),

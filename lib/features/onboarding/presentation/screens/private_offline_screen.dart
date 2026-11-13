@@ -22,34 +22,32 @@ class PrivateOfflineScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
-            const SizedBox(
-              height: 340,
-              child: Center(child: _PrivateIllustration()),
-            ),
-            const OnboardingIntro(
-              eyebrow: 'YOUR DEVICE. YOUR SPACE.',
-              headline: 'Big ideas.\nSmall footprint.',
-              body:
-                  'Your notes stay on your device. Download the AI model '
-                  'when you’re ready, then study offline.',
-            ),
-            const Spacer(),
-            OnboardingActions(
-              pageIndex: 2,
-              buttonLabel: 'Get Started',
-              caption: 'No account needed. Just you and your notes.',
-              onNext: () {
-                // Marking completion never blocks navigation: the
-                // write is a single local insert, best-effort.
-                markOnboardingComplete(ref);
-                context.go(AppRoutes.home);
-              },
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
+              const SizedBox(height: 340, child: Center(child: _PrivateIllustration())),
+              const OnboardingIntro(
+                eyebrow: 'YOUR DEVICE. YOUR SPACE.',
+                headline: 'Big ideas.\nSmall footprint.',
+                body:
+                    'Your notes stay on your device. Download the AI model '
+                    'when you’re ready, then study offline.',
+              ),
+              OnboardingActions(
+                pageIndex: 2,
+                buttonLabel: 'Get Started',
+                caption: 'No account needed. Just you and your notes.',
+                onNext: () {
+                  // Marking completion never blocks navigation: the
+                  // write is a single local insert, best-effort.
+                  markOnboardingComplete(ref);
+                  context.go(AppRoutes.home);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -71,11 +69,7 @@ class _PrivateIllustration extends StatelessWidget {
           Positioned(
             left: 88,
             top: 20,
-            child: SvgPicture.asset(
-              'assets/icons/figma/personal_device.svg',
-              width: 163,
-              height: 257,
-            ),
+            child: SvgPicture.asset('assets/icons/figma/personal_device.svg', width: 163, height: 257),
           ),
           Positioned(
             left: 30,
@@ -91,11 +85,7 @@ class _PrivateIllustration extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  SvgPicture.asset(
-                    'assets/icons/figma/download.svg',
-                    width: 32,
-                    height: 32,
-                  ),
+                  SvgPicture.asset('assets/icons/figma/download.svg', width: 32, height: 32),
                   const SizedBox(width: 11),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,

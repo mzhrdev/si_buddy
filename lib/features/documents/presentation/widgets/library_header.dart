@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 
 /// The library tab header: "Your library" (24 bold) with a document-count
 /// subtitle on the left, and the 36px import action (surface
@@ -21,7 +22,9 @@ class LibraryHeader extends StatelessWidget {
     return SizedBox(
       height: 64,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSpacing.horizontal(context),
+        ),
         child: Row(
           children: [
             Expanded(

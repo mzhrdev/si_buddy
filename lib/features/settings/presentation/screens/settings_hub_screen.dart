@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../model_management/domain/model_state.dart';
 import '../../../model_management/presentation/providers/model_providers.dart';
@@ -54,7 +55,7 @@ class SettingsHubScreen extends ConsumerWidget {
             const AppHeader(title: 'Settings'),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 children: [
                   Text(
                     'Make SI Buddy work for you.',

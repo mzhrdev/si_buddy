@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../domain/study_models.dart';
 import '../providers/study_providers.dart';
@@ -41,7 +42,7 @@ class StatisticsDashboardScreen extends ConsumerWidget {
             const AppHeader(title: 'Statistics'),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+                padding: ResponsiveSpacing.page(context, bottom: 20),
                 children: [
                   const StudyDestinationsBar(currentIndex: 0),
                   const SizedBox(height: 16),

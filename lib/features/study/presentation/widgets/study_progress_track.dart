@@ -1,3 +1,4 @@
+import 'package:extensions_kit/extensions_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -16,17 +17,14 @@ class StudyProgressTrack extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(100),
       child: Container(
-        height: 5,
+        height: context.h(.6),
         color: context.appSurface,
         child: Align(
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(
             widthFactor: fraction.clamp(0, 1),
             child: Container(
-              decoration: BoxDecoration(
-                color: context.appPrimary,
-                borderRadius: BorderRadius.circular(100),
-              ),
+              decoration: BoxDecoration(color: context.appPrimary, borderRadius: BorderRadius.circular(100)),
             ),
           ),
         ),

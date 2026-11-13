@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../layout/responsive_spacing.dart';
 
 class DesignScreen extends StatelessWidget {
   const DesignScreen({required this.title, required this.feature, super.key});
@@ -26,14 +27,20 @@ class DesignScreen extends StatelessWidget {
         actions: const [Padding(padding: EdgeInsets.only(right: 20), child: Icon(Icons.menu_book))],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: ResponsiveSpacing.page(context, top: 16, bottom: 32),
         children: [
-          Text(feature, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 12),
-          Text(_heading, style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 12),
-          Text(_description, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 24),
+          ResponsiveContent(
+            child: Text(feature, style: Theme.of(context).textTheme.labelLarge),
+          ),
+          ResponsiveSpacing.gap(context, 12),
+          ResponsiveContent(
+            child: Text(_heading, style: Theme.of(context).textTheme.headlineMedium),
+          ),
+          ResponsiveSpacing.gap(context, 12),
+          ResponsiveContent(
+            child: Text(_description, style: Theme.of(context).textTheme.bodyLarge),
+          ),
+          ResponsiveSpacing.gap(context, 24),
           if (isError)
             const _StateCard(icon: Icons.error_outline, color: Colors.red, label: 'Something needs attention')
           else if (isSuccess)
@@ -42,7 +49,7 @@ class DesignScreen extends StatelessWidget {
             const _StateCard(icon: Icons.help_outline, color: AppTheme.primary, label: 'Please confirm this action')
           else
             _ContentPreview(title: title),
-          const SizedBox(height: 24),
+          ResponsiveSpacing.gap(context, 24),
           FilledButton(
             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Demo interaction. Persistence and backend services are not connected.')),

@@ -30,12 +30,10 @@ class SelectedFilePreviewScreen extends ConsumerStatefulWidget {
   const SelectedFilePreviewScreen({super.key});
 
   @override
-  ConsumerState<SelectedFilePreviewScreen> createState() =>
-      _SelectedFilePreviewScreenState();
+  ConsumerState<SelectedFilePreviewScreen> createState() => _SelectedFilePreviewScreenState();
 }
 
-class _SelectedFilePreviewScreenState
-    extends ConsumerState<SelectedFilePreviewScreen> {
+class _SelectedFilePreviewScreenState extends ConsumerState<SelectedFilePreviewScreen> {
   static const _subjects = ['Biology', 'Chemistry', 'Research Methods'];
 
   Future<void> _rename(String current) async {
@@ -50,13 +48,9 @@ class _SelectedFilePreviewScreenState
           decoration: const InputDecoration(labelText: 'Filename'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
           FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text.trim()),
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
             child: const Text('Save'),
           ),
         ],
@@ -77,9 +71,7 @@ class _SelectedFilePreviewScreenState
             for (final subject in _subjects)
               ListTile(
                 title: Text(subject),
-                trailing: subject == current
-                    ? Icon(Icons.check, color: context.appPrimary)
-                    : null,
+                trailing: subject == current ? Icon(Icons.check, color: context.appPrimary) : null,
                 onTap: () => Navigator.of(sheetContext).pop(subject),
               ),
           ],
@@ -99,9 +91,7 @@ class _SelectedFilePreviewScreenState
       // this only happens if the job is cleared mid-screen).
       return;
     }
-    ref
-        .read(extractionProvider.notifier)
-        .start(file: file, title: job.displayFileName, subject: job.subject);
+    ref.read(extractionProvider.notifier).start(file: file, title: job.displayFileName, subject: job.subject);
     context.push(AppRoutes.extractionProcessing);
   }
 
@@ -120,8 +110,7 @@ class _SelectedFilePreviewScreenState
                 child: EmptyState(
                   icon: Icons.description_outlined,
                   title: 'No document selected',
-                  message:
-                      'Pick a PDF or PPTX first — its preview and details will appear here.',
+                  message: 'Pick a PDF or PPTX first — its preview and details will appear here.',
                 ),
               ),
             ],
@@ -143,59 +132,33 @@ class _SelectedFilePreviewScreenState
           children: [
             AppHeader(title: 'Review document', onBack: () => context.pop()),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const StateMessage(
-                          headline: 'Ready to bring it in?',
-                          body: 'Check your document and choose a subject.',
-                        ),
-                        const SizedBox(height: 22),
-                        _DocumentPreview(
-                          filename: filename,
-                          pageCount: file.pageCount,
-                        ),
-                        const SizedBox(height: 22),
-                        _FileDetails(
-                          filename: filename,
-                          meta: meta,
-                          onRename: () => _rename(filename),
-                        ),
-                        const SizedBox(height: 22),
-                        Text(
-                          'Subject',
-                          style: AppTextStyles.itemTitle(context),
-                        ),
-                        const SizedBox(height: 8),
-                        _SubjectField(
-                          subject: job.subject,
-                          onTap: () => _pickSubject(job.subject),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Keep related notes together in your library.',
-                          style: AppTextStyles.caption(context),
-                        ),
-                      ],
+                    const StateMessage(
+                      headline: 'Ready to bring it in?',
+                      body: 'Check your document and choose a subject.',
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ImportPrimaryButton(
-                          label: 'Import document',
-                          onPressed: _import,
-                        ),
-                        const SizedBox(height: 16),
-                        const PrivacyReassurance(
-                          text: 'Your notes stay on your device.',
-                        ),
-                      ],
+                    const SizedBox(height: 22),
+                    _DocumentPreview(filename: filename, pageCount: file.pageCount),
+                    const SizedBox(height: 22),
+                    _FileDetails(filename: filename, meta: meta, onRename: () => _rename(filename)),
+                    const SizedBox(height: 22),
+                    Text('Subject', style: AppTextStyles.itemTitle(context)),
+                    const SizedBox(height: 8),
+                    _SubjectField(subject: job.subject, onTap: () => _pickSubject(job.subject)),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Keep related notes together in your library.',
+                      style: AppTextStyles.caption(context),
                     ),
+                    const SizedBox(height: 24),
+                    ImportPrimaryButton(label: 'Import document', onPressed: _import),
+                    const SizedBox(height: 16),
+                    const PrivacyReassurance(text: 'Your notes stay on your device.'),
                   ],
                 ),
               ),
@@ -222,7 +185,6 @@ class _DocumentPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 188,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.appCard,
@@ -235,10 +197,7 @@ class _DocumentPreview extends StatelessWidget {
             width: 200,
             height: 132,
             padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: context.appChip,
-              borderRadius: BorderRadius.circular(4),
-            ),
+            decoration: BoxDecoration(color: context.appChip, borderRadius: BorderRadius.circular(4)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -247,10 +206,7 @@ class _DocumentPreview extends StatelessWidget {
                   'assets/icons/figma/file_text.svg',
                   width: 32,
                   height: 38,
-                  colorFilter: ColorFilter.mode(
-                    context.appPrimary,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -264,10 +220,7 @@ class _DocumentPreview extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            pageCount == null ? 'Page 1' : 'Page 1 of $pageCount',
-            style: AppTextStyles.caption(context),
-          ),
+          Text(pageCount == null ? 'Page 1' : 'Page 1 of $pageCount', style: AppTextStyles.caption(context)),
         ],
       ),
     );
@@ -277,11 +230,7 @@ class _DocumentPreview extends StatelessWidget {
 /// Filename label row with the rename action, the filename itself and
 /// the metadata chips.
 class _FileDetails extends StatelessWidget {
-  const _FileDetails({
-    required this.filename,
-    required this.meta,
-    required this.onRename,
-  });
+  const _FileDetails({required this.filename, required this.meta, required this.onRename});
 
   final String filename;
   final List<String> meta;
@@ -295,12 +244,7 @@ class _FileDetails extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Filename',
-              style: AppTextStyles.greeting(
-                context,
-              ).copyWith(fontWeight: FontWeight.w600),
-            ),
+            Text('Filename', style: AppTextStyles.greeting(context).copyWith(fontWeight: FontWeight.w600)),
             InkWell(
               onTap: onRename,
               borderRadius: BorderRadius.circular(4),
@@ -312,10 +256,7 @@ class _FileDetails extends StatelessWidget {
                       'assets/icons/figma/pencil.svg',
                       width: 14,
                       height: 14,
-                      colorFilter: ColorFilter.mode(
-                        context.appPrimary,
-                        BlendMode.srcIn,
-                      ),
+                      colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
                     ),
                     const SizedBox(width: 5),
                     Text('Rename', style: AppTextStyles.link(context)),
@@ -333,10 +274,7 @@ class _FileDetails extends StatelessWidget {
           children: [
             for (final chip in meta)
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 7,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
                   color: context.appChip,
                   border: Border.all(color: context.appBorder),
@@ -379,23 +317,15 @@ class _SubjectField extends StatelessWidget {
                 'assets/icons/figma/book_open.svg',
                 width: 18,
                 height: 18,
-                colorFilter: ColorFilter.mode(
-                  context.appPrimary,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(subject, style: AppTextStyles.body(context)),
-              ),
+              Expanded(child: Text(subject, style: AppTextStyles.body(context))),
               SvgPicture.asset(
                 'assets/icons/figma/chevron_down.svg',
                 width: 18,
                 height: 18,
-                colorFilter: ColorFilter.mode(
-                  context.appNavInactive,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../layout/responsive_spacing.dart';
 
 /// The 64px screen header used across the app.
 ///
@@ -25,9 +26,12 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64,
+      height: ResponsiveSpacing.scale(context, 64),
       child: Padding(
-        padding: EdgeInsets.only(left: onBack == null ? 24 : 8, right: 24),
+        padding: EdgeInsets.only(
+          left: onBack == null ? ResponsiveSpacing.horizontal(context) : 8,
+          right: ResponsiveSpacing.horizontal(context),
+        ),
         child: Row(
           children: [
             if (onBack != null)
@@ -36,9 +40,9 @@ class AppHeader extends StatelessWidget {
                 tooltip: 'Back',
                 icon: const Icon(Icons.arrow_back, size: 22),
                 color: context.appText,
-                constraints: const BoxConstraints.tightFor(
-                  width: 48,
-                  height: 48,
+                constraints: BoxConstraints.tightFor(
+                  width: ResponsiveSpacing.scale(context, 48),
+                  height: ResponsiveSpacing.scale(context, 48),
                 ),
                 padding: EdgeInsets.zero,
               ),

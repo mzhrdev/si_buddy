@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/database/settings_repository.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../settings/presentation/providers/settings_providers.dart';
 
 /// Marks onboarding complete in settings, best-effort and never
@@ -65,7 +66,9 @@ class OnboardingHeader extends ConsumerWidget {
     return SizedBox(
       height: 64,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSpacing.horizontal(context),
+        ),
         child: Row(
           children: [
             SvgPicture.asset(
@@ -118,7 +121,7 @@ class OnboardingIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+      padding: ResponsiveSpacing.page(context, bottom: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -153,7 +156,7 @@ class OnboardingActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
+      padding: ResponsiveSpacing.page(context, top: 22, bottom: 16),
       child: Column(
         children: [
           Row(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../study/presentation/providers/reminder_providers.dart';
 import '../../../study/presentation/providers/study_providers.dart';
@@ -53,7 +54,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             AppHeader(title: 'Preferences', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 children: [
                   SettingsSection(
                     title: 'Study & revision reminders',

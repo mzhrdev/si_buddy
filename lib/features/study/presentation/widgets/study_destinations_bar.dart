@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:extensions_kit/extensions_kit.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -25,7 +26,7 @@ class StudyDestinationsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
+      height: context.h(5.7),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: context.appCard,

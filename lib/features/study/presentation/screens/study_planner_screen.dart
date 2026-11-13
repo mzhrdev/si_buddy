@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:extensions_kit/extensions_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
 import '../../domain/study_models.dart';
@@ -73,36 +75,34 @@ class StudyPlannerScreen extends ConsumerWidget {
             const AppHeader(title: 'Study planner'),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+                padding: ResponsiveSpacing.page(context, bottom: 20),
                 children: [
                   const StudyDestinationsBar(currentIndex: 1),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.h(1.9)),
                   StudySectionHeading(
                     title: 'Today, ${now.day} ${_months[now.month - 1]}',
                     actionLabel: 'Edit goal',
                     onAction: () => _editGoal(context, ref, goal),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: context.h(.5)),
                   Text(
-                    goalComplete
-                        ? 'Daily goal reached — nice work.'
-                        : 'A little every day adds up.',
+                    goalComplete ? 'Daily goal reached — nice work.' : 'A little every day adds up.',
                     style: AppTextStyles.greeting(context),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.h(1.9)),
                   _DailyGoalCard(
                     studiedMinutes: studiedMinutes,
                     goalMinutes: goal,
                     fraction: fraction,
                     complete: goalComplete,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.h(1.9)),
                   StudySectionHeading(
                     title: 'Upcoming revision',
                     actionLabel: '+ Add',
                     onAction: () => _addRevision(context, ref, decks),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.h(1.2)),
                   if (revisionsError)
                     const Text('Could not load your revisions.')
                   else if (revisions.isEmpty)
@@ -117,28 +117,19 @@ class StudyPlannerScreen extends ConsumerWidget {
                     Column(
                       children: [
                         for (var i = 0; i < revisions.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 10),
+                          if (i > 0) SizedBox(height: context.h(1.2)),
                           _RevisionRow(
                             revision: revisions[i],
-                            deckTitle:
-                                deckTitles[revisions[i].deckId] ?? 'Study set',
-                            onOpen: () =>
-                                _openRevision(context, ref, revisions[i]),
-                            onEdit: () => _editRevision(
-                              context,
-                              ref,
-                              revisions[i],
-                              decks,
-                            ),
-                            onDelete: () =>
-                                _deleteRevision(context, ref, revisions[i]),
-                            onComplete: () =>
-                                _completeRevision(context, ref, revisions[i]),
+                            deckTitle: deckTitles[revisions[i].deckId] ?? 'Study set',
+                            onOpen: () => _openRevision(context, ref, revisions[i]),
+                            onEdit: () => _editRevision(context, ref, revisions[i], decks),
+                            onDelete: () => _deleteRevision(context, ref, revisions[i]),
+                            onComplete: () => _completeRevision(context, ref, revisions[i]),
                           ),
                         ],
                       ],
                     ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.h(1.9)),
                   const _ReminderCard(),
                 ],
               ),
@@ -149,11 +140,7 @@ class StudyPlannerScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _editGoal(
-    BuildContext context,
-    WidgetRef ref,
-    int currentGoal,
-  ) async {
+  Future<void> _editGoal(BuildContext context, WidgetRef ref, int currentGoal) async {
     final controller = TextEditingController(text: '$currentGoal');
     String? error;
     final minutes = await showDialog<int>(
@@ -165,24 +152,15 @@ class StudyPlannerScreen extends ConsumerWidget {
             controller: controller,
             autofocus: true,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              hintText: 'Minutes per day',
-              errorText: error,
-              suffixText: 'minutes',
-            ),
+            decoration: InputDecoration(hintText: 'Minutes per day', errorText: error, suffixText: 'minutes'),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
             FilledButton(
               onPressed: () {
                 final value = int.tryParse(controller.text.trim());
                 if (value == null || value < 1 || value > 480) {
-                  setState(
-                    () => error = 'Enter a goal between 1 and 480 minutes.',
-                  );
+                  setState(() => error = 'Enter a goal between 1 and 480 minutes.');
                   return;
                 }
                 Navigator.of(dialogContext).pop(value);
@@ -198,16 +176,8 @@ class StudyPlannerScreen extends ConsumerWidget {
     await setDailyGoalMinutes(ref, minutes);
   }
 
-  Future<void> _addRevision(
-    BuildContext context,
-    WidgetRef ref,
-    List<StudyDeck> decks,
-  ) async {
-    final created = await _showRevisionDialog(
-      context,
-      decks: decks,
-      title: 'Add revision',
-    );
+  Future<void> _addRevision(BuildContext context, WidgetRef ref, List<StudyDeck> decks) async {
+    final created = await _showRevisionDialog(context, decks: decks, title: 'Add revision');
     if (created == null || !context.mounted) return;
     final repository = ref.read(studyRepositoryProvider);
     final revisionId = await repository.scheduleRevision(
@@ -255,23 +225,14 @@ class StudyPlannerScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _deleteRevision(
-    BuildContext context,
-    WidgetRef ref,
-    RevisionRecord revision,
-  ) async {
+  Future<void> _deleteRevision(BuildContext context, WidgetRef ref, RevisionRecord revision) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete revision?'),
-        content: const Text(
-          'This removes the scheduled revision. Your study set stays in your library.',
-        ),
+        content: const Text('This removes the scheduled revision. Your study set stays in your library.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancel')),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
@@ -285,33 +246,21 @@ class StudyPlannerScreen extends ConsumerWidget {
     await cancelRevisionNotification(ref, revision.id);
   }
 
-  Future<void> _completeRevision(
-    BuildContext context,
-    WidgetRef ref,
-    RevisionRecord revision,
-  ) async {
+  Future<void> _completeRevision(BuildContext context, WidgetRef ref, RevisionRecord revision) async {
     await ref.read(studyRepositoryProvider).completeRevision(revision.id);
     await cancelRevisionNotification(ref, revision.id);
   }
 
-  Future<void> _openRevision(
-    BuildContext context,
-    WidgetRef ref,
-    RevisionRecord revision,
-  ) async {
-    final loaded = await ref
-        .read(generationJobProvider.notifier)
-        .loadDeck(revision.deckId);
+  Future<void> _openRevision(BuildContext context, WidgetRef ref, RevisionRecord revision) async {
+    final loaded = await ref.read(generationJobProvider.notifier).loadDeck(revision.deckId);
     if (!context.mounted) return;
     if (!loaded) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('That study set is no longer available.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('That study set is no longer available.')));
       return;
     }
-    final deck = await ref
-        .read(studyRepositoryProvider)
-        .getDeck(revision.deckId);
+    final deck = await ref.read(studyRepositoryProvider).getDeck(revision.deckId);
     if (!context.mounted) return;
     context.push(deck != null && deck.isQuiz ? AppRoutes.mcq : AppRoutes.deck);
   }
@@ -339,7 +288,7 @@ class _DailyGoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: context.appCard,
         border: Border.all(color: context.appBorder),
@@ -350,12 +299,7 @@ class _DailyGoalCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Daily goal',
-                  style: AppTextStyles.itemTitle(context),
-                ),
-              ),
+              Expanded(child: Text('Daily goal', style: AppTextStyles.itemTitle(context))),
               Text(
                 '$studiedMinutes / $goalMinutes min',
                 style: AppTextStyles.body(context).copyWith(
@@ -367,15 +311,13 @@ class _DailyGoalCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: context.h(1.2)),
           StudyProgressTrack(fraction: fraction),
-          const SizedBox(height: 8),
+          SizedBox(height: context.h(1)),
           Row(
             children: [
               SvgPicture.asset(
-                complete
-                    ? 'assets/icons/figma/circle_check.svg'
-                    : 'assets/icons/figma/circle.svg',
+                complete ? 'assets/icons/figma/circle_check.svg' : 'assets/icons/figma/circle.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
@@ -383,7 +325,7 @@ class _DailyGoalCard extends StatelessWidget {
                   BlendMode.srcIn,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   complete
@@ -423,28 +365,11 @@ class _RevisionRow extends StatelessWidget {
   String get _dayLabel {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final day = DateTime(
-      revision.scheduledAt.year,
-      revision.scheduledAt.month,
-      revision.scheduledAt.day,
-    );
+    final day = DateTime(revision.scheduledAt.year, revision.scheduledAt.month, revision.scheduledAt.day);
     final diff = day.difference(today).inDays;
     if (diff == 0) return 'Today';
     if (diff == 1) return 'Tomorrow';
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${revision.scheduledAt.day} ${months[revision.scheduledAt.month - 1]}';
   }
 
@@ -465,7 +390,7 @@ class _RevisionRow extends StatelessWidget {
         onTap: onOpen,
         borderRadius: BorderRadius.circular(4),
         child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             border: Border.all(color: context.appBorder),
             borderRadius: BorderRadius.circular(4),
@@ -479,16 +404,14 @@ class _RevisionRow extends StatelessWidget {
                     Text(
                       _dayLabel,
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.badge(
-                        context,
-                      ).copyWith(color: context.appPrimary),
+                      style: AppTextStyles.badge(context).copyWith(color: context.appPrimary),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: context.h(.25)),
                     Text(_timeLabel, style: AppTextStyles.caption(context)),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,16 +422,12 @@ class _RevisionRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    SizedBox(height: context.h(.35)),
                     Text(
                       note == null || note.isEmpty
-                          ? (revision.reminderEnabled
-                                ? 'Reminder on'
-                                : 'Reminder off')
+                          ? (revision.reminderEnabled ? 'Reminder on' : 'Reminder off')
                           : note,
-                      style: AppTextStyles.badge(
-                        context,
-                      ).copyWith(color: context.appMuted),
+                      style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -528,10 +447,7 @@ class _RevisionRow extends StatelessWidget {
                 },
                 itemBuilder: (context) => const [
                   PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  PopupMenuItem(
-                    value: 'complete',
-                    child: Text('Mark complete'),
-                  ),
+                  PopupMenuItem(value: 'complete', child: Text('Mark complete')),
                   PopupMenuItem(value: 'delete', child: Text('Delete')),
                 ],
               ),
@@ -551,12 +467,10 @@ class _ReminderCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final enabled = ref.watch(revisionRemindersEnabledProvider).value ?? false;
-    final timeMinutes =
-        ref.watch(reminderTimeMinutesProvider).value ??
-        defaultReminderTimeMinutes;
+    final timeMinutes = ref.watch(reminderTimeMinutesProvider).value ?? defaultReminderTimeMinutes;
     final timeLabel = _formatTime(timeMinutes);
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(4),
@@ -570,16 +484,11 @@ class _ReminderCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Revision reminder',
-                      style: AppTextStyles.itemTitle(context),
-                    ),
-                    const SizedBox(height: 2),
+                    Text('Revision reminder', style: AppTextStyles.itemTitle(context)),
+                    SizedBox(height: context.h(.25)),
                     Text(
                       enabled ? 'Optional · On' : 'Optional · Off',
-                      style: AppTextStyles.badge(
-                        context,
-                      ).copyWith(color: context.appMuted),
+                      style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
                     ),
                   ],
                 ),
@@ -601,20 +510,15 @@ class _ReminderCard extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.h(1)),
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Preferred time',
-                  style: AppTextStyles.greeting(context),
-                ),
-              ),
+              Expanded(child: Text('Preferred time', style: AppTextStyles.greeting(context))),
               InkWell(
                 onTap: () => _pickTime(context, ref, timeMinutes),
                 borderRadius: BorderRadius.circular(4),
                 child: Container(
-                  height: 48,
+                  height: context.h(5.7),
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   decoration: BoxDecoration(
                     color: context.appSurface,
@@ -629,10 +533,7 @@ class _ReminderCard extends ConsumerWidget {
                         'assets/icons/figma/clock.svg',
                         width: 14,
                         height: 14,
-                        colorFilter: ColorFilter.mode(
-                          context.appNavInactive,
-                          BlendMode.srcIn,
-                        ),
+                        colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
                       ),
                     ],
                   ),
@@ -645,26 +546,17 @@ class _ReminderCard extends ConsumerWidget {
             enabled
                 ? 'Revisions remind you at their scheduled time. The preferred time is for the daily study reminder.'
                 : 'No reminder is scheduled. Enabling will ask for notification permission if needed.',
-            style: AppTextStyles.badge(
-              context,
-            ).copyWith(color: context.appMuted),
+            style: AppTextStyles.badge(context).copyWith(color: context.appMuted),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _pickTime(
-    BuildContext context,
-    WidgetRef ref,
-    int currentMinutes,
-  ) async {
+  Future<void> _pickTime(BuildContext context, WidgetRef ref, int currentMinutes) async {
     final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(
-        hour: currentMinutes ~/ 60,
-        minute: currentMinutes % 60,
-      ),
+      initialTime: TimeOfDay(hour: currentMinutes ~/ 60, minute: currentMinutes % 60),
     );
     if (picked == null) return;
     await setReminderTimeMinutes(ref, picked.hour * 60 + picked.minute);
@@ -710,10 +602,7 @@ class _ReminderToggle extends StatelessWidget {
                 child: Container(
                   width: 18,
                   height: 18,
-                  decoration: BoxDecoration(
-                    color: context.appCard,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: context.appCard, shape: BoxShape.circle),
                 ),
               ),
             ),
@@ -757,11 +646,9 @@ Future<_RevisionDraft?> _showRevisionDialog(
   RevisionRecord? initial,
 }) async {
   if (decks.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Generate a study set first to schedule a revision.'),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Generate a study set first to schedule a revision.')));
     return null;
   }
   final initialDate = initial?.scheduledAt ?? DateTime.now();
@@ -804,9 +691,7 @@ Future<_RevisionDraft?> _showRevisionDialog(
                         final picked = await showDatePicker(
                           context: context,
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
-                          ),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
                           initialDate: date,
                         );
                         if (picked != null) setState(() => date = picked);
@@ -818,10 +703,7 @@ Future<_RevisionDraft?> _showRevisionDialog(
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime: time,
-                        );
+                        final picked = await showTimePicker(context: context, initialTime: time);
                         if (picked != null) setState(() => time = picked);
                       },
                       child: Text(_formatTime(time.hour * 60 + time.minute)),
@@ -852,19 +734,10 @@ Future<_RevisionDraft?> _showRevisionDialog(
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
-              final scheduledAt = DateTime(
-                date.year,
-                date.month,
-                date.day,
-                time.hour,
-                time.minute,
-              );
+              final scheduledAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
               if (scheduledAt.isBefore(DateTime.now())) {
                 setState(() => error = 'Pick a time in the future.');
                 return;
@@ -873,9 +746,7 @@ Future<_RevisionDraft?> _showRevisionDialog(
                 _RevisionDraft(
                   deckId: deckId,
                   scheduledAt: scheduledAt,
-                  note: noteController.text.trim().isEmpty
-                      ? null
-                      : noteController.text.trim(),
+                  note: noteController.text.trim().isEmpty ? null : noteController.text.trim(),
                   reminderEnabled: reminderEnabled,
                 ),
               );

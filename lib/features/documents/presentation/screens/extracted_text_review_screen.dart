@@ -31,12 +31,10 @@ class ExtractedTextReviewScreen extends ConsumerStatefulWidget {
   const ExtractedTextReviewScreen({super.key});
 
   @override
-  ConsumerState<ExtractedTextReviewScreen> createState() =>
-      _ExtractedTextReviewScreenState();
+  ConsumerState<ExtractedTextReviewScreen> createState() => _ExtractedTextReviewScreenState();
 }
 
-class _ExtractedTextReviewScreenState
-    extends ConsumerState<ExtractedTextReviewScreen> {
+class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   final _editController = TextEditingController();
@@ -70,11 +68,7 @@ class _ExtractedTextReviewScreenState
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final context = key.currentContext;
         if (context != null) {
-          Scrollable.ensureVisible(
-            context,
-            duration: const Duration(milliseconds: 300),
-            alignment: 0.0,
-          );
+          Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 300), alignment: 0.0);
         }
       });
     }
@@ -106,18 +100,14 @@ class _ExtractedTextReviewScreenState
           _editingIndex = null;
           _saving = false;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Extracted text saved.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Extracted text saved.')));
       }
     } catch (_) {
       if (mounted) {
         setState(() => _saving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Couldn\'t save the edited text. Try again.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Couldn\'t save the edited text. Try again.')));
       }
     }
   }
@@ -132,16 +122,12 @@ class _ExtractedTextReviewScreenState
         body: SafeArea(
           child: Column(
             children: [
-              AppHeader(
-                title: 'Review extracted text',
-                onBack: () => context.pop(),
-              ),
+              AppHeader(title: 'Review extracted text', onBack: () => context.pop()),
               const Expanded(
                 child: EmptyState(
                   icon: Icons.description_outlined,
                   title: 'No extracted text to review',
-                  message:
-                      'Import a document first — its extracted text will appear here for review.',
+                  message: 'Import a document first — its extracted text will appear here for review.',
                 ),
               ),
             ],
@@ -171,162 +157,141 @@ class _ExtractedTextReviewScreenState
     return Scaffold(
       backgroundColor: context.appBackground,
       body: SafeArea(
-        child: Column(
-          children: [
-            AppHeader(
-              title: 'Review extracted text',
-              onBack: () => context.pop(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'A quick read, then study.',
-                    style: AppTextStyles.display(
-                      context,
-                    ).copyWith(fontSize: 28, height: 34 / 28),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Review the text before generating flashcards or a quiz.',
-                    style: AppTextStyles.body(
-                      context,
-                    ).copyWith(color: context.appMuted, height: 22 / 14),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          fileName,
-                          style: AppTextStyles.itemTitle(
-                            context,
-                          ).copyWith(fontSize: 12),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.appChip,
-                          border: Border.all(color: context.appBorder),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          subject,
-                          style: AppTextStyles.badge(
-                            context,
-                          ).copyWith(color: context.appTextSecondary),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 46,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: context.appCard,
-                      border: Border.all(color: context.appBorder),
-                      borderRadius: BorderRadius.circular(4),
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
+            children: [
+              AppHeader(title: 'Review extracted text', onBack: () => context.pop()),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'A quick read, then study.',
+                      style: AppTextStyles.display(context).copyWith(fontSize: 28, height: 34 / 28),
                     ),
-                    child: Row(
+                    const SizedBox(height: 16),
+                    Text(
+                      'Review the text before generating flashcards or a quiz.',
+                      style: AppTextStyles.body(context).copyWith(color: context.appMuted, height: 22 / 14),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
                       children: [
-                        SvgPicture.asset(
-                          'assets/icons/figma/search.svg',
-                          width: 18,
-                          height: 18,
-                          colorFilter: ColorFilter.mode(
-                            context.appNavInactive,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            style: AppTextStyles.body(context),
-                            decoration: InputDecoration(
-                              hintText: 'Search in extracted text',
-                              hintStyle: AppTextStyles.body(
-                                context,
-                              ).copyWith(color: context.appPlaceholder),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
+                          child: Text(
+                            fileName,
+                            style: AppTextStyles.itemTitle(context).copyWith(fontSize: 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (searching)
-                          IconButton(
-                            onPressed: _searchController.clear,
-                            icon: const Icon(Icons.clear, size: 18),
-                            color: context.appMuted,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 48,
-                              height: 48,
-                            ),
-                            padding: EdgeInsets.zero,
-                            tooltip: 'Clear search',
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: context.appChip,
+                            border: Border.all(color: context.appBorder),
+                            borderRadius: BorderRadius.circular(4),
                           ),
+                          child: Text(
+                            subject,
+                            style: AppTextStyles.badge(context).copyWith(color: context.appTextSecondary),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 46,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: context.appCard,
+                        border: Border.all(color: context.appBorder),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/figma/search.svg',
+                            width: 18,
+                            height: 18,
+                            colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              style: AppTextStyles.body(context),
+                              decoration: InputDecoration(
+                                hintText: 'Search in extracted text',
+                                hintStyle: AppTextStyles.body(
+                                  context,
+                                ).copyWith(color: context.appPlaceholder),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                          if (searching)
+                            IconButton(
+                              onPressed: _searchController.clear,
+                              icon: const Icon(Icons.clear, size: 18),
+                              color: context.appMuted,
+                              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+                              padding: EdgeInsets.zero,
+                              tooltip: 'Clear search',
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: Padding(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          searching
-                              ? '${matches!.length} match${matches.length == 1 ? '' : 'es'} for "$_query"'
-                              : 'Page $currentPage of $totalPages',
-                          style: AppTextStyles.link(context),
+                        Flexible(
+                          child: Text(
+                            searching
+                                ? '${matches!.length} match${matches.length == 1 ? '' : 'es'} for "$_query"'
+                                : 'Page $currentPage of $totalPages',
+                            style: AppTextStyles.link(context),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Row(
                           children: [
                             IconButton(
                               onPressed: searching || currentPage <= 1
                                   ? null
-                                  : () =>
-                                        _goToPage(currentPage - 1, totalPages),
+                                  : () => _goToPage(currentPage - 1, totalPages),
                               tooltip: 'Previous page',
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_left.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
-                                  searching || currentPage <= 1
-                                      ? context.appBorder
-                                      : context.appNavInactive,
+                                  searching || currentPage <= 1 ? context.appBorder : context.appNavInactive,
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              constraints: const BoxConstraints.tightFor(
-                                width: 48,
-                                height: 48,
-                              ),
+                              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
                               padding: EdgeInsets.zero,
                             ),
                             const SizedBox(width: 2),
                             IconButton(
                               onPressed: searching || currentPage >= totalPages
                                   ? null
-                                  : () =>
-                                        _goToPage(currentPage + 1, totalPages),
+                                  : () => _goToPage(currentPage + 1, totalPages),
                               tooltip: 'Next page',
                               icon: SvgPicture.asset(
                                 'assets/icons/figma/chevron_right.svg',
@@ -339,10 +304,7 @@ class _ExtractedTextReviewScreenState
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              constraints: const BoxConstraints.tightFor(
-                                width: 48,
-                                height: 48,
-                              ),
+                              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
                               padding: EdgeInsets.zero,
                             ),
                           ],
@@ -350,118 +312,98 @@ class _ExtractedTextReviewScreenState
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Expanded(
-                      child: searching && matches!.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No pages contain that text.',
-                                style: TextStyle(color: context.appMuted),
-                              ),
-                            )
-                          : Builder(
-                              builder: (context) {
-                                final visibleIndices =
-                                    matches ??
-                                    List<int>.generate(
-                                      sections.length,
-                                      (j) => j,
-                                    );
-                                return ListView(
-                                  controller: _scrollController,
-                                  children: [
-                                    for (final i in visibleIndices)
-                                      _editingIndex == i
-                                          ? _EditPageCard(
-                                              key: _pageKeys[i],
-                                              page: i + 1,
-                                              totalPages: totalPages,
-                                              controller: _editController,
-                                              saving: _saving,
-                                              onSave: () => _saveEdit(
-                                                sections,
-                                                result.document.id,
-                                              ),
-                                              onCancel: () => setState(
-                                                () => _editingIndex = null,
-                                              ),
-                                            )
-                                          : _ExtractedPageCard(
-                                              key: _pageKeys[i],
-                                              page: i + 1,
-                                              totalPages: totalPages,
-                                              text: sections[i],
-                                              isLast: i == visibleIndices.last,
-                                              onEdit: () =>
-                                                  _startEditing(i, sections[i]),
-                                            ),
-                                  ],
-                                );
-                              },
+                    searching && matches!.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No pages contain that text.',
+                              style: TextStyle(color: context.appMuted),
                             ),
+                          )
+                        : Builder(
+                            builder: (context) {
+                              final visibleIndices = matches ?? List<int>.generate(sections.length, (j) => j);
+                              return Column(
+                                children: [
+                                  for (final i in visibleIndices)
+                                    _editingIndex == i
+                                        ? _EditPageCard(
+                                            key: _pageKeys[i],
+                                            page: i + 1,
+                                            totalPages: totalPages,
+                                            controller: _editController,
+                                            saving: _saving,
+                                            onSave: () => _saveEdit(sections, result.document.id),
+                                            onCancel: () => setState(() => _editingIndex = null),
+                                          )
+                                        : _ExtractedPageCard(
+                                            key: _pageKeys[i],
+                                            page: i + 1,
+                                            totalPages: totalPages,
+                                            text: sections[i],
+                                            isLast: i == visibleIndices.last,
+                                            onEdit: () => _startEditing(i, sections[i]),
+                                          ),
+                                ],
+                              );
+                            },
+                          ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: context.appCard,
+                  border: Border(top: BorderSide(color: context.appBorder)),
+                ),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                child: Column(
+                  children: [
+                    if (!searching) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/figma/arrow_down.svg',
+                            width: 12,
+                            height: 12,
+                            colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Scroll to review all $totalPages pages',
+                            style: AppTextStyles.caption(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                    FilledButton(
+                      onPressed: () => context.push(AppRoutes.extractionSuccess),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Confirm text'),
+                          const SizedBox(width: 8),
+                          SvgPicture.asset(
+                            'assets/icons/figma/arrow_right.svg',
+                            width: 18,
+                            height: 18,
+                            colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Nothing is generated until you choose a study tool.',
+                      style: AppTextStyles.caption(context),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: context.appCard,
-                border: Border(top: BorderSide(color: context.appBorder)),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-              child: Column(
-                children: [
-                  if (!searching) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/figma/arrow_down.svg',
-                          width: 12,
-                          height: 12,
-                          colorFilter: ColorFilter.mode(
-                            context.appNavInactive,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          'Scroll to review all $totalPages pages',
-                          style: AppTextStyles.caption(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  FilledButton(
-                    onPressed: () => context.push(AppRoutes.extractionSuccess),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Confirm text'),
-                        const SizedBox(width: 8),
-                        SvgPicture.asset(
-                          'assets/icons/figma/arrow_right.svg',
-                          width: 18,
-                          height: 18,
-                          colorFilter: ColorFilter.mode(
-                            context.appCard,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Nothing is generated until you choose a study tool.',
-                    style: AppTextStyles.caption(context),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -503,9 +445,7 @@ class _ExtractedPageCard extends StatelessWidget {
             children: [
               Text(
                 'Page $page of $totalPages',
-                style: AppTextStyles.caption(
-                  context,
-                ).copyWith(color: context.appPrimary),
+                style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
               ),
               InkWell(
                 onTap: onEdit,
@@ -520,10 +460,9 @@ class _ExtractedPageCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             text.isEmpty ? 'No readable text on this page.' : text,
-            style: AppTextStyles.body(context).copyWith(
-              height: 22 / 14,
-              color: text.isEmpty ? context.appMuted : null,
-            ),
+            style: AppTextStyles.body(
+              context,
+            ).copyWith(height: 22 / 14, color: text.isEmpty ? context.appMuted : null),
           ),
         ],
       ),
@@ -566,9 +505,7 @@ class _EditPageCard extends StatelessWidget {
         children: [
           Text(
             'Editing page $page of $totalPages',
-            style: AppTextStyles.caption(
-              context,
-            ).copyWith(color: context.appPrimary),
+            style: AppTextStyles.caption(context).copyWith(color: context.appPrimary),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -576,10 +513,7 @@ class _EditPageCard extends StatelessWidget {
             maxLines: null,
             autofocus: true,
             style: AppTextStyles.body(context).copyWith(height: 22 / 14),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
+            decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.zero),
           ),
           const SizedBox(height: 12),
           Row(
@@ -592,10 +526,7 @@ class _EditPageCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: OutlinedButton(
-                  onPressed: saving ? null : onCancel,
-                  child: const Text('Cancel'),
-                ),
+                child: OutlinedButton(onPressed: saving ? null : onCancel, child: const Text('Cancel')),
               ),
             ],
           ),

@@ -18,29 +18,30 @@ class ImportNotesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
-            const SizedBox(
-              height: 340,
-              child: Center(child: _ImportIllustration()),
-            ),
-            const OnboardingIntro(
-              eyebrow: 'BRING YOUR NOTES',
-              headline: 'Your notes,\nall together.',
-              body:
-                  'Import PDF, Word and PowerPoint files. Turn your class '
-                  'notes into your own study space.',
-            ),
-            const Spacer(),
-            OnboardingActions(
-              pageIndex: 0,
-              buttonLabel: 'Next',
-              caption: 'Make room for a better way to study.',
-              onNext: () => context.push(AppRoutes.onboardingAi),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
+              const SizedBox(
+                height: 340,
+                child: Center(child: _ImportIllustration()),
+              ),
+              const OnboardingIntro(
+                eyebrow: 'BRING YOUR NOTES',
+                headline: 'Your notes,\nall together.',
+                body:
+                    'Import PDF, Word and PowerPoint files. Turn your class '
+                    'notes into your own study space.',
+              ),
+              OnboardingActions(
+                pageIndex: 0,
+                buttonLabel: 'Next',
+                caption: 'Make room for a better way to study.',
+                onNext: () => context.push(AppRoutes.onboardingAi),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -18,29 +18,30 @@ class AiStudyToolsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
-            const SizedBox(
-              height: 340,
-              child: Center(child: _StudyToolsIllustration()),
-            ),
-            const OnboardingIntro(
-              eyebrow: 'MEET YOUR STUDY BUDDY',
-              headline: 'Less prep.\nMore lightbulbs.',
-              body:
-                  'Let on-device AI turn your notes into flashcards, quizzes '
-                  'and summaries. Study your way.',
-            ),
-            const Spacer(),
-            OnboardingActions(
-              pageIndex: 1,
-              buttonLabel: 'Next',
-              caption: 'Make room for a better way to study.',
-              onNext: () => context.push(AppRoutes.onboardingPrivate),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OnboardingHeader(onSkip: () => context.go(AppRoutes.home)),
+              const SizedBox(
+                height: 340,
+                child: Center(child: _StudyToolsIllustration()),
+              ),
+              const OnboardingIntro(
+                eyebrow: 'MEET YOUR STUDY BUDDY',
+                headline: 'Less prep.\nMore lightbulbs.',
+                body:
+                    'Let on-device AI turn your notes into flashcards, quizzes '
+                    'and summaries. Study your way.',
+              ),
+              OnboardingActions(
+                pageIndex: 1,
+                buttonLabel: 'Next',
+                caption: 'Make room for a better way to study.',
+                onNext: () => context.push(AppRoutes.onboardingPrivate),
+              ),
+            ],
+          ),
         ),
       ),
     );

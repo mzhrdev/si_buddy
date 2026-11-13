@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../settings/presentation/providers/storage_providers.dart';
 import '../../../settings/presentation/widgets/confirmation_dialog.dart';
@@ -42,7 +43,7 @@ class PrivacyScreen extends ConsumerWidget {
             AppHeader(title: 'Privacy', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 children: [
                   Container(
                     width: double.infinity,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:extensions_kit/extensions_kit.dart';
 
 import '../../../../app/theme/app_text_styles.dart';
 
@@ -21,11 +22,21 @@ class StudySectionHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(title, style: AppTextStyles.title(context))),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.title(context),
+          ),
+        ),
         TextButton(
           onPressed: onAction,
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: 4,
+              vertical: context.h(.5),
+            ),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),

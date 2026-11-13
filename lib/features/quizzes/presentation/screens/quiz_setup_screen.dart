@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../../../ai_generation/domain/generation_config.dart';
 import '../../../ai_generation/presentation/providers/generation_providers.dart';
@@ -82,9 +83,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
     configNotifier.setCount(_count);
     configNotifier.setDocumentId(source.document.id);
     final config = ref.read(generationConfigProvider);
-    ref
-        .read(generationJobProvider.notifier)
-        .start(source: source, config: config);
+    ref.read(generationJobProvider.notifier).start(source: source, config: config);
     if (mounted) context.push(AppRoutes.generationProcessing);
   }
 
@@ -102,7 +101,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
             AppHeader(title: 'Quiz setup', onBack: () => context.pop()),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -113,10 +112,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                       title: source?.document.originalFileName,
                       subtitle: source == null
                           ? null
-                          : generationSourceSubtitle(
-                              document: source.document,
-                              subject: extraction.subject,
-                            ),
+                          : generationSourceSubtitle(document: source.document, subject: extraction.subject),
                       formatLabel: source?.document.format.label,
                     ),
                     const SizedBox(height: 16),
@@ -125,10 +121,9 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                       children: [
                         Text(
                           'Question count',
-                          style: AppTextStyles.body(context).copyWith(
-                            fontWeight: FontWeight.w600,
-                            height: 20 / 14,
-                          ),
+                          style: AppTextStyles.body(
+                            context,
+                          ).copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
                         ),
                         _CountStepper(
                           count: _count,
@@ -152,9 +147,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             child: _ChoiceChip(
                               label: _difficulties[i],
                               selected: _difficulty == _difficulties[i],
-                              onTap: () => setState(
-                                () => _difficulty = _difficulties[i],
-                              ),
+                              onTap: () => setState(() => _difficulty = _difficulties[i]),
                             ),
                           ),
                         ],
@@ -173,9 +166,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                               child: _ChoiceChip(
                                 label: _types[row * 2 + col],
                                 selected: _type == _types[row * 2 + col],
-                                onTap: () => setState(
-                                  () => _type = _types[row * 2 + col],
-                                ),
+                                onTap: () => setState(() => _type = _types[row * 2 + col]),
                               ),
                             ),
                           ],
@@ -195,10 +186,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: Text(
-                            'Edit',
-                            style: AppTextStyles.link(context),
-                          ),
+                          child: Text('Edit', style: AppTextStyles.link(context)),
                         ),
                       ],
                     ),
@@ -214,22 +202,15 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              config.topic.isEmpty
-                                  ? 'No topics set'
-                                  : config.topic,
-                              style: AppTextStyles.body(
-                                context,
-                              ).copyWith(fontSize: 12, height: 18 / 12),
+                              config.topic.isEmpty ? 'No topics set' : config.topic,
+                              style: AppTextStyles.body(context).copyWith(fontSize: 12, height: 18 / 12),
                             ),
                           ),
                           SvgPicture.asset(
                             'assets/icons/figma/chevron_down.svg',
                             width: 16,
                             height: 16,
-                            colorFilter: ColorFilter.mode(
-                              context.appMuted,
-                              BlendMode.srcIn,
-                            ),
+                            colorFilter: ColorFilter.mode(context.appMuted, BlendMode.srcIn),
                           ),
                         ],
                       ),
@@ -254,8 +235,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                         ),
                         Switch(
                           value: _timerEnabled,
-                          onChanged: (value) =>
-                              setState(() => _timerEnabled = value),
+                          onChanged: (value) => setState(() => _timerEnabled = value),
                           activeTrackColor: context.appPrimary,
                           inactiveTrackColor: context.appChip,
                           inactiveThumbColor: context.appCard,
@@ -276,28 +256,21 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                           children: [
                             Text(
                               'Time limit',
-                              style: AppTextStyles.body(context).copyWith(
-                                fontSize: 12,
-                                height: 18 / 12,
-                                color: context.appMuted,
-                              ),
+                              style: AppTextStyles.body(
+                                context,
+                              ).copyWith(fontSize: 12, height: 18 / 12, color: context.appMuted),
                             ),
                             Text(
                               '10 minutes',
-                              style: AppTextStyles.body(context).copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                height: 18 / 13,
-                              ),
+                              style: AppTextStyles.body(
+                                context,
+                              ).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13),
                             ),
                             SvgPicture.asset(
                               'assets/icons/figma/chevron_down.svg',
                               width: 16,
                               height: 16,
-                              colorFilter: ColorFilter.mode(
-                                context.appMuted,
-                                BlendMode.srcIn,
-                              ),
+                              colorFilter: ColorFilter.mode(context.appMuted, BlendMode.srcIn),
                             ),
                           ],
                         ),
@@ -321,17 +294,12 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                         ? '● Model installed · AI ready offline'
                         : '● No model installed · Download the model to generate',
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.caption(context).copyWith(
-                      color: modelReady
-                          ? context.appSuccessText
-                          : context.appDanger,
-                    ),
+                    style: AppTextStyles.caption(
+                      context,
+                    ).copyWith(color: modelReady ? context.appSuccessText : context.appDanger),
                   ),
                   const SizedBox(height: 10),
-                  FilledButton(
-                    onPressed: _onGenerate,
-                    child: const Text('Generate Quiz'),
-                  ),
+                  FilledButton(onPressed: _onGenerate, child: const Text('Generate Quiz')),
                 ],
               ),
             ),
@@ -352,20 +320,14 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.body(
-        context,
-      ).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13),
+      style: AppTextStyles.body(context).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13),
     );
   }
 }
 
 /// Bordered minus / value / plus stepper for the question count.
 class _CountStepper extends StatelessWidget {
-  const _CountStepper({
-    required this.count,
-    required this.onDecrease,
-    required this.onIncrease,
-  });
+  const _CountStepper({required this.count, required this.onDecrease, required this.onIncrease});
 
   final int count;
   final VoidCallback onDecrease;
@@ -385,11 +347,7 @@ class _CountStepper extends StatelessWidget {
           _StepButton(asset: 'assets/icons/figma/minus.svg', onTap: onDecrease),
           SizedBox(
             width: 40,
-            child: Text(
-              '$count',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.title(context),
-            ),
+            child: Text('$count', textAlign: TextAlign.center, style: AppTextStyles.title(context)),
           ),
           _StepButton(asset: 'assets/icons/figma/plus.svg', onTap: onIncrease),
         ],
@@ -428,11 +386,7 @@ class _StepButton extends StatelessWidget {
 /// surface-selected with a primary border, check and label when
 /// selected (per the Figma selection-option component).
 class _ChoiceChip extends StatelessWidget {
-  const _ChoiceChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+  const _ChoiceChip({required this.label, required this.selected, required this.onTap});
 
   final String label;
   final bool selected;
@@ -443,9 +397,7 @@ class _ChoiceChip extends StatelessWidget {
     return Material(
       color: selected ? context.appSurface : context.appCard,
       shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: selected ? context.appPrimary : context.appBorder,
-        ),
+        side: BorderSide(color: selected ? context.appPrimary : context.appBorder),
         borderRadius: BorderRadius.circular(4),
       ),
       child: InkWell(
@@ -461,10 +413,7 @@ class _ChoiceChip extends StatelessWidget {
                   'assets/icons/figma/check.svg',
                   width: 14,
                   height: 14,
-                  colorFilter: ColorFilter.mode(
-                    context.appPrimary,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),
                 ),
                 const SizedBox(width: 5),
               ],

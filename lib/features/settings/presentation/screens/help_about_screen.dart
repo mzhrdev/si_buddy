@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/layout/responsive_spacing.dart';
 import '../../../../core/widgets/app_header.dart';
 import '../widgets/settings_row.dart';
 
@@ -42,7 +43,7 @@ class HelpAboutScreen extends StatelessWidget {
             AppHeader(title: 'Help & About', onBack: () => context.pop()),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: ResponsiveSpacing.page(context),
                 children: [
                   SettingsSection(
                     title: 'Supported file types',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../layout/responsive_spacing.dart';
 
 /// A centered honest empty state: a small ink glyph naming what is
 /// missing, a title, a short explanation, and an optional primary
@@ -42,7 +43,9 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSpacing.horizontal(context),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
