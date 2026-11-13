@@ -55,7 +55,7 @@ class AnswerOptionTile extends StatelessWidget {
                 ),
                 child: selected
                     ? SvgPicture.asset(
-                        'assets/icons/figma/check.svg',
+                        'assets/svgs/figma/check.svg',
                         width: 16,
                         height: 16,
                         colorFilter: ColorFilter.mode(
@@ -88,7 +88,7 @@ class AnswerOptionTile extends StatelessWidget {
               ),
               if (selected)
                 SvgPicture.asset(
-                  'assets/icons/figma/check.svg',
+                  'assets/svgs/figma/check.svg',
                   width: 18,
                   height: 18,
                   colorFilter: ColorFilter.mode(

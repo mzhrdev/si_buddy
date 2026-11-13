@@ -72,7 +72,7 @@ class OnboardingHeader extends ConsumerWidget {
         child: Row(
           children: [
             SvgPicture.asset(
-              'assets/icons/figma/brand_mark.svg',
+              'assets/svgs/figma/brand_mark.svg',
               width: 34,
               height: 34,
             ),
@@ -186,7 +186,7 @@ class OnboardingActions extends StatelessWidget {
                 Text(buttonLabel),
                 const SizedBox(width: 12),
                 SvgPicture.asset(
-                  'assets/icons/figma/arrow_right.svg',
+                  'assets/svgs/figma/arrow_right.svg',
                   width: 18,
                   height: 18,
                   colorFilter: ColorFilter.mode(
@@ -244,7 +244,7 @@ class SourceFileCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SvgPicture.asset(
-            'assets/icons/figma/file.svg',
+            'assets/svgs/figma/file.svg',
             width: iconWidth,
             height: iconHeight,
           ),

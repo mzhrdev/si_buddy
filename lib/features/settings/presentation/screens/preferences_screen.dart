@@ -117,7 +117,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       SvgPicture.asset(
-                                        'assets/icons/figma/clock.svg',
+                                        'assets/svgs/figma/clock.svg',
                                         width: 16,
                                         height: 16,
                                         colorFilter: ColorFilter.mode(

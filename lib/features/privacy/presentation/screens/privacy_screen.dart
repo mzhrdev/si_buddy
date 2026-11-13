@@ -59,7 +59,7 @@ class PrivacyScreen extends ConsumerWidget {
                         Row(
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/shield_check.svg',
+                              'assets/svgs/figma/shield_check.svg',
                               width: 20,
                               height: 20,
                               colorFilter: ColorFilter.mode(
@@ -133,7 +133,7 @@ class PrivacyScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/trash_2.svg',
+                              'assets/svgs/figma/trash_2.svg',
                               width: 16,
                               height: 16,
                               colorFilter: ColorFilter.mode(
@@ -179,7 +179,7 @@ class PrivacyScreen extends ConsumerWidget {
   Future<void> _confirmClearAllData(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      iconAsset: 'assets/icons/figma/trash_2.svg',
+      iconAsset: 'assets/svgs/figma/trash_2.svg',
       indicatorColor: context.appDangerSurface,
       iconColor: context.appDanger,
       title: 'Clear All Local Data?',
@@ -228,7 +228,7 @@ class _PolicyRow extends StatelessWidget {
         children: [
           Expanded(child: Text(label, style: _sectionTitleStyle(context))),
           SvgPicture.asset(
-            'assets/icons/figma/arrow_up_right.svg',
+            'assets/svgs/figma/arrow_up_right.svg',
             width: 16,
             height: 16,
             colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),

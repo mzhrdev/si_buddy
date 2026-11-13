@@ -131,7 +131,7 @@ class QuizHistoryScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/figma/check_circle_2.svg',
+                          'assets/svgs/figma/check_circle_2.svg',
                           width: 14,
                           height: 14,
                           colorFilter: ColorFilter.mode(
@@ -247,7 +247,7 @@ class _AttemptCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _AttemptAction(
-                  iconAsset: 'assets/icons/figma/list_checks.svg',
+                  iconAsset: 'assets/svgs/figma/list_checks.svg',
                   label: 'Review',
                   onTap: () => context.push(AppRoutes.review),
                 ),
@@ -255,7 +255,7 @@ class _AttemptCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _AttemptAction(
-                  iconAsset: 'assets/icons/figma/rotate_ccw.svg',
+                  iconAsset: 'assets/svgs/figma/rotate_ccw.svg',
                   label: 'Retry Quiz',
                   onTap: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),

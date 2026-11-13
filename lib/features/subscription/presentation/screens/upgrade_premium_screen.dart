@@ -149,7 +149,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
   Future<void> _showPremiumUnavailable(BuildContext context) async {
     final goFree = await showConfirmationDialog(
       context: context,
-      iconAsset: 'assets/icons/figma/subscription.svg',
+      iconAsset: 'assets/svgs/figma/subscription.svg',
       indicatorColor: context.appSurface,
       iconColor: context.appPrimary,
       title: 'Premium isn’t available yet',
@@ -307,8 +307,8 @@ class _PlanOption extends StatelessWidget {
                 Text(name, style: AppTextStyles.itemTitle(context)),
                 SvgPicture.asset(
                   selected
-                      ? 'assets/icons/figma/radio_button_selected.svg'
-                      : 'assets/icons/figma/radio_button.svg',
+                      ? 'assets/svgs/figma/radio_button_selected.svg'
+                      : 'assets/svgs/figma/radio_button.svg',
                   width: 20,
                   height: 20,
                   colorFilter: ColorFilter.mode(
