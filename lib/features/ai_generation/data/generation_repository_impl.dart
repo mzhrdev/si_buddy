@@ -202,12 +202,12 @@ class GenerationRepositoryImpl implements GenerationRepository {
 }
 
 /// Diagnostic logging for the single-item bug (2026-11-05): the
-/// model still returns one card on device despite the prompt and
-/// parser fixes, and nothing else can tell us whether the model
-/// stopped after one item or the parser dropped the rest. Prints
-/// the model's raw reply to the console (debug builds only — run
-/// with `flutter run` and copy the lines between the RAW markers).
-/// Remove once the cause is known.
+/// model still returns one card despite the prompt and parser fixes,
+/// and nothing else can tell us whether the model stopped after one
+/// item or the parser dropped the rest. Prints the model's raw reply
+/// to the console (debug builds only — run with `flutter run` and
+/// copy the lines between the RAW markers). Remove once the cause is
+/// known.
 void _logRawReply(String output, GenerationConfig config, int promptChars) {
   debugPrint(
     '[SI Buddy] RAW GENERATION REPLY — type=${config.materialType.label} '

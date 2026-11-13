@@ -8,14 +8,12 @@ import '../../documents/domain/document_models.dart';
 import '../domain/generation_config.dart';
 
 /// Character budget for the source text embedded in a prompt.
-///
-/// The model's context is 4096 tokens (prompt + reply). At roughly
-/// 4 characters per token, 4000 characters of source (~1000 tokens)
-/// leaves comfortable room for the instructions and a full reply of
-/// generated items — and keeps the on-device prefill (the slowest
-/// part of a generation on a phone CPU) short. Longer documents are
-/// sampled across their sections rather than truncated at the front,
-/// so late pages still contribute items.
+/// At roughly 4 characters per token, 4000 characters of source
+/// (~1000 tokens) leaves comfortable room for the instructions and
+/// a full reply of generated items — and keeps the prompt short, so
+/// the request stays fast. Longer documents are sampled across
+/// their sections rather than truncated at the front, so late pages
+/// still contribute items.
 const int sourceTextBudgetChars = 4000;
 
 /// Builds the full prompt for one generation job from [source]'s

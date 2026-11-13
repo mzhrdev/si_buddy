@@ -19,15 +19,16 @@ abstract class GenerationFailure implements Exception {
   String toString() => message;
 }
 
-/// No on-device AI model is installed, so generation cannot start.
-/// Routes to the missing-model screen ("Install an AI model first").
+/// No AI service is configured, so generation cannot start.
+/// Routes to the missing-model screen ("AI service not
+/// configured").
 class ModelNotInstalledFailure extends GenerationFailure {
   const ModelNotInstalledFailure();
 
   @override
   String get message =>
-      'No AI model is installed. SI Buddy needs a local model before '
-      'it can generate study material.';
+      'No AI service is configured. Generation needs your online '
+      'AI service.';
 }
 
 /// The device did not have enough free memory to load or run the

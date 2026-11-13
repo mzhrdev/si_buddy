@@ -126,7 +126,7 @@ abstract final class AppTextStyles {
     color: context.appPrimary,
   );
 
-  /// Status label (11, SemiBold, success), e.g. "AI Ready Offline"
+  /// Status label (11, SemiBold, success), e.g. "AI Service Ready"
   static TextStyle successLabel(BuildContext context) => TextStyle(
     fontFamily: _family,
     fontSize: 11,

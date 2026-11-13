@@ -32,13 +32,7 @@ import '../features/flashcards/presentation/screens/session_summary_screen.dart'
 import '../features/flashcards/presentation/screens/study_card_back_screen.dart';
 import '../features/flashcards/presentation/screens/study_card_front_screen.dart';
 import '../features/home/presentation/screens/home_dashboard_screen.dart';
-import '../features/model_management/presentation/screens/download_failed_screen.dart';
-import '../features/model_management/presentation/screens/downloading_screen.dart';
-import '../features/model_management/presentation/screens/low_memory_screen.dart'
-    as models;
-import '../features/model_management/presentation/screens/not_installed_screen.dart';
-import '../features/model_management/presentation/screens/offline_not_installed_screen.dart';
-import '../features/model_management/presentation/screens/ready_offline_screen.dart';
+import '../features/model_management/presentation/screens/api_service_screen.dart';
 import '../features/onboarding/presentation/screens/ai_study_tools_screen.dart';
 import '../features/onboarding/presentation/screens/import_notes_screen.dart';
 import '../features/onboarding/presentation/screens/private_offline_screen.dart';
@@ -107,12 +101,11 @@ abstract final class AppRoutes {
   static const history = '/quiz/history';
   static const statistics = '/study/statistics';
   static const planner = '/study/planner';
-  static const notInstalled = '/models/not-installed';
-  static const downloading = '/models/downloading';
-  static const readyOffline = '/models/ready';
-  static const downloadFailed = '/models/download-failed';
-  static const modelLowMemory = '/models/low-memory';
-  static const offline = '/models/offline';
+  // The AI service status screen: whether the backend proxy is
+  // configured and answers. The old per-state model routes
+  // (not-installed / downloading / ready / download-failed /
+  // low-memory / offline) were removed with the on-device model.
+  static const aiService = '/models/service';
   static const settings = '/settings';
   static const preferences = '/settings/preferences';
   static const storage = '/settings/storage';
@@ -224,13 +217,8 @@ final appRouter = GoRouter(
     _route(AppRoutes.review, const AnswerReviewScreen()),
     _route(AppRoutes.history, const QuizHistoryScreen()),
     // Study
-    // On-device model management
-    _route(AppRoutes.notInstalled, const ModelNotInstalledScreen()),
-    _route(AppRoutes.downloading, const ModelDownloadingScreen()),
-    _route(AppRoutes.readyOffline, const ReadyOfflineScreen()),
-    _route(AppRoutes.downloadFailed, const ModelDownloadFailedScreen()),
-    _route(AppRoutes.modelLowMemory, const models.ModelLowMemoryScreen()),
-    _route(AppRoutes.offline, const OfflineNotInstalledScreen()),
+    // AI service status (backend proxy; no on-device model)
+    _route(AppRoutes.aiService, const ApiServiceScreen()),
     // Subscription
     _route(AppRoutes.premium, const UpgradePremiumScreen()),
     _route(AppRoutes.manage, const ManageSubscriptionScreen()),
