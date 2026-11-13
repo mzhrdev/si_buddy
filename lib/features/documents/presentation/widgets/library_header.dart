@@ -55,7 +55,7 @@ class LibraryHeader extends StatelessWidget {
                     height: 44,
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/icons/figma/plus.svg',
+                        'assets/svgs/figma/plus.svg',
                         width: 20,
                         height: 20,
                         colorFilter: ColorFilter.mode(

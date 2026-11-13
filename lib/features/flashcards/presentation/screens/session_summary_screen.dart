@@ -79,7 +79,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: SvgPicture.asset(
-                                  'assets/icons/figma/check_primary.svg',
+                                  'assets/svgs/figma/check_primary.svg',
                                   width: 26,
                                   height: 26,
                                   colorFilter: ColorFilter.mode(
@@ -116,21 +116,21 @@ class SessionSummaryScreen extends ConsumerWidget {
                             const SizedBox(height: 22),
                             _RatingRow(
                               iconAsset:
-                                  'assets/icons/figma/check_circle_2.svg',
+                                  'assets/svgs/figma/check_circle_2.svg',
                               title: 'Mastered',
                               subtitle: 'Rated Easy',
                               value: '$mastered',
                             ),
                             const SizedBox(height: 18),
                             _RatingRow(
-                              iconAsset: 'assets/icons/figma/refresh_cw.svg',
+                              iconAsset: 'assets/svgs/figma/refresh_cw.svg',
                               title: 'Learning',
                               subtitle: 'Rated Medium',
                               value: '$learning',
                             ),
                             const SizedBox(height: 18),
                             _RatingRow(
-                              iconAsset: 'assets/icons/figma/flag.svg',
+                              iconAsset: 'assets/svgs/figma/flag.svg',
                               title: 'Difficult',
                               subtitle: 'Rated Hard',
                               value: '$difficult',
@@ -182,7 +182,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                           const Text('Study Again'),
                           const SizedBox(width: 12),
                           SvgPicture.asset(
-                            'assets/icons/figma/arrow_right.svg',
+                            'assets/svgs/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
                             colorFilter: ColorFilter.mode(

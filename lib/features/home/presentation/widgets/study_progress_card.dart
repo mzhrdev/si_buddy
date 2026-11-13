@@ -27,7 +27,7 @@ class StudyProgressCard extends StatelessWidget {
           Row(
             children: [
               SvgPicture.asset(
-                'assets/icons/figma/ready_indicator.svg',
+                'assets/svgs/figma/ready_indicator.svg',
                 width: 8,
                 height: 8,
                 colorFilter: progress.modelReady

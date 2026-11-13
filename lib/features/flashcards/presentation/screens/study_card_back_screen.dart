@@ -173,7 +173,7 @@ class _StudyCardBackScreenState extends ConsumerState<StudyCardBackScreen> {
                             const Text('Finish session'),
                             const SizedBox(width: 12),
                             SvgPicture.asset(
-                              'assets/icons/figma/arrow_right.svg',
+                              'assets/svgs/figma/arrow_right.svg',
                               width: 18,
                               height: 18,
                               colorFilter: ColorFilter.mode(
@@ -285,7 +285,7 @@ class _AnswerCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(
-                  'assets/icons/figma/rotate_ccw.svg',
+                  'assets/svgs/figma/rotate_ccw.svg',
                   width: 14,
                   height: 14,
                   colorFilter: ColorFilter.mode(

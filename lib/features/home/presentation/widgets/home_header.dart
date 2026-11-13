@@ -27,7 +27,7 @@ class HomeHeader extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         SvgPicture.asset(
-          'assets/icons/figma/brand_mark.svg',
+          'assets/svgs/figma/brand_mark.svg',
           width: 48,
           height: 48,
         ),

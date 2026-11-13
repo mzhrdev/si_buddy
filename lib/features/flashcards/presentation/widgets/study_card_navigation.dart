@@ -23,7 +23,7 @@ class StudyCardNavigation extends StatelessWidget {
         children: [
           Expanded(
             child: _NavButton(
-              iconAsset: 'assets/icons/figma/chevron_left.svg',
+              iconAsset: 'assets/svgs/figma/chevron_left.svg',
               label: 'Previous',
               onTap: onPrevious,
             ),
@@ -31,7 +31,7 @@ class StudyCardNavigation extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _NavButton(
-              iconAsset: 'assets/icons/figma/chevron_right.svg',
+              iconAsset: 'assets/svgs/figma/chevron_right.svg',
               label: 'Next',
               onTap: onNext,
             ),

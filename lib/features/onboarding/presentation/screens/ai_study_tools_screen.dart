@@ -101,7 +101,7 @@ class _StudyToolsIllustration extends StatelessWidget {
                   Row(
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/layers.svg',
+                        'assets/svgs/figma/layers.svg',
                         width: 14,
                         height: 14,
                         colorFilter: ColorFilter.mode(
@@ -193,7 +193,7 @@ class _StudyToolsIllustration extends StatelessWidget {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/figma/circle_check.svg',
+                          'assets/svgs/figma/circle_check.svg',
                           width: 12,
                           height: 12,
                         ),
