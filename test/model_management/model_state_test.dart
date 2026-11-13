@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:si_buddy/features/model_management/domain/model_state.dart';
 
-/// The model screens' labels follow the current model (Qwen3 0.6B
-/// since the 2026-11-12 switch); they must not still name Gemma.
+/// The AI service screen's labels follow the current service (Groq,
+/// via the app's own backend proxy, since the 2026-11-13 migration);
+/// they must not still name the retired on-device Qwen model.
 void main() {
-  test('AiModelInfo labels the Qwen3 0.6B model', () {
+  test('AiModelInfo labels the Groq AI service', () {
     const info = AiModelInfo.current;
-    expect(info.displayName, 'Qwen3 0.6B');
-    expect(info.versionLabel, 'Qwen3 0.6B · q4 (.litertlm)');
-    expect(info.downloadSizeLabel, '343 MB');
+    expect(info.displayName, 'Groq AI Service');
+    expect(info.versionLabel, 'gpt-oss-120b · Groq');
   });
 }

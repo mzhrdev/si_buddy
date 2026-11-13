@@ -27,10 +27,10 @@ final storageVersionProvider = NotifierProvider<StorageVersionNotifier, int>(
 );
 
 /// Every Storage-screen figure, measured from real state. Documents
-/// from the library's live stream, the model and cache from the
-/// device's directories, study counts from the persisted decks and
-/// stats. All sizes are 0 (never estimates) when their source does
-/// not exist.
+/// from the library's live stream, the legacy model file and cache
+/// from the device's directories, study counts from the persisted
+/// decks and stats. All sizes are 0 (never estimates) when their
+/// source does not exist.
 class StorageFigures {
   const StorageFigures({
     required this.documentsBytes,
@@ -50,10 +50,12 @@ class StorageFigures {
   /// Number of imported files.
   final int fileCount;
 
-  /// The installed model's bytes on disk (0 when not installed).
+  /// The retired on-device model file's bytes on disk (0 when no
+  /// file is left). Generation never needs this file anymore.
   final int modelBytes;
 
-  /// Whether a model is installed (from the live model state).
+  /// Whether a downloaded model file is present on disk (from the
+  /// measured bytes, not the service state).
   final bool modelInstalled;
 
   /// Temporary cache bytes.
@@ -87,12 +89,16 @@ final storageFiguresProvider = FutureProvider<StorageFigures>((ref) async {
   );
   final decks = await ref.watch(studyRepositoryProvider).watchDecks().first;
   final stats = await ref.watch(studyRepositoryProvider).getStats();
-  final modelInstalled = ref.watch(modelProvider).isReady;
+  // The legacy model file, if one is still on disk — measured
+  // directly, independent of the service state: a file can be
+  // present while the service is not configured, and absent while
+  // it is.
+  final modelBytes = await storage.modelSizeBytes();
   return StorageFigures(
     documentsBytes: documentsBytes,
     fileCount: documents.length,
-    modelBytes: modelInstalled ? await storage.modelSizeBytes() : 0,
-    modelInstalled: modelInstalled,
+    modelBytes: modelBytes,
+    modelInstalled: modelBytes > 0,
     cacheBytes: await storage.cacheSizeBytes(),
     databaseBytes: await storage.databaseSizeBytes(),
     deckCount: decks.where((deck) => !deck.isQuiz).length,

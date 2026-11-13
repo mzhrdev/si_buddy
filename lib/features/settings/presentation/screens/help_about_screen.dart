@@ -17,13 +17,14 @@ class HelpAboutScreen extends StatelessWidget {
     (
       'Can I study offline?',
       'Yes. Saved documents and study sets work offline. New AI '
-          'generation needs the installed model and enough device '
-          'resources.',
+          'generation needs the internet: your extracted text is '
+          'sent to your online AI service to generate it.',
     ),
     (
-      'How do I download the model?',
-      'Open AI Model in Settings. Use internet for the download; once '
-          'installed, Qwen3 runs locally.',
+      'How does AI generation work?',
+      'Generation runs through your online AI service (Groq, via '
+          'your own backend). It needs an internet connection; your '
+          'documents and study sets stay on your device.',
     ),
     (
       'Why can’t I read a scanned PDF?',
@@ -113,16 +114,16 @@ class HelpAboutScreen extends StatelessWidget {
                             const SizedBox(height: 10),
                             SettingsRow(
                               iconAsset: 'assets/icons/figma/cpu.svg',
-                              label: 'Qwen3 0.6B',
+                              label: 'Groq AI Service',
                               supportingText:
-                                  'AI Ready Offline · Manage AI Model',
+                                  'Online AI generation · Manage AI Service',
                               showDivider: true,
-                              onTap: () => context.push(AppRoutes.readyOffline),
+                              onTap: () => context.push(AppRoutes.aiService),
                             ),
                             const SizedBox(height: 10),
                             const _VersionRow(
-                              label: 'Model version',
-                              value: 'To be confirmed',
+                              label: 'AI model',
+                              value: 'gpt-oss-120b (Groq)',
                             ),
                           ],
                         ),

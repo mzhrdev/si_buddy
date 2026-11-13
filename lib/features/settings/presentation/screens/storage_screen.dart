@@ -49,15 +49,15 @@ class StorageScreen extends ConsumerWidget {
                     iconAsset: 'assets/icons/figma/cpu.svg',
                     label: 'AI Model',
                     supportingText: modelReady
-                        ? '${AiModelInfo.current.displayName} · Installed'
-                        : '${AiModelInfo.current.displayName} · Not installed',
-                    trailingValue: modelReady
-                        ? (figures == null
-                              ? '…'
-                              : formatFileSize(figures.modelBytes))
-                        : 'Not installed',
+                        ? '${AiModelInfo.current.displayName} · Connected'
+                        : '${AiModelInfo.current.displayName} · Not configured',
+                    trailingValue: figures == null
+                        ? '…'
+                        : figures.modelBytes > 0
+                        ? formatFileSize(figures.modelBytes)
+                        : 'No file',
                     showDivider: true,
-                    onTap: () => context.push(AppRoutes.readyOffline),
+                    onTap: () => context.push(AppRoutes.aiService),
                   ),
                   const SizedBox(height: 16),
                   Material(
@@ -353,13 +353,11 @@ class _UsageCard extends StatelessWidget {
           ),
           const Divider(height: 24),
           _UsageCategory(
-            name: 'AI model',
-            amount: modelInstalled
-                ? formatFileSize(modelBytes)
-                : 'Not installed',
+            name: 'Downloaded model file',
+            amount: modelInstalled ? formatFileSize(modelBytes) : 'None',
             detail: modelInstalled
-                ? '${AiModelInfo.current.displayName} · On-device model file'
-                : 'Download the model to generate offline',
+                ? 'Old on-device model file · Delete it from AI Model settings'
+                : 'No model file on this device',
           ),
           const Divider(height: 24),
           _UsageCategory(

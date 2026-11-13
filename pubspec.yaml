@@ -43,6 +43,10 @@ dependencies:
   go_router: ^16.0.0
   flutter_svg: ^2.0.0
   file_picker: ^13.1.0
+  # HTTP client for the backend proxy (see ai_generation/data/
+  # proxy_generation_engine.dart): generation goes through the
+  # app's own proxy, which holds the Groq key server-side.
+  http: ^1.6.0
   # Pinned exactly: 0.8.0, set when the project moved to Flutter
   # 3.47.9 / Dart 3.13.7 ("Flutter Upgrade 2.0"). 0.5.0 was the last
   # version that worked on Dart 3.12.2 / Flutter 3.44.x; 0.6.0+

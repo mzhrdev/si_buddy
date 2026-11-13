@@ -84,11 +84,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(config().includeExplanations, isFalse);
 
-    // Generate: no runtime is bound, so instead of fake progress the
-    // app shows the designed missing-model state.
+    // Generate: no service is configured, so instead of fake progress the
+    // app shows the designed missing-service state.
     await tester.tap(find.text('Generate flashcards'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(find.text('Install an AI model first'), findsOneWidget);
+    expect(find.text('AI service not configured'), findsOneWidget);
   });
 }

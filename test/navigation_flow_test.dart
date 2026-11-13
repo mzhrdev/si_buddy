@@ -23,9 +23,9 @@ Future<void> _loadInter() async {
   await loader.load();
 }
 
-/// A model that reports ready and never re-probes, so the
-/// model-installed Home states can be exercised without a real
-/// model file.
+/// A service that reports ready and never re-probes, so the
+/// service-configured Home states can be exercised without a real
+/// backend proxy.
 class _ReadyModelNotifier extends ModelNotifier {
   @override
   ModelState build() => const ModelState(status: ModelStatus.ready);
@@ -103,18 +103,18 @@ void main() {
         check('onboarding Get Started');
       }
 
-      // State A: no model installed, so Home shows only the
-      // download-model message — no Import Notes, no quick actions.
+      // State A: no AI service configured, so Home shows only the
+      // service message — no Import Notes, no quick actions.
       await advancePastSplashAndOnboarding();
-      expect(find.text('AI model not downloaded'), findsOneWidget);
-      expect(find.text('Download AI Model'), findsOneWidget);
+      expect(find.text('AI service not configured'), findsOneWidget);
+      expect(find.text('Open AI Model'), findsOneWidget);
       expect(find.text('Import Notes'), findsNothing);
 
-      await tester.tap(find.text('Download AI Model'));
+      await tester.tap(find.text('Open AI Model'));
       await tester.pumpAndSettle();
-      check('home Download AI Model');
-      expect(find.text('Download once. Generate offline.'), findsOneWidget);
-      await back('back from model not-installed');
+      check('home Open AI Model');
+      expect(find.text('Test Connection'), findsOneWidget);
+      await back('back from AI service screen');
 
       expect(problems, isEmpty, reason: problems.join('\n\n'));
     });
@@ -141,7 +141,7 @@ void main() {
         check(step);
       }
 
-      // State B: a model is installed and nothing is imported, so
+      // State B: the service is configured and nothing is imported, so
       // Home shows Import Notes (and no quick-action cards — the
       // document is the generation entry point).
       appRouter.go(AppRoutes.splash);

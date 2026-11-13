@@ -76,9 +76,10 @@ class PrivacyScreen extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text(
                           'Document reading and text extraction happen '
-                          'locally. With Qwen3 0.6B installed, AI '
-                          'study-material generation also runs on your '
-                          'device.',
+                          'locally. New AI study-material generation '
+                          'needs the internet: your extracted text is '
+                          'sent to your online AI service (Groq, via '
+                          'your own backend) to generate it.',
                           style: _bodyMutedStyle(context),
                         ),
                         const SizedBox(height: 10),
@@ -98,9 +99,8 @@ class PrivacyScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'The initial model download and any re-download need '
-                    'internet, as do Google Play purchases and restoring '
-                    'purchases.',
+                    'AI generation needs the internet, as do Google '
+                    'Play purchases and restoring purchases.',
                     style: _bodyMutedStyle(context),
                   ),
                   const SizedBox(height: 16),
@@ -114,8 +114,8 @@ class PrivacyScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Clear documents, extracted text, study materials, '
-                    'progress, preferences and the downloaded model from '
-                    'this app.',
+                    'progress, preferences and any downloaded model '
+                    'file from this app.',
                     style: _bodyMutedStyle(context),
                   ),
                   const SizedBox(height: 8),
@@ -184,11 +184,11 @@ class PrivacyScreen extends ConsumerWidget {
       title: 'Clear All Local Data?',
       messageParagraphs: const [
         'Permanently deletes all documents, extracted text, study '
-            'materials, progress, preferences and the downloaded model '
-            'from SI Buddy.',
+            'materials, progress, preferences and any downloaded '
+            'model file from SI Buddy.',
         'This cannot be undone.',
-        'To generate new study material afterward, you must download '
-            'the model again using the internet.',
+        'To generate new study material afterward, you need an '
+            'internet connection.',
         'This does not cancel an active Google Play subscription or '
             'remove exported copies outside the app.',
       ],

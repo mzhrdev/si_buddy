@@ -16,7 +16,7 @@ import '../widgets/settings_row.dart';
 /// Tab-root screen: the shell provides the bottom navigation and the
 /// header uses the brand-lockup form. Every trailing value is real:
 /// Reminders from the persisted reminder settings, AI Model from the
-/// live model state. There is no Language row (the brief removed the
+/// live AI service state. There is no Language row (the brief removed the
 /// setting) and no Appearance row (the app is Light Mode only since
 /// the 2026-11-12 restyle).
 class SettingsHubScreen extends ConsumerWidget {
@@ -29,23 +29,13 @@ class SettingsHubScreen extends ConsumerWidget {
         ref.watch(revisionRemindersEnabledProvider).value ?? false;
     final modelState = ref.watch(modelProvider);
     final modelName = AiModelInfo.current.displayName;
-    final (modelText, modelRoute) = switch (modelState.status) {
-      ModelStatus.ready => ('$modelName · Installed', AppRoutes.readyOffline),
-      ModelStatus.downloading => (
-        '$modelName · Downloading',
-        AppRoutes.downloading,
-      ),
-      ModelStatus.failed => (
-        '$modelName · Download failed',
-        AppRoutes.downloadFailed,
-      ),
-      ModelStatus.notInstalled => (
-        '$modelName · Not installed',
-        AppRoutes.notInstalled,
-      ),
-      // Not yet probed this session: the Ready screen probes on
-      // open and redirects itself when the probe lands.
-      ModelStatus.unknown => ('$modelName · Checking…', AppRoutes.readyOffline),
+    final modelText = switch (modelState.status) {
+      ModelStatus.ready => '$modelName · Connected',
+      ModelStatus.failed => '$modelName · Error',
+      ModelStatus.notInstalled => '$modelName · Not configured',
+      // Not yet probed this session: the service screen probes on
+      // open and shows its own state when the probe lands.
+      ModelStatus.unknown => '$modelName · Checking…',
     };
     return Scaffold(
       body: SafeArea(
@@ -89,7 +79,7 @@ class SettingsHubScreen extends ConsumerWidget {
                             label: 'AI Model',
                             supportingText: modelText,
                             showDivider: true,
-                            onTap: () => context.push(modelRoute),
+                            onTap: () => context.push(AppRoutes.aiService),
                           ),
                           SettingsRow(
                             iconAsset: 'assets/icons/figma/storage.svg',
