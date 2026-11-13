@@ -53,7 +53,7 @@ class ScannedPdfOcrScreen extends ConsumerWidget {
       ),
       primaryLabel: 'Choose text-based version',
       secondaryLabel: 'Back to import',
-      onPrimary: () => context.push(AppRoutes.importFiles),
+      onPrimary: () => context.pushReplacement(AppRoutes.importFiles),
       onSecondary: () => context.pop(),
     );
   }

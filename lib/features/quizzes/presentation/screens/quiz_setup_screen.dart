@@ -84,7 +84,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
     configNotifier.setDocumentId(source.document.id);
     final config = ref.read(generationConfigProvider);
     ref.read(generationJobProvider.notifier).start(source: source, config: config);
-    if (mounted) context.push(AppRoutes.generationProcessing);
+    if (mounted) context.pushReplacement(AppRoutes.generationProcessing);
   }
 
   @override

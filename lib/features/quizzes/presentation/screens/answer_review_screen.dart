@@ -48,7 +48,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                   message:
                       'Take a generated quiz to review your answers here.',
                   actionLabel: 'Generate a quiz',
-                  onAction: () => context.push(AppRoutes.quizSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],
@@ -244,7 +244,7 @@ class AnswerReviewScreen extends ConsumerWidget {
               onRight: () {
                 ref.read(reviewIndexProvider.notifier).next(questions.length);
               },
-              onLink: () => context.push(AppRoutes.results),
+              onLink: () => context.pop(),
             ),
           ],
         ),

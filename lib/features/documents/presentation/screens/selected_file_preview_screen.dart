@@ -92,7 +92,7 @@ class _SelectedFilePreviewScreenState extends ConsumerState<SelectedFilePreviewS
       return;
     }
     ref.read(extractionProvider.notifier).start(file: file, title: job.displayFileName, subject: job.subject);
-    context.push(AppRoutes.extractionProcessing);
+    context.pushReplacement(AppRoutes.extractionProcessing);
   }
 
   @override

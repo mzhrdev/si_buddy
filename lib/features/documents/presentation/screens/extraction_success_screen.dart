@@ -126,7 +126,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         FilledButton(
                           onPressed: () =>
-                              context.push(AppRoutes.generationSetup),
+                              context.pushReplacement(AppRoutes.generationSetup),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -146,7 +146,7 @@ class ExtractionSuccessScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         FilledButton(
-                          onPressed: () => context.push(AppRoutes.quizSetup),
+                          onPressed: () => context.pushReplacement(AppRoutes.quizSetup),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

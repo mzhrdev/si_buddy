@@ -378,7 +378,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                       const SizedBox(height: 10),
                     ],
                     FilledButton(
-                      onPressed: () => context.push(AppRoutes.extractionSuccess),
+                      onPressed: () => context.pushReplacement(AppRoutes.extractionSuccess),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

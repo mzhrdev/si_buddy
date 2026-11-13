@@ -61,7 +61,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
     ref
         .read(generationJobProvider.notifier)
         .start(source: source, config: config);
-    if (mounted) context.push(AppRoutes.generationProcessing);
+    if (mounted) context.pushReplacement(AppRoutes.generationProcessing);
   }
 
   @override
@@ -90,7 +90,7 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                     // never the design's sample document.
                     if (source == null)
                       _NoSourceCard(
-                        onTap: () => context.push(AppRoutes.importFiles),
+                        onTap: () => context.pushReplacement(AppRoutes.importFiles),
                       )
                     else
                       GenerationSourceCard(

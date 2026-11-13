@@ -40,7 +40,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                   message:
                       'Study a generated deck to see your session summary here.',
                   actionLabel: 'Generate flashcards',
-                  onAction: () => context.push(AppRoutes.generationSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.generationSetup),
                 ),
               ),
             ],

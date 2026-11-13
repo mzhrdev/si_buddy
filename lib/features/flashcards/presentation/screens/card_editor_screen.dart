@@ -88,7 +88,7 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
                   message:
                       'Generate flashcards from a document to edit them here.',
                   actionLabel: 'Generate flashcards',
-                  onAction: () => context.push(AppRoutes.generationSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.generationSetup),
                 ),
               ),
             ],

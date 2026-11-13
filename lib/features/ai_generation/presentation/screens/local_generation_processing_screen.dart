@@ -96,7 +96,7 @@ class _LocalGenerationProcessingScreenState
                   message:
                       'Generate flashcards or a quiz from one of your documents to see progress here.',
                   actionLabel: 'Import a document',
-                  onAction: () => context.push(AppRoutes.importFiles),
+                  onAction: () => context.pushReplacement(AppRoutes.importFiles),
                 ),
               ),
             ],

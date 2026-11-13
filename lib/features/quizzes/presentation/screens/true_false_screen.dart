@@ -53,7 +53,7 @@ class _QuizTrueFalseScreenState extends ConsumerState<QuizTrueFalseScreen> {
                   message:
                       'Generate a quiz from a document to answer questions here.',
                   actionLabel: 'Generate a quiz',
-                  onAction: () => context.push(AppRoutes.quizSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],

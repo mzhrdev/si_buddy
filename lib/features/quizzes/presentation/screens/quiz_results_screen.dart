@@ -89,7 +89,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                   message:
                       'Take a generated quiz to see your score and review here.',
                   actionLabel: 'Generate a quiz',
-                  onAction: () => context.push(AppRoutes.quizSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],
@@ -263,13 +263,13 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                     const SizedBox(height: 10),
                     FilledButton(
                       style: actionStyle,
-                      onPressed: () => context.push(AppRoutes.quizSetup),
+                      onPressed: () => context.pushReplacement(AppRoutes.quizSetup),
                       child: const Text('Retry Quiz'),
                     ),
                     const SizedBox(height: 10),
                     FilledButton(
                       style: actionStyle,
-                      onPressed: () => context.push(AppRoutes.generationSetup),
+                      onPressed: () => context.pushReplacement(AppRoutes.generationSetup),
                       child: const Text('Generate Flashcards from Mistakes'),
                     ),
                     const SizedBox(height: 10),

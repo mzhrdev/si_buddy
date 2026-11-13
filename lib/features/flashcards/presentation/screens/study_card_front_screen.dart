@@ -47,7 +47,7 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                   message:
                       'Generate flashcards from a document to study them here.',
                   actionLabel: 'Generate flashcards',
-                  onAction: () => context.push(AppRoutes.generationSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.generationSetup),
                 ),
               ),
             ],

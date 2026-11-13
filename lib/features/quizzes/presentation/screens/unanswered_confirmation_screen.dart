@@ -78,7 +78,7 @@ class UnansweredConfirmationScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 FilledButton(
                   style: buttonStyle,
-                  onPressed: () => context.push(AppRoutes.results),
+                  onPressed: () => context.pushReplacement(AppRoutes.results),
                   child: const Text('Submit Anyway'),
                 ),
               ],

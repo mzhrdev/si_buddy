@@ -47,7 +47,7 @@ class QuizHistoryScreen extends ConsumerWidget {
                   message:
                       'Take a generated quiz to see your attempts and scores here.',
                   actionLabel: 'Generate a quiz',
-                  onAction: () => context.push(AppRoutes.quizSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],
@@ -257,7 +257,7 @@ class _AttemptCard extends StatelessWidget {
                 child: _AttemptAction(
                   iconAsset: 'assets/icons/figma/rotate_ccw.svg',
                   label: 'Retry Quiz',
-                  onTap: () => context.push(AppRoutes.quizSetup),
+                  onTap: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],

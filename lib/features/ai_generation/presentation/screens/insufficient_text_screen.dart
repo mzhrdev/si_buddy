@@ -29,7 +29,7 @@ class InsufficientTextScreen extends ConsumerWidget {
       primaryLabel: 'Review Extracted Text',
       onPrimary: () => context.push(AppRoutes.extractionReview),
       secondaryLabel: 'Choose Another Document',
-      onSecondary: () => context.push(AppRoutes.importFiles),
+      onSecondary: () => context.pushReplacement(AppRoutes.importFiles),
     );
   }
 }

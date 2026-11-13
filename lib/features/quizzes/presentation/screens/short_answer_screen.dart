@@ -75,7 +75,7 @@ class _QuizShortAnswerScreenState extends ConsumerState<QuizShortAnswerScreen> {
                   message:
                       'Generate a quiz from a document to answer questions here.',
                   actionLabel: 'Generate a quiz',
-                  onAction: () => context.push(AppRoutes.quizSetup),
+                  onAction: () => context.pushReplacement(AppRoutes.quizSetup),
                 ),
               ),
             ],

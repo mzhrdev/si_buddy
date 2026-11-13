@@ -44,15 +44,12 @@ class TextExtractionProcessingScreen extends ConsumerWidget {
       if (next.status == ExtractionStatus.completed) {
         final result = next.result;
         if (result == null) return;
-        // The OCR screen replaces the processing screen: going back
-        // from it should leave the import flow, not return to a
-        // finished checklist. The review keeps the normal push.
+        // The processing screen replaces itself for every
+        // destination: going back from the next screen should
+        // leave the import flow, not return to a finished
+        // checklist.
         final route = routeAfterExtraction(result);
-        if (route == AppRoutes.ocr) {
-          context.pushReplacement(route);
-        } else {
-          context.push(route);
-        }
+        context.pushReplacement(route);
       } else if (next.status == ExtractionStatus.failed) {
         final route = switch (next.error) {
           UnsupportedFormatException() => AppRoutes.unsupported,
