@@ -57,7 +57,7 @@ class LibraryTools extends ConsumerWidget {
               child: Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/figma/folders.svg',
+                    'assets/svgs/figma/folders.svg',
                     width: 20,
                     height: 20,
                     colorFilter: ColorFilter.mode(
@@ -86,7 +86,7 @@ class LibraryTools extends ConsumerWidget {
                   Text('Organize', style: AppTextStyles.link(context)),
                   const SizedBox(width: 4),
                   SvgPicture.asset(
-                    'assets/icons/figma/chevron_right.svg',
+                    'assets/svgs/figma/chevron_right.svg',
                     width: 14,
                     height: 14,
                     colorFilter: ColorFilter.mode(
@@ -114,7 +114,7 @@ class LibraryTools extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/arrow_down_wide_narrow.svg',
+                        'assets/svgs/figma/arrow_down_wide_narrow.svg',
                         width: 16,
                         height: 16,
                         colorFilter: ColorFilter.mode(
@@ -131,7 +131,7 @@ class LibraryTools extends ConsumerWidget {
                       ),
                       const SizedBox(width: 5),
                       SvgPicture.asset(
-                        'assets/icons/figma/chevron_down.svg',
+                        'assets/svgs/figma/chevron_down.svg',
                         width: 12,
                         height: 12,
                         colorFilter: ColorFilter.mode(
@@ -152,7 +152,7 @@ class LibraryTools extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/sliders_horizontal.svg',
+                        'assets/svgs/figma/sliders_horizontal.svg',
                         width: 16,
                         height: 16,
                         colorFilter: ColorFilter.mode(
@@ -206,13 +206,13 @@ class LibraryTools extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _ViewOption(
-                      iconAsset: 'assets/icons/figma/list.svg',
+                      iconAsset: 'assets/svgs/figma/list.svg',
                       selected: !gridView,
                       onTap: onShowList,
                     ),
                     const SizedBox(width: 2),
                     _ViewOption(
-                      iconAsset: 'assets/icons/figma/layout_grid.svg',
+                      iconAsset: 'assets/svgs/figma/layout_grid.svg',
                       selected: gridView,
                       onTap: onShowGrid,
                     ),

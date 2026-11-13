@@ -207,7 +207,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                             ),
                           ),
                           SvgPicture.asset(
-                            'assets/icons/figma/chevron_down.svg',
+                            'assets/svgs/figma/chevron_down.svg',
                             width: 16,
                             height: 16,
                             colorFilter: ColorFilter.mode(context.appMuted, BlendMode.srcIn),
@@ -267,7 +267,7 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                               ).copyWith(fontSize: 13, fontWeight: FontWeight.w600, height: 18 / 13),
                             ),
                             SvgPicture.asset(
-                              'assets/icons/figma/chevron_down.svg',
+                              'assets/svgs/figma/chevron_down.svg',
                               width: 16,
                               height: 16,
                               colorFilter: ColorFilter.mode(context.appMuted, BlendMode.srcIn),
@@ -344,12 +344,12 @@ class _CountStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(asset: 'assets/icons/figma/minus.svg', onTap: onDecrease),
+          _StepButton(asset: 'assets/svgs/figma/minus.svg', onTap: onDecrease),
           SizedBox(
             width: 40,
             child: Text('$count', textAlign: TextAlign.center, style: AppTextStyles.title(context)),
           ),
-          _StepButton(asset: 'assets/icons/figma/plus.svg', onTap: onIncrease),
+          _StepButton(asset: 'assets/svgs/figma/plus.svg', onTap: onIncrease),
         ],
       ),
     );
@@ -410,7 +410,7 @@ class _ChoiceChip extends StatelessWidget {
             children: [
               if (selected) ...[
                 SvgPicture.asset(
-                  'assets/icons/figma/check.svg',
+                  'assets/svgs/figma/check.svg',
                   width: 14,
                   height: 14,
                   colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),

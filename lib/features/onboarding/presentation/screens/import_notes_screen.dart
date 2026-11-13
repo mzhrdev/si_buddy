@@ -136,7 +136,7 @@ class _ImportIllustration extends StatelessWidget {
                         ),
                       ),
                       SvgPicture.asset(
-                        'assets/icons/figma/plus.svg',
+                        'assets/svgs/figma/plus.svg',
                         width: 18,
                         height: 18,
                       ),

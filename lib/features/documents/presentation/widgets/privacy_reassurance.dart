@@ -17,7 +17,7 @@ class PrivacyReassurance extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SvgPicture.asset(
-          'assets/icons/figma/shield_check.svg',
+          'assets/svgs/figma/shield_check.svg',
           width: 13,
           height: 13,
           colorFilter: ColorFilter.mode(

@@ -210,7 +210,7 @@ class _LibraryFiltersSortingScreenState
                                     selected: _draft.dateFilter == option,
                                     iconAsset:
                                         option == LibraryDateFilter.customRange
-                                        ? 'assets/icons/figma/calendar_days.svg'
+                                        ? 'assets/svgs/figma/calendar_days.svg'
                                         : null,
                                     onTap: () {
                                       if (option ==

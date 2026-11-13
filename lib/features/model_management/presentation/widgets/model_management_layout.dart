@@ -116,7 +116,7 @@ class ModelManagementLayout extends StatelessWidget {
                         Text(primaryLabel),
                         const SizedBox(width: 12),
                         SvgPicture.asset(
-                          'assets/icons/figma/arrow_right.svg',
+                          'assets/svgs/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
                           colorFilter: ColorFilter.mode(
@@ -192,7 +192,7 @@ class _ModelPackageCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: SvgPicture.asset(
-                  'assets/icons/figma/cpu.svg',
+                  'assets/svgs/figma/cpu.svg',
                   width: 22,
                   height: 22,
                   colorFilter: ColorFilter.mode(
@@ -366,20 +366,20 @@ class _OfflineAvailability extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const _AvailabilityRow(
-          iconAsset: 'assets/icons/figma/check.svg',
+          iconAsset: 'assets/svgs/figma/check.svg',
           title: 'Saved study material · Available offline',
           description:
               'Documents & extracted text, flashcards, quizzes, summaries and study progress.',
         ),
         const SizedBox(height: 12),
         _AvailabilityRow(
-          iconAsset: 'assets/icons/figma/cpu.svg',
+          iconAsset: 'assets/svgs/figma/cpu.svg',
           title: 'New AI generation',
           description: generationAvailability,
         ),
         const SizedBox(height: 12),
         const _AvailabilityRow(
-          iconAsset: 'assets/icons/figma/wifi.svg',
+          iconAsset: 'assets/svgs/figma/wifi.svg',
           title: 'Internet required',
           description: 'AI generation, purchases and restoring purchases.',
         ),

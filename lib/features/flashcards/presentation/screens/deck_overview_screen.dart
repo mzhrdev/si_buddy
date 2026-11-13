@@ -217,7 +217,7 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     SvgPicture.asset(
-                                      'assets/icons/figma/pencil.svg',
+                                      'assets/svgs/figma/pencil.svg',
                                       width: 16,
                                       height: 16,
                                       colorFilter: ColorFilter.mode(
@@ -247,7 +247,7 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/figma/check_circle_2.svg',
+                          'assets/svgs/figma/check_circle_2.svg',
                           width: 14,
                           height: 14,
                           colorFilter: ColorFilter.mode(
@@ -278,7 +278,7 @@ class _DeckOverviewScreenState extends ConsumerState<DeckOverviewScreen> {
                           const Text('Start Studying'),
                           const SizedBox(width: 12),
                           SvgPicture.asset(
-                            'assets/icons/figma/arrow_right.svg',
+                            'assets/svgs/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
                             colorFilter: ColorFilter.mode(

@@ -288,7 +288,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/history.svg',
+                              'assets/svgs/figma/history.svg',
                               width: 16,
                               height: 16,
                               colorFilter: ColorFilter.mode(

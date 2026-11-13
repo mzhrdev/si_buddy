@@ -274,7 +274,7 @@ class _RecentDocumentRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_right.svg',
+                'assets/svgs/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(

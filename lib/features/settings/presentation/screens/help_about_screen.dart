@@ -114,7 +114,7 @@ class HelpAboutScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             SettingsRow(
-                              iconAsset: 'assets/icons/figma/cpu.svg',
+                              iconAsset: 'assets/svgs/figma/cpu.svg',
                               label: 'Groq AI Service',
                               supportingText:
                                   'Online AI generation · Manage AI Service',
@@ -195,7 +195,7 @@ class _FeedbackRow extends StatelessWidget {
             ),
             child: Center(
               child: SvgPicture.asset(
-                'assets/icons/figma/message_square.svg',
+                'assets/svgs/figma/message_square.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
@@ -226,7 +226,7 @@ class _FeedbackRow extends StatelessWidget {
             ),
           ),
           SvgPicture.asset(
-            'assets/icons/figma/arrow_up_right.svg',
+            'assets/svgs/figma/arrow_up_right.svg',
             width: 16,
             height: 16,
             colorFilter: ColorFilter.mode(context.appPrimary, BlendMode.srcIn),

@@ -65,7 +65,7 @@ class _SplashDesignScreenState extends ConsumerState<SplashDesignScreen> {
               children: [
                 const Spacer(),
                 SvgPicture.asset(
-                  'assets/icons/figma/brand_mark.svg',
+                  'assets/svgs/figma/brand_mark.svg',
                   width: 108,
                   height: 108,
                 ),

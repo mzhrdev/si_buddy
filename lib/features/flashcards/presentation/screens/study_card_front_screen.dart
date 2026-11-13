@@ -128,7 +128,7 @@ class _StudyCardFrontScreenState extends ConsumerState<StudyCardFrontScreen> {
                           const Text('Show Answer'),
                           const SizedBox(width: 12),
                           SvgPicture.asset(
-                            'assets/icons/figma/arrow_right.svg',
+                            'assets/svgs/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
                             colorFilter: ColorFilter.mode(
@@ -209,7 +209,7 @@ class _QuestionCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/figma/rotate_3d.svg',
+                    'assets/svgs/figma/rotate_3d.svg',
                     width: 16,
                     height: 16,
                     colorFilter: ColorFilter.mode(

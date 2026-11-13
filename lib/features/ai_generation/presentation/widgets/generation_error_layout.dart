@@ -61,7 +61,7 @@ class GenerationErrorLayout extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: SvgPicture.asset(
-                          'assets/icons/figma/circle_alert.svg',
+                          'assets/svgs/figma/circle_alert.svg',
                           width: 24,
                           height: 24,
                           colorFilter: ColorFilter.mode(
@@ -129,7 +129,7 @@ class GenerationErrorLayout extends StatelessWidget {
                         Text(primaryLabel),
                         const SizedBox(width: 12),
                         SvgPicture.asset(
-                          'assets/icons/figma/arrow_right.svg',
+                          'assets/svgs/figma/arrow_right.svg',
                           width: 18,
                           height: 18,
                           colorFilter: ColorFilter.mode(
@@ -164,7 +164,7 @@ class GenerationErrorLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/shield_check.svg',
+                        'assets/svgs/figma/shield_check.svg',
                         width: 14,
                         height: 14,
                         colorFilter: ColorFilter.mode(

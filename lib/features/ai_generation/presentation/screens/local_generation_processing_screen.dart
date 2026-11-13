@@ -241,7 +241,7 @@ class _LocalGenerationProcessingScreenState
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/figma/shield_check.svg',
+                        'assets/svgs/figma/shield_check.svg',
                         width: 14,
                         height: 14,
                         colorFilter: ColorFilter.mode(
@@ -335,7 +335,7 @@ class _GenerationStages extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: SvgPicture.asset(
-                    'assets/icons/figma/check.svg',
+                    'assets/svgs/figma/check.svg',
                     width: 16,
                     height: 16,
                     colorFilter: ColorFilter.mode(
@@ -345,12 +345,12 @@ class _GenerationStages extends StatelessWidget {
                   ),
                 ),
                 JobStageStatus.active => SvgPicture.asset(
-                  'assets/icons/figma/stage_active.svg',
+                  'assets/svgs/figma/stage_active.svg',
                   width: 28,
                   height: 28,
                 ),
                 JobStageStatus.upcoming => SvgPicture.asset(
-                  'assets/icons/figma/stage_upcoming.svg',
+                  'assets/svgs/figma/stage_upcoming.svg',
                   width: 28,
                   height: 28,
                 ),

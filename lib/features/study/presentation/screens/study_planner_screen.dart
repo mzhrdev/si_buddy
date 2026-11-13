@@ -317,7 +317,7 @@ class _DailyGoalCard extends StatelessWidget {
           Row(
             children: [
               SvgPicture.asset(
-                complete ? 'assets/icons/figma/circle_check.svg' : 'assets/icons/figma/circle.svg',
+                complete ? 'assets/svgs/figma/circle_check.svg' : 'assets/svgs/figma/circle.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
@@ -530,7 +530,7 @@ class _ReminderCard extends ConsumerWidget {
                       Text(timeLabel, style: AppTextStyles.greeting(context)),
                       const SizedBox(width: 6),
                       SvgPicture.asset(
-                        'assets/icons/figma/clock.svg',
+                        'assets/svgs/figma/clock.svg',
                         width: 14,
                         height: 14,
                         colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),

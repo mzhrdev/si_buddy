@@ -55,10 +55,10 @@ class _ApiServiceScreenState extends ConsumerState<ApiServiceScreen> {
           ? context.appDanger
           : context.appPrimary,
       readinessIconAsset: ready
-          ? 'assets/icons/figma/circle_check_outline.svg'
+          ? 'assets/svgs/figma/circle_check_outline.svg'
           : status == ModelStatus.failed
-          ? 'assets/icons/figma/circle_alert.svg'
-          : 'assets/icons/figma/wifi_off.svg',
+          ? 'assets/svgs/figma/circle_alert.svg'
+          : 'assets/svgs/figma/wifi_off.svg',
       readinessIconColor: ready
           ? context.appPrimary
           : status == ModelStatus.failed
@@ -124,7 +124,7 @@ class _ApiServiceScreenState extends ConsumerState<ApiServiceScreen> {
   Future<void> _confirmDeleteModel(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      iconAsset: 'assets/icons/figma/trash_2.svg',
+      iconAsset: 'assets/svgs/figma/trash_2.svg',
       indicatorColor: context.appDangerSurface,
       iconColor: context.appDanger,
       title: 'Delete Downloaded Model?',

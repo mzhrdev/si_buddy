@@ -160,7 +160,7 @@ class ConfirmationDialog extends StatelessWidget {
                   Text(confirmLabel),
                   const SizedBox(width: 12),
                   SvgPicture.asset(
-                    'assets/icons/figma/arrow_right.svg',
+                    'assets/svgs/figma/arrow_right.svg',
                     width: 18,
                     height: 18,
                     colorFilter: const ColorFilter.mode(

@@ -97,7 +97,7 @@ class DocumentListCard extends StatelessWidget {
               InkWell(
                 onTap: onMore,
                 child: SvgPicture.asset(
-                  'assets/icons/figma/ellipsis_vertical.svg',
+                  'assets/svgs/figma/ellipsis_vertical.svg',
                   width: 14,
                   height: 14,
                   colorFilter: ColorFilter.mode(
@@ -153,7 +153,7 @@ class DocumentGridCard extends StatelessWidget {
                   InkWell(
                     onTap: onMore,
                     child: SvgPicture.asset(
-                      'assets/icons/figma/ellipsis_vertical.svg',
+                      'assets/svgs/figma/ellipsis_vertical.svg',
                       width: 16,
                       height: 16,
                       colorFilter: ColorFilter.mode(
@@ -189,7 +189,7 @@ class DocumentGridCard extends StatelessWidget {
               Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/figma/layers.svg',
+                    'assets/svgs/figma/layers.svg',
                     width: 13,
                     height: 13,
                     colorFilter: ColorFilter.mode(

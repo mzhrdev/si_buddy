@@ -71,7 +71,7 @@ class _PrivateIllustration extends StatelessWidget {
           Positioned(
             left: 88,
             top: 20,
-            child: SvgPicture.asset('assets/icons/figma/personal_device.svg', width: 163, height: 257),
+            child: SvgPicture.asset('assets/svgs/figma/personal_device.svg', width: 163, height: 257),
           ),
           Positioned(
             left: 30,
@@ -88,7 +88,7 @@ class _PrivateIllustration extends StatelessWidget {
               child: Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/figma/download.svg',
+                    'assets/svgs/figma/download.svg',
                     width: 32,
                     height: 32,
                   ),

@@ -103,7 +103,7 @@ class _NoModelSection extends StatelessWidget {
                     ),
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/icons/figma/wifi_off.svg',
+                        'assets/svgs/figma/wifi_off.svg',
                         width: 19,
                         height: 19,
                       ),
@@ -151,7 +151,7 @@ class _NoModelSection extends StatelessWidget {
               const Text('Open AI Model'),
               const SizedBox(width: 8),
               SvgPicture.asset(
-                'assets/icons/figma/arrow_right.svg',
+                'assets/svgs/figma/arrow_right.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
@@ -185,7 +185,7 @@ class _NoDocumentsSection extends StatelessWidget {
         Row(
           children: [
             SvgPicture.asset(
-              'assets/icons/figma/ready_indicator.svg',
+              'assets/svgs/figma/ready_indicator.svg',
               width: 8,
               height: 8,
             ),
@@ -229,7 +229,7 @@ class _NoDocumentsSection extends StatelessWidget {
               const Text('Import Notes'),
               const SizedBox(width: 12),
               SvgPicture.asset(
-                'assets/icons/figma/arrow_right.svg',
+                'assets/svgs/figma/arrow_right.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
@@ -269,7 +269,7 @@ class _NoStudySetsSection extends ConsumerWidget {
               const Text('Import Notes'),
               const SizedBox(width: 8),
               SvgPicture.asset(
-                'assets/icons/figma/arrow_right.svg',
+                'assets/svgs/figma/arrow_right.svg',
                 width: 19,
                 height: 19,
                 colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),

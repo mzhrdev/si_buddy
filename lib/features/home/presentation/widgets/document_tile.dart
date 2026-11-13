@@ -62,7 +62,7 @@ class DocumentTile extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_right.svg',
+                'assets/svgs/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(

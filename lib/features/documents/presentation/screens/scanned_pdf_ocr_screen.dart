@@ -31,7 +31,7 @@ class ScannedPdfOcrScreen extends ConsumerWidget {
         subtitle: hasJob ? state.documentSubtitle : null,
         formatLabel: state.file?.format.label,
       ),
-      iconAsset: 'assets/icons/figma/scan_text.svg',
+      iconAsset: 'assets/svgs/figma/scan_text.svg',
       iconColor: context.appPrimary,
       surfaceColor: context.appSurface,
       headline: 'No readable text found.',

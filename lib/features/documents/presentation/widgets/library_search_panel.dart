@@ -115,7 +115,7 @@ class _LibrarySearchPanelState extends ConsumerState<LibrarySearchPanel> {
           child: Row(
             children: [
               SvgPicture.asset(
-                'assets/icons/figma/search.svg',
+                'assets/svgs/figma/search.svg',
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
@@ -266,7 +266,7 @@ class _SearchResultRow extends StatelessWidget {
                 ),
               ),
               SvgPicture.asset(
-                'assets/icons/figma/chevron_right.svg',
+                'assets/svgs/figma/chevron_right.svg',
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(

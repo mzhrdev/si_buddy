@@ -43,8 +43,10 @@ class FlutterLocalNotificationsService implements NotificationService {
     if (_initialized) return;
     tz.initializeTimeZones();
     try {
-      final name = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(name));
+      // flutter_timezone 5.x returns a TimezoneInfo object; the IANA
+      // identifier is what the timezone package needs.
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
     } catch (_) {
       // The timezone package falls back to its local (UTC-based)
       // location; scheduling still works, only the offset may be

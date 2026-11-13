@@ -305,7 +305,7 @@ Widget _completeStageIndicator(BuildContext context) {
       borderRadius: BorderRadius.circular(4),
     ),
     child: SvgPicture.asset(
-      'assets/icons/figma/check.svg',
+      'assets/svgs/figma/check.svg',
       width: 16,
       height: 16,
       colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
@@ -315,7 +315,7 @@ Widget _completeStageIndicator(BuildContext context) {
 
 Widget _activeStageIndicator() {
   return SvgPicture.asset(
-    'assets/icons/figma/stage_active.svg',
+    'assets/svgs/figma/stage_active.svg',
     width: 32,
     height: 32,
   );
@@ -323,7 +323,7 @@ Widget _activeStageIndicator() {
 
 Widget _upcomingStageIndicator() {
   return SvgPicture.asset(
-    'assets/icons/figma/stage_upcoming.svg',
+    'assets/svgs/figma/stage_upcoming.svg',
     width: 32,
     height: 32,
   );

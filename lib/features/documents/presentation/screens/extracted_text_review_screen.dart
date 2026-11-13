@@ -215,7 +215,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            'assets/icons/figma/search.svg',
+                            'assets/svgs/figma/search.svg',
                             width: 18,
                             height: 18,
                             colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
@@ -276,7 +276,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                                   : () => _goToPage(currentPage - 1, totalPages),
                               tooltip: 'Previous page',
                               icon: SvgPicture.asset(
-                                'assets/icons/figma/chevron_left.svg',
+                                'assets/svgs/figma/chevron_left.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
@@ -294,7 +294,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                                   : () => _goToPage(currentPage + 1, totalPages),
                               tooltip: 'Next page',
                               icon: SvgPicture.asset(
-                                'assets/icons/figma/chevron_right.svg',
+                                'assets/svgs/figma/chevron_right.svg',
                                 width: 16,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
@@ -363,7 +363,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SvgPicture.asset(
-                            'assets/icons/figma/arrow_down.svg',
+                            'assets/svgs/figma/arrow_down.svg',
                             width: 12,
                             height: 12,
                             colorFilter: ColorFilter.mode(context.appNavInactive, BlendMode.srcIn),
@@ -385,7 +385,7 @@ class _ExtractedTextReviewScreenState extends ConsumerState<ExtractedTextReviewS
                           const Text('Confirm text'),
                           const SizedBox(width: 8),
                           SvgPicture.asset(
-                            'assets/icons/figma/arrow_right.svg',
+                            'assets/svgs/figma/arrow_right.svg',
                             width: 18,
                             height: 18,
                             colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),

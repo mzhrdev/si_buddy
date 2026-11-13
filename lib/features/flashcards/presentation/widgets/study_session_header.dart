@@ -96,12 +96,12 @@ class StudySessionHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _ToolAction(
-                iconAsset: 'assets/icons/figma/shuffle.svg',
+                iconAsset: 'assets/svgs/figma/shuffle.svg',
                 label: shuffleOn ? 'Shuffle on' : 'Shuffle off',
                 onTap: onShuffleTap,
               ),
               _ToolAction(
-                iconAsset: 'assets/icons/figma/bookmark.svg',
+                iconAsset: 'assets/svgs/figma/bookmark.svg',
                 label: 'Bookmark',
                 onTap: onBookmarkTap,
               ),

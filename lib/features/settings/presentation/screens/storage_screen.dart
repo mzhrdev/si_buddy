@@ -47,7 +47,7 @@ class StorageScreen extends ConsumerWidget {
                   _UsageCard(figures: figures),
                   const SizedBox(height: 16),
                   SettingsRow(
-                    iconAsset: 'assets/icons/figma/cpu.svg',
+                    iconAsset: 'assets/svgs/figma/cpu.svg',
                     label: 'AI Model',
                     supportingText: modelReady
                         ? '${AiModelInfo.current.displayName} · Connected'
@@ -74,7 +74,7 @@ class StorageScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/eraser.svg',
+                              'assets/svgs/figma/eraser.svg',
                               width: 16,
                               height: 16,
                               colorFilter: ColorFilter.mode(
@@ -143,7 +143,7 @@ class StorageScreen extends ConsumerWidget {
         : formatFileSize(figures.cacheBytes);
     final confirmed = await showConfirmationDialog(
       context: context,
-      iconAsset: 'assets/icons/figma/eraser.svg',
+      iconAsset: 'assets/svgs/figma/eraser.svg',
       indicatorColor: context.appSurface,
       iconColor: context.appPrimary,
       title: 'Clear Cache?',
@@ -245,7 +245,7 @@ class _LocalFileCard extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      iconAsset: 'assets/icons/figma/trash_2.svg',
+      iconAsset: 'assets/svgs/figma/trash_2.svg',
       indicatorColor: context.appDangerSurface,
       iconColor: context.appDanger,
       title: 'Delete File?',

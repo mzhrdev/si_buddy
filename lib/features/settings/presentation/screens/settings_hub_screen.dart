@@ -60,7 +60,7 @@ class SettingsHubScreen extends ConsumerWidget {
                       SettingsCard(
                         children: [
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/bell.svg',
+                            iconAsset: 'assets/svgs/figma/bell.svg',
                             label: 'Reminders',
                             trailingValue: dailyOn || revisionOn ? 'On' : 'Off',
                             onTap: () => context.push(AppRoutes.preferences),
@@ -76,21 +76,21 @@ class SettingsHubScreen extends ConsumerWidget {
                       SettingsCard(
                         children: [
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/model.svg',
+                            iconAsset: 'assets/svgs/figma/model.svg',
                             label: 'AI Model',
                             supportingText: modelText,
                             showDivider: true,
                             onTap: () => context.push(AppRoutes.aiService),
                           ),
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/storage.svg',
+                            iconAsset: 'assets/svgs/figma/storage.svg',
                             label: 'Storage',
                             supportingText: 'Manage local files and cache',
                             showDivider: true,
                             onTap: () => context.push(AppRoutes.storage),
                           ),
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/subscription.svg',
+                            iconAsset: 'assets/svgs/figma/subscription.svg',
                             label: 'Subscription',
                             supportingText: 'Free plan · Premium coming soon',
                             onTap: () => context.push(AppRoutes.premium),
@@ -104,7 +104,7 @@ class SettingsHubScreen extends ConsumerWidget {
                     title: 'Privacy & support',
                     children: [
                       SettingsRow(
-                        iconAsset: 'assets/icons/figma/shield_check.svg',
+                        iconAsset: 'assets/svgs/figma/shield_check.svg',
                         label: 'Privacy',
                         showDivider: true,
                         onTap: () => context.push(AppRoutes.privacy),
@@ -112,14 +112,14 @@ class SettingsHubScreen extends ConsumerWidget {
                       SettingsCard(
                         children: [
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/circle_help.svg',
+                            iconAsset: 'assets/svgs/figma/circle_help.svg',
                             label: 'Help',
                             supportingText: 'Help & About · FAQs and feedback',
                             showDivider: true,
                             onTap: () => context.push(AppRoutes.help),
                           ),
                           SettingsRow(
-                            iconAsset: 'assets/icons/figma/info.svg',
+                            iconAsset: 'assets/svgs/figma/info.svg',
                             label: 'About',
                             supportingText: 'Help & About · App and model info',
                             onTap: () => context.push(AppRoutes.help),

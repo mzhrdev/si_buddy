@@ -137,8 +137,8 @@ class AnswerReviewScreen extends ConsumerWidget {
                           ? context.appSuccessSurface
                           : context.appDangerSurface,
                       iconAsset: isCorrect
-                          ? 'assets/icons/figma/check_circle_2.svg'
-                          : 'assets/icons/figma/circle_x.svg',
+                          ? 'assets/svgs/figma/check_circle_2.svg'
+                          : 'assets/svgs/figma/circle_x.svg',
                       iconColor: isCorrect ? context.appSuccess : context.appDanger,
                       label: 'Your answer',
                       labelColor:
@@ -148,7 +148,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
                     _AnswerCard(
                       background: context.appSuccessSurface,
-                      iconAsset: 'assets/icons/figma/check_circle_2.svg',
+                      iconAsset: 'assets/svgs/figma/check_circle_2.svg',
                       iconColor: context.appSuccess,
                       label: 'Correct answer',
                       labelColor: context.appSuccessText,
@@ -193,7 +193,7 @@ class AnswerReviewScreen extends ConsumerWidget {
                         child: Row(
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/figma/file_text.svg',
+                              'assets/svgs/figma/file_text.svg',
                               width: 20,
                               height: 20,
                               colorFilter: ColorFilter.mode(

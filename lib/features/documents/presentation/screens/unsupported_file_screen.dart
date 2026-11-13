@@ -38,7 +38,7 @@ class UnsupportedFileScreen extends ConsumerWidget {
         subtitle: extension == null ? null : '.$extension file',
         formatLabel: extension?.toUpperCase(),
       ),
-      iconAsset: 'assets/icons/figma/file_x_2.svg',
+      iconAsset: 'assets/svgs/figma/file_x_2.svg',
       // Figma: warning-text
       iconColor: context.appWarningText,
       // Figma: warning-surface
