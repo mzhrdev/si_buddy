@@ -1,77 +1,58 @@
-// The one on-device model this app installs, and the state of it on
-// this device. The metadata values are the ones the model
-// management screens display; they come from the runtime evaluation
-// (the package's supported-models table), not from probing the
-// device.
+// The AI service this app generates through, and the state of it
+// on this device. There is no on-device model anymore: generation
+// runs through the app's backend proxy (Groq, via the app's own
+// proxy), configured at build time with --dart-define=PROXY_URL /
+// APP_TOKEN. The metadata values are the ones the AI service
+// screen displays.
 
 import 'model_failures.dart';
 
-/// Identity and display metadata for the app's AI model.
+/// Identity and display metadata for the app's AI service.
 class AiModelInfo {
   const AiModelInfo();
 
-  /// Name shown on the model screens' package card.
-  String get displayName => 'Qwen3 0.6B';
+  /// Name shown on the AI service screen's package card.
+  String get displayName => 'Groq AI Service';
 
-  /// The card's "Model version" row.
-  String get versionLabel => 'Qwen3 0.6B · q4 (.litertlm)';
+  /// The card's "AI model" row.
+  String get versionLabel => 'gpt-oss-120b · Groq';
 
-  /// The card's "Download size" row (the catalogue's rounded size).
-  String get downloadSizeLabel => '343 MB';
-
-  /// The single model the app manages.
+  /// The single service the app generates through.
   static const AiModelInfo current = AiModelInfo();
 }
 
-/// Where the model stands on this device.
+/// Where the AI service stands for this build.
 enum ModelStatus {
   /// Not yet probed this session (the notifier has not refreshed).
   unknown,
 
-  /// No model file is installed.
+  /// The build has no AI service configured, or the health probe
+  /// did not answer.
   notInstalled,
 
-  /// A download is running; see [ModelState.downloadProgress].
-  downloading,
-
-  /// Installed and active — generation can run.
+  /// The service answered the health probe — generation can run.
   ready,
 
-  /// The last operation (download, delete, probe) failed; see
+  /// The last operation (probe, delete) failed; see
   /// [ModelState.failure].
   failed,
 }
 
-/// Immutable snapshot the model screens render.
+/// Immutable snapshot the AI service screen renders.
 class ModelState {
-  const ModelState({
-    this.status = ModelStatus.unknown,
-    this.downloadProgress = 0,
-    this.failure,
-  });
+  const ModelState({this.status = ModelStatus.unknown, this.failure});
 
   final ModelStatus status;
-
-  /// Download completion, 0.0–1.0; meaningful only while
-  /// [status] is [ModelStatus.downloading].
-  final double downloadProgress;
 
   /// The failure that put the state at [ModelStatus.failed].
   final ModelFailure? failure;
 
   bool get isReady => status == ModelStatus.ready;
-  bool get isDownloading => status == ModelStatus.downloading;
 
-  ModelState copyWith({
-    ModelStatus? status,
-    double? downloadProgress,
-    ModelFailure? failure,
-    bool clearFailure = false,
-  }) {
+  ModelState copyWith({ModelStatus? status, ModelFailure? failure}) {
     return ModelState(
       status: status ?? this.status,
-      downloadProgress: downloadProgress ?? this.downloadProgress,
-      failure: clearFailure ? null : (failure ?? this.failure),
+      failure: failure ?? this.failure,
     );
   }
 }

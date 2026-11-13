@@ -69,7 +69,7 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                   const _ComparisonCard(),
                   const SizedBox(height: 16),
                   Text(
-                    'One run = one request to generate flashcards, a quiz or a summary. Offline generation counts toward the daily limit in this sample policy.',
+                    'One run = one request to generate flashcards, a quiz or a summary. AI generation counts toward the daily limit in this sample policy.',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
@@ -113,8 +113,8 @@ class _UpgradePremiumScreenState extends State<UpgradePremiumScreen> {
                       context,
                     ).copyWith(height: 18 / 13),
                     paragraphs: const [
-                      'Saved documents, flashcards, quizzes and summaries stay available within plan limits. Local AI needs an installed model and sufficient memory and storage.',
-                      'Internet is required for Google Play purchases, restore, verification, subscription management and model downloads. Premium does not install the model.',
+                      'Saved documents, flashcards, quizzes and summaries stay available within plan limits. AI generation needs an internet connection.',
+                      'Internet is required for Google Play purchases, restore, verification, subscription management and AI generation.',
                     ],
                   ),
                 ],

@@ -291,8 +291,8 @@ class _QuizSetupScreenState extends ConsumerState<QuizSetupScreen> {
                 children: [
                   Text(
                     modelReady
-                        ? '● Model installed · AI ready offline'
-                        : '● No model installed · Download the model to generate',
+                        ? '● AI service ready · Generation needs internet'
+                        : '● AI service not configured · Generation unavailable',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.caption(
                       context,

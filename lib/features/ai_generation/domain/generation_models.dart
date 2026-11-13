@@ -109,7 +109,7 @@ class GenerationResult {
 /// [label]s are the screen's exact stage titles.
 enum GenerationStage {
   sourceTextReady('Text extraction complete'),
-  localGeneration('Local AI generation'),
+  localGeneration('AI generation'),
   checkAndSave('Check and save');
 
   const GenerationStage(this.label);

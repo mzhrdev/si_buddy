@@ -20,8 +20,8 @@ import '../widgets/study_progress_card.dart';
 /// "SI Buddy · Home Dashboard" (3:1849).
 ///
 /// The screen is state-driven (production brief, Phase 3): it
-/// renders exactly one of [HomeState] — welcome + Download Model
-/// when no model is installed, Import Notes when nothing is
+/// renders exactly one of [HomeState] — welcome + AI service setup
+/// when no service is configured, Import Notes when nothing is
 /// imported, Recent Documents + a generate next step when no study
 /// sets exist yet, statistics + "Pick up where you left off" while
 /// work is unfinished, or Recent Documents + study history once
@@ -66,7 +66,7 @@ class HomeDashboardScreen extends ConsumerWidget {
   }
 }
 
-/// State A: no AI model installed. Only a download-model message —
+/// State A: no AI service configured. Only a service message —
 /// no import button, no statistics, no documents.
 class _NoModelSection extends StatelessWidget {
   @override
@@ -77,8 +77,8 @@ class _NoModelSection extends StatelessWidget {
         Text('Welcome to SI Buddy.', style: AppTextStyles.display(context)),
         const SizedBox(height: 8),
         Text(
-          'Your personal study space. Download the AI model once, '
-          'then everything works offline.',
+          'Your personal study space. AI generation uses your '
+          'online AI service — your notes stay on your device.',
           style: AppTextStyles.body(context),
         ),
         const SizedBox(height: 16),
@@ -103,7 +103,7 @@ class _NoModelSection extends StatelessWidget {
                     ),
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/icons/figma/download_plain.svg',
+                        'assets/icons/figma/wifi_off.svg',
                         width: 19,
                         height: 19,
                       ),
@@ -114,12 +114,12 @@ class _NoModelSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'AI model not downloaded',
+                        'AI service not configured',
                         style: AppTextStyles.itemTitle(context),
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'One download. Then AI works offline.',
+                        'Generation needs your online AI service.',
                         style: AppTextStyles.caption(context),
                       ),
                     ],
@@ -128,8 +128,9 @@ class _NoModelSection extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Connect to the internet to download the model before '
-                'generating study tools.',
+                'This build doesn’t have an AI service configured, '
+                'so generation is unavailable. Your documents and '
+                'study sets still work.',
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
@@ -143,13 +144,18 @@ class _NoModelSection extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         FilledButton(
-          onPressed: () => context.push(AppRoutes.notInstalled),
-          child: const Row(
+          onPressed: () => context.push(AppRoutes.aiService),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Download AI Model'),
-              SizedBox(width: 8),
-              Icon(Icons.download, size: 19),
+              const Text('Open AI Model'),
+              const SizedBox(width: 8),
+              SvgPicture.asset(
+                'assets/icons/figma/arrow_right.svg',
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(context.appCard, BlendMode.srcIn),
+              ),
             ],
           ),
         ),
@@ -158,7 +164,7 @@ class _NoModelSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'No account. No cloud. Just your notes.',
+              'No account. Your notes stay on your device.',
               style: AppTextStyles.caption(context),
             ),
           ],
@@ -168,8 +174,8 @@ class _NoModelSection extends StatelessWidget {
   }
 }
 
-/// State B: model installed, nothing imported yet. Model status +
-/// Import Notes — no documents, no statistics.
+/// State B: service configured, nothing imported yet. Service
+/// status + Import Notes — no documents, no statistics.
 class _NoDocumentsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -185,7 +191,7 @@ class _NoDocumentsSection extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              'AI Ready Offline',
+              'AI Service Ready',
               style: AppTextStyles.successLabel(context),
             ),
           ],

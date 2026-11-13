@@ -29,9 +29,11 @@ class StorageService {
   Future<Directory> _documentsDir() async =>
       documentsDirectory ?? await getApplicationDocumentsDirectory();
 
-  /// The installed model's bytes on disk, or 0 when it is not
-  /// installed (or the plugin's layout differs from the one this
-  /// method knows). Never throws: a measurement failure reads as 0.
+  /// The retired on-device model file's bytes on disk, or 0 when
+  /// it is not there (or the plugin's layout differs from the one
+  /// this method knows). Never throws: a measurement failure reads
+  /// as 0. Generation never needs this file anymore; the size is
+  /// only shown so Settings can offer to delete it.
   Future<int> modelSizeBytes() async {
     try {
       final docs = await _documentsDir();

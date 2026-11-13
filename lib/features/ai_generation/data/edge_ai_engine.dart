@@ -1,7 +1,9 @@
 // The engine seam: everything above the data layer talks to the
-// on-device AI runtime through this small interface, never through
-// the flutter_edge_ai plugin directly. The real implementation is
-// `FlutterEdgeAiEngine` (flutter_edge_ai_engine.dart); tests
+// AI runtime through this small interface, never through a plugin
+// or an HTTP client directly. The real implementation is
+// `ProxyGenerationEngine` (proxy_generation_engine.dart), which
+// calls the app's backend proxy; `FlutterEdgeAiEngine` remains
+// only for deleting a legacy on-device model file. Tests
 // substitute a fake. No plugin types appear here or anywhere above
 // this file.
 
@@ -15,8 +17,8 @@ enum EngineDownloadErrorKind {
 
   /// HTTP 403 — the token has not been granted access to the gated
   /// model (the model's license has not been accepted for the
-  /// account). Unreachable for the current ungated Qwen model;
-  /// kept for any future gated model.
+  /// account). Unreachable for the retired on-device model (it was
+  /// ungated); kept because the legacy engine still maps it.
   forbidden,
 
   /// HTTP 404 — the model file was not found at the source URL.
@@ -39,8 +41,10 @@ enum EngineDownloadErrorKind {
 }
 
 /// A model download failed. Carries the mapped [kind] and the
-/// plugin's detail for logs; the model layer turns this into its
-/// typed `ModelDownloadFailure`.
+/// plugin's detail for logs. Nothing in the app calls downloadModel
+/// anymore (the proxy engine completes it immediately and the model
+/// layer has no download flow left); the legacy engine still throws
+/// this from its own download path.
 class EngineDownloadException implements Exception {
   const EngineDownloadException(this.kind, this.message);
 
@@ -62,12 +66,15 @@ class EngineNoActiveModelException implements Exception {
   String toString() => 'EngineNoActiveModelException';
 }
 
-/// Running the model failed. [isLowMemory] is the engine
+/// Running generation failed. [isLowMemory] is the engine
 /// implementation's best signal that the failure was memory pressure
-/// (native OOM/allocation errors have no typed form in the plugin, so
-/// the implementation recognises them from the error text — see
-/// flutter_edge_ai_engine.dart). Maps to `LowMemoryFailure` when
-/// true, `GenerationFailedFailure` otherwise.
+/// — only the retired on-device engine ever sets it (native OOM
+/// errors have no typed form in the plugin, so that implementation
+/// recognises them from the error text — see
+/// flutter_edge_ai_engine.dart). The proxy engine never sets it:
+/// generation runs server-side, so there is no on-device memory
+/// pressure to report. Maps to `LowMemoryFailure` when true,
+/// `GenerationFailedFailure` otherwise.
 class EngineGenerationException implements Exception {
   const EngineGenerationException(this.message, {this.isLowMemory = false});
 
@@ -80,43 +87,40 @@ class EngineGenerationException implements Exception {
   String toString() => 'EngineGenerationException: $message';
 }
 
-/// The on-device AI runtime, reduced to the four operations the app
-/// needs: model state, model download, model removal, and streaming
-/// text generation.
+/// The AI runtime, reduced to the four operations the app needs:
+/// service state, service setup (a no-op for the proxy — there is
+/// nothing to download), legacy model removal, and streaming text
+/// generation.
 abstract class EdgeAiEngine {
-  /// Whether a model is installed AND set active — generation can
-  /// start immediately. Never throws: a runtime that is missing,
-  /// uninitialised or erroring reads as "not ready", so callers route
+  /// Whether the AI service is configured and answering — generation
+  /// can start immediately. Never throws: a service that is missing,
+  /// unconfigured or erroring reads as "not ready", so callers route
   /// to the missing-model state instead of crashing.
   Future<bool> isModelReady();
 
-  /// Whether the model file is installed on this device (whether or
-  /// not it is the active one). Never throws, like [isModelReady].
+  /// Whether the AI service is configured. Never throws, like
+  /// [isModelReady].
   Future<bool> isModelInstalled();
 
-  /// Downloads, installs and activates the model, emitting progress
-  /// as a 0.0–1.0 fraction. Completion of the stream means the model
-  /// is installed and active. Failures arrive on the error channel as
-  /// [EngineDownloadException]. Cancelling the subscription cancels
-  /// the download through the plugin's cancel token; a cancelled
-  /// download surfaces as an [EngineDownloadException] with kind
-  /// [EngineDownloadErrorKind.cancelled] if it is observed at all.
-  ///
-  /// Single-flight: while a download is running, a second call
-  /// returns the same stream instead of starting a second install.
+  /// Sets the service up, emitting progress as a 0.0–1.0 fraction.
+  /// For the proxy engine there is nothing to download or install,
+  /// so this completes immediately at 1.0; the legacy on-device
+  /// engine used it for the real model download. Failures arrive on
+  /// the error channel as [EngineDownloadException]. Cancelling the
+  /// subscription cancels the setup.
   Stream<double> downloadModel();
 
-  /// Removes the installed model and its stored file. Throws
-  /// [EngineGenerationException] on failure.
+  /// Removes a legacy downloaded model file, if one is still on
+  /// this device. Throws [EngineGenerationException] on failure.
   Future<void> deleteModel();
 
-  /// Streams the model's reply to [prompt] token by token.
+  /// Streams the service's reply to [prompt].
   ///
-  /// [maxOutputTokens] caps how much the model may generate.
+  /// [maxOutputTokens] caps how much the service may generate.
   /// Cancelling the returned stream's subscription stops generation
-  /// natively (the chat's stop) and releases the model. Throws
-  /// [EngineNoActiveModelException] when no model is active and
-  /// [EngineGenerationException] for runtime failures, both on the
-  /// stream's error channel.
+  /// (the proxy request is aborted) and releases the connection.
+  /// Throws [EngineNoActiveModelException] when no service is
+  /// configured and [EngineGenerationException] for runtime
+  /// failures, both on the stream's error channel.
   Stream<String> generateText(String prompt, {int maxOutputTokens = 1024});
 }

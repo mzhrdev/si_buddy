@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_edge_ai/flutter_edge_ai.dart';
-import 'package:flutter_edge_ai_litertlm/flutter_edge_ai_litertlm.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
@@ -16,13 +14,11 @@ import 'features/study/presentation/providers/reminder_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Register the LiteRT-LM engine once, at startup (flutter_edge_ai's
-  // documented setup). This only registers the engine — no model is
-  // loaded until generation runs. The Hugging Face token is NOT read
-  // here: it is passed per download by the model data layer, from the
-  // HF_TOKEN dart-define (see ai_generation/data/flutter_edge_ai_engine.dart).
-  // The current Qwen model is ungated, so no token is needed.
-  await FlutterEdgeAi.initialize(inferenceEngines: const [LiteRtLmEngine()]);
+  // No on-device AI runtime is initialised anymore: generation
+  // runs through the backend proxy (see ai_generation/data/
+  // proxy_generation_engine.dart). The retired LiteRT engine stays
+  // in the tree only for deleting a legacy model file, and only
+  // when Settings asks for that cleanup.
   // Open the database once, here: the splash screen needs the
   // persisted onboarding flag before the first frame, and the
   // provider scope reuses this same instance (a second connection

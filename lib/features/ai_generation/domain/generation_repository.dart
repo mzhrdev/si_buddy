@@ -2,7 +2,7 @@ import '../../documents/domain/document_models.dart';
 import 'generation_config.dart';
 import 'generation_models.dart';
 
-/// The AI generation feature's gateway to the on-device model.
+/// The AI generation feature's gateway to the AI service.
 ///
 /// Implementations throw the typed failures from
 /// `generation_failures.dart`; the UI routes to the matching designed

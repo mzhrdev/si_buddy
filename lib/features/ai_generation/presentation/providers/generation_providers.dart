@@ -6,26 +6,29 @@ import '../../../documents/domain/document_models.dart';
 import '../../../documents/presentation/providers/documents_providers.dart';
 import '../../../study/presentation/providers/study_providers.dart';
 import '../../data/edge_ai_engine.dart';
-import '../../data/flutter_edge_ai_engine.dart';
 import '../../data/generation_repository_impl.dart';
+import '../../data/proxy_generation_engine.dart';
 import '../../domain/generation_config.dart';
 import '../../domain/generation_models.dart';
 import '../../domain/generation_repository.dart';
 import 'study_session_providers.dart';
 
-/// The on-device AI runtime seam the whole app runs on.
+/// The AI runtime seam the whole app runs on: the backend proxy
+/// (Groq, via the app's own proxy — see
+/// `data/proxy_generation_engine.dart`). The proxy URL and app token
+/// come from `--dart-define=PROXY_URL` / `APP_TOKEN` at build time;
+/// a build without them reads as "service not configured".
 ///
-/// Construction is pure Dart (no platform channel is touched until
-/// a method runs), so this can be provided eagerly; tests override
-/// it with a fake engine.
+/// Construction is pure Dart (no network call happens until a
+/// method runs), so this can be provided eagerly; tests override it
+/// with a fake engine.
 final edgeAiEngineProvider = Provider<EdgeAiEngine>((ref) {
-  return const FlutterEdgeAiEngine();
+  return const ProxyGenerationEngine();
 });
 
 /// The generation repository generation jobs run on: the real
-/// implementation over the [edgeAiEngineProvider] seam
-/// (flutter_edge_ai + LiteRT-LM, Qwen3 0.6B — see
-/// MODEL_RUNTIME_EVALUATION.md).
+/// implementation over the [edgeAiEngineProvider] seam (backend
+/// proxy — Groq via the app's own proxy).
 final generationRepositoryProvider = Provider<GenerationRepository>((ref) {
   return GenerationRepositoryImpl(engine: ref.watch(edgeAiEngineProvider));
 });

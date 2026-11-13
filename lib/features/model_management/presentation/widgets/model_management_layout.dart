@@ -6,13 +6,15 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_header.dart';
 
-/// Shared layout for the AI Model management frames: the model package
-/// card (identity, installation status, package metadata), the readiness
-/// card, the "What works offline" availability list, and the pinned
-/// primary/secondary actions.
+/// Shared layout for the AI service screen: the service package
+/// card (identity, connection status, AI model metadata), the
+/// status card, the "What works offline" availability list, and the
+/// pinned primary/secondary actions.
 ///
-/// The individual frames differ only in status, readiness content,
-/// availability copy for new AI generation, and action labels/colors.
+/// There is no model download anymore: generation runs through the
+/// app's backend proxy (Groq, via the app's own proxy), so the
+/// screen reports whether the service is configured and answers,
+/// and offers to delete a legacy downloaded model file.
 class ModelManagementLayout extends StatelessWidget {
   const ModelManagementLayout({
     required this.statusLabel,
@@ -31,7 +33,6 @@ class ModelManagementLayout extends StatelessWidget {
     this.secondaryColor,
     this.secondaryBorderColor,
     this.modelVersion = 'To be confirmed',
-    this.downloadSize = 'To be confirmed',
     super.key,
   });
 
@@ -45,7 +46,7 @@ class ModelManagementLayout extends StatelessWidget {
   /// Null reads as the card color.
   final Color? readinessBackground;
 
-  /// Optional extra content under the readiness body (download progress).
+  /// Optional extra content under the readiness body.
   final Widget? readinessChild;
 
   /// Description for the "New AI generation" availability row.
@@ -63,9 +64,8 @@ class ModelManagementLayout extends StatelessWidget {
   final Color? secondaryBorderColor;
 
   /// Package card metadata. Defaults keep the design's placeholder;
-  /// wired screens pass the real model's values.
+  /// the wired screen passes the real service's values.
   final String modelVersion;
-  final String downloadSize;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,6 @@ class ModelManagementLayout extends StatelessWidget {
                     statusLabel: statusLabel,
                     statusColor: statusColor,
                     modelVersion: modelVersion,
-                    downloadSize: downloadSize,
                   ),
                   const SizedBox(height: 16),
                   _ReadinessCard(
@@ -164,13 +163,11 @@ class _ModelPackageCard extends StatelessWidget {
     required this.statusLabel,
     required this.statusColor,
     required this.modelVersion,
-    required this.downloadSize,
   });
 
   final String statusLabel;
   final Color statusColor;
   final String modelVersion;
-  final String downloadSize;
 
   @override
   Widget build(BuildContext context) {
@@ -210,12 +207,12 @@ class _ModelPackageCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Qwen3 0.6B',
+                      'Groq AI Service',
                       style: AppTextStyles.screenTitle(context),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'On-device AI model',
+                      'Online AI generation',
                       style: AppTextStyles.caption(context),
                     ),
                   ],
@@ -248,9 +245,7 @@ class _ModelPackageCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _MetadataRow(label: 'Model version', value: modelVersion),
-          const SizedBox(height: 6),
-          _MetadataRow(label: 'Download size', value: downloadSize),
+          _MetadataRow(label: 'AI model', value: modelVersion),
         ],
       ),
     );
@@ -386,7 +381,7 @@ class _OfflineAvailability extends StatelessWidget {
         const _AvailabilityRow(
           iconAsset: 'assets/icons/figma/wifi.svg',
           title: 'Internet required',
-          description: 'Model downloads, purchases and restoring purchases.',
+          description: 'AI generation, purchases and restoring purchases.',
         ),
       ],
     );
@@ -442,59 +437,6 @@ class _AvailabilityRow extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Download progress shown in the readiness card of the Downloading
-/// frame (5:15129): label, percentage, and the progress track. The
-/// defaults render the design's static 42%; the wired downloading
-/// screen passes the download's live [fraction].
-class ModelDownloadProgress extends StatelessWidget {
-  const ModelDownloadProgress({super.key, this.fraction = 0.42});
-
-  /// Download progress, 0.0–1.0.
-  final double fraction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Model download', style: AppTextStyles.caption(context)),
-            Text(
-              '${(fraction * 100).round()}%',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: context.appText,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 7),
-        Container(
-          height: 5,
-          decoration: BoxDecoration(
-            color: context.appBorder,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: fraction.clamp(0.0, 1.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: context.appPrimary,
-                borderRadius: BorderRadius.circular(100),
-              ),
-            ),
           ),
         ),
       ],

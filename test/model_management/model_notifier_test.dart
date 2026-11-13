@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:si_buddy/features/ai_generation/data/edge_ai_engine.dart';
@@ -8,19 +6,12 @@ import 'package:si_buddy/features/model_management/domain/model_failures.dart';
 import 'package:si_buddy/features/model_management/domain/model_state.dart';
 import 'package:si_buddy/features/model_management/presentation/providers/model_providers.dart';
 
-/// A scripted [EdgeAiEngine] for the model state machine: tests set
-/// the probe answers and either the download's progress script or
-/// the error it fails with.
+/// A scripted [EdgeAiEngine] for the AI service state machine:
+/// tests set the probe answers and whether the legacy delete runs.
 class FakeEdgeAiEngine implements EdgeAiEngine {
   bool ready = false;
   bool installed = false;
-  List<double> downloadScript = const [0.25, 0.5, 1.0];
-  EngineDownloadException? downloadError;
   bool deleted = false;
-
-  /// How many times a download was started — the single-flight
-  /// guard is that a second start while one runs adds none.
-  int downloadCalls = 0;
 
   @override
   Future<bool> isModelReady() async => ready;
@@ -29,27 +20,15 @@ class FakeEdgeAiEngine implements EdgeAiEngine {
   Future<bool> isModelInstalled() async => installed;
 
   @override
-  Stream<double> downloadModel() async* {
-    downloadCalls++;
-    final error = downloadError;
-    if (error != null) {
-      // Some progress, then the failure — like a real download.
-      yield 0.25;
-      throw error;
-    }
-    for (final progress in downloadScript) {
-      await Future<void>.delayed(const Duration(milliseconds: 15));
-      yield progress;
-    }
-    installed = true;
-    ready = true;
-  }
+  Stream<double> downloadModel() => Stream.value(1.0);
 
   @override
   Future<void> deleteModel() async {
     deleted = true;
+    // Only the legacy file goes: the service itself stays
+    // configured, so readiness is untouched (unlike the retired
+    // on-device engine, where deleting the model meant not-ready).
     installed = false;
-    ready = false;
   }
 
   @override
@@ -58,7 +37,7 @@ class FakeEdgeAiEngine implements EdgeAiEngine {
   }
 }
 
-/// Lets pending microtasks and timed stream events settle.
+/// Lets pending microtasks settle.
 Future<void> settle() async {
   for (var i = 0; i < 30; i++) {
     await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -86,95 +65,62 @@ void main() {
     expect(state().status, ModelStatus.unknown);
   });
 
-  test('refresh reports not installed when no model is present', () async {
+  test('refresh reports not installed when the service is not '
+      'configured', () async {
     await notifier().refresh();
     expect(state().status, ModelStatus.notInstalled);
   });
 
-  test('refresh reports ready when a model is active', () async {
+  test('refresh reports ready when the service answers', () async {
     engine.ready = true;
     engine.installed = true;
     await notifier().refresh();
     expect(state().status, ModelStatus.ready);
   });
 
-  test('download streams progress and lands ready', () async {
-    notifier().startDownload();
-    expect(state().status, ModelStatus.downloading);
-    await settle();
-    expect(state().status, ModelStatus.ready);
-    expect(state().downloadProgress, 1.0);
-    expect(engine.installed, isTrue);
-  });
-
-  test('an auth failure lands failed with the authentication kind', () async {
-    engine.downloadError = const EngineDownloadException(
-      EngineDownloadErrorKind.unauthorized,
-      '401 from Hugging Face',
-    );
-    notifier().startDownload();
-    await settle();
-    expect(state().status, ModelStatus.failed);
-    final failure = state().failure;
-    expect(failure, isA<ModelDownloadFailure>());
-    expect(
-      (failure! as ModelDownloadFailure).kind,
-      ModelDownloadErrorKind.authentication,
-    );
-    // The message explains the license gate a user must satisfy.
-    expect(failure.message, contains("model's license"));
-  });
-
-  test('a network failure lands failed with the network kind', () async {
-    engine.downloadError = const EngineDownloadException(
-      EngineDownloadErrorKind.network,
-      'socket closed',
-    );
-    notifier().startDownload();
-    await settle();
-    expect(state().status, ModelStatus.failed);
-    expect(
-      (state().failure! as ModelDownloadFailure).kind,
-      ModelDownloadErrorKind.network,
-    );
-  });
-
-  test('a second start while downloading restarts nothing', () async {
-    engine.downloadScript = const [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-    notifier().startDownload();
-    await Future<void>.delayed(const Duration(milliseconds: 35));
-    expect(state().status, ModelStatus.downloading);
-    expect(engine.downloadCalls, 1);
-    // The re-entry that used to start a second parallel install:
-    // back, then Download again while the first is still running.
-    notifier().startDownload();
-    expect(engine.downloadCalls, 1);
-    expect(state().status, ModelStatus.downloading);
-    await settle();
-    expect(state().status, ModelStatus.ready);
-    expect(engine.downloadCalls, 1);
-  });
-
-  test('cancel returns to not installed', () async {
-    engine.downloadScript = const [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-    notifier().startDownload();
-    // A couple of steps in (8 steps x 15ms), still downloading.
-    await Future<void>.delayed(const Duration(milliseconds: 35));
-    expect(state().status, ModelStatus.downloading);
-    notifier().cancelDownload();
-    expect(state().status, ModelStatus.notInstalled);
-    // And it stays cancelled — no late completion revives it.
-    await settle();
-    expect(state().status, ModelStatus.notInstalled);
-  });
-
-  test('delete removes the model and returns to not installed', () async {
+  test('delete removes the legacy file and the service stays ready', () async {
     engine.ready = true;
     engine.installed = true;
     await notifier().refresh();
     expect(state().status, ModelStatus.ready);
     await notifier().deleteModel();
     expect(engine.deleted, isTrue);
-    expect(state().status, ModelStatus.notInstalled);
+    // Deleting the legacy file does not unconfigure the service.
+    expect(state().status, ModelStatus.ready);
   });
+
+  test('delete failure lands failed', () async {
+    // A delete that throws surfaces as a failed state.
+    container = ProviderContainer(
+      overrides: [
+        edgeAiEngineProvider.overrideWithValue(_ThrowingDeleteEngine()),
+      ],
+    );
+    addTearDown(container.dispose);
+    await notifier().deleteModel();
+    expect(state().status, ModelStatus.failed);
+    expect(state().failure, isA<ModelOperationFailure>());
+  });
+}
+
+/// An engine whose delete always fails, for the delete-failure test.
+class _ThrowingDeleteEngine implements EdgeAiEngine {
+  @override
+  Future<bool> isModelReady() async => true;
+
+  @override
+  Future<bool> isModelInstalled() async => true;
+
+  @override
+  Stream<double> downloadModel() => Stream.value(1.0);
+
+  @override
+  Future<void> deleteModel() async {
+    throw const EngineGenerationException('uninstall failed');
+  }
+
+  @override
+  Stream<String> generateText(String prompt, {int maxOutputTokens = 1024}) {
+    return const Stream.empty();
+  }
 }

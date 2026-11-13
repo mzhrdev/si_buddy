@@ -67,7 +67,7 @@ abstract final class AppColors {
   /// Decorative accents (illustration shapes, inactive dots).
   static const accentMuted = Color(0xFFE5E5E5);
 
-  /// Success text (e.g. "AI Ready Offline").
+  /// Success text (e.g. "AI Service Ready").
   static const successText = Color(0xFF116B32);
 
   static const white = Color(0xFFFFFFFF);

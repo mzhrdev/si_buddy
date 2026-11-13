@@ -134,17 +134,16 @@ class _LocalGenerationProcessingScreenState
                     const SizedBox(height: 24),
                     Text(
                       'Creating your flashcards',
-                      style: AppTextStyles.display(context).copyWith(
-                        letterSpacing: -0.48,
-                      ),
+                      style: AppTextStyles.display(
+                        context,
+                      ).copyWith(letterSpacing: -0.48),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'The local AI is turning your reviewed text into study material.',
-                      style: AppTextStyles.body(context).copyWith(
-                        color: context.appMuted,
-                        height: 22 / 14,
-                      ),
+                      'The AI service is turning your reviewed text into study material.',
+                      style: AppTextStyles.body(
+                        context,
+                      ).copyWith(color: context.appMuted, height: 22 / 14),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -152,11 +151,15 @@ class _LocalGenerationProcessingScreenState
                       children: [
                         Text(
                           'Generating cards',
-                          style: AppTextStyles.link(context).copyWith(height: 16 / 12),
+                          style: AppTextStyles.link(
+                            context,
+                          ).copyWith(height: 16 / 12),
                         ),
                         Text(
                           '${(job.fraction * 100).round()}%',
-                          style: AppTextStyles.link(context).copyWith(height: 16 / 12),
+                          style: AppTextStyles.link(
+                            context,
+                          ).copyWith(height: 16 / 12),
                         ),
                       ],
                     ),
@@ -175,10 +178,9 @@ class _LocalGenerationProcessingScreenState
                     const SizedBox(height: 12),
                     Text(
                       'This may take a minute. Keep SI Buddy open.',
-                      style: AppTextStyles.caption(context).copyWith(
-                        fontSize: 12,
-                        height: 18 / 12,
-                      ),
+                      style: AppTextStyles.caption(
+                        context,
+                      ).copyWith(fontSize: 12, height: 18 / 12),
                     ),
                     const SizedBox(height: 24),
                     _GenerationStages(job: job),
@@ -202,7 +204,7 @@ class _LocalGenerationProcessingScreenState
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Model installed · Running on this device',
+                    'AI service connected · Generating online',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.caption(context).copyWith(
                       fontSize: 12,
@@ -277,7 +279,7 @@ class _LocalGenerationProcessingScreenState
 }
 
 /// The three-stage generation list inside its bordered card:
-/// extraction complete, local AI generation, then check and save.
+/// extraction complete, AI generation, then check and save.
 /// With a null [job] it renders the design's static rows; with a
 /// job, each row's state and subtitle come from the job.
 class _GenerationStages extends StatelessWidget {
@@ -296,7 +298,7 @@ class _GenerationStages extends StatelessWidget {
         ),
         (
           status: JobStageStatus.active,
-          title: 'Local AI generation',
+          title: 'AI generation',
           subtitle: 'Building cards about cell structures',
         ),
         (
@@ -391,15 +393,16 @@ class _StageRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.itemTitle(context).copyWith(color: titleColor),
+                style: AppTextStyles.itemTitle(
+                  context,
+                ).copyWith(color: titleColor),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: AppTextStyles.caption(context).copyWith(
-                  fontSize: 12,
-                  height: 18 / 12,
-                ),
+                style: AppTextStyles.caption(
+                  context,
+                ).copyWith(fontSize: 12, height: 18 / 12),
               ),
             ],
           ),

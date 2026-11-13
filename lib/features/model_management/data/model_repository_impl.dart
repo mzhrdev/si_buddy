@@ -18,42 +18,11 @@ class ModelRepositoryImpl implements ModelRepository {
   Future<bool> isInstalled() => engine.isModelInstalled();
 
   @override
-  Stream<double> download() {
-    return engine.downloadModel().handleError((Object error) {
-      if (error is EngineDownloadException) {
-        throw ModelDownloadFailure(
-          _mapKind(error.kind),
-          reason: error.message,
-        );
-      }
-      throw ModelDownloadFailure(
-        ModelDownloadErrorKind.unknown,
-        reason: error.toString(),
-      );
-    });
-  }
-
-  @override
   Future<void> delete() async {
     try {
       await engine.deleteModel();
     } catch (error) {
       throw ModelOperationFailure(error.toString());
     }
-  }
-
-  ModelDownloadErrorKind _mapKind(EngineDownloadErrorKind kind) {
-    return switch (kind) {
-      EngineDownloadErrorKind.unauthorized ||
-      EngineDownloadErrorKind.forbidden =>
-        ModelDownloadErrorKind.authentication,
-      EngineDownloadErrorKind.notFound => ModelDownloadErrorKind.notFound,
-      EngineDownloadErrorKind.rateLimited =>
-        ModelDownloadErrorKind.rateLimited,
-      EngineDownloadErrorKind.server => ModelDownloadErrorKind.server,
-      EngineDownloadErrorKind.network => ModelDownloadErrorKind.network,
-      EngineDownloadErrorKind.cancelled => ModelDownloadErrorKind.cancelled,
-      EngineDownloadErrorKind.unknown => ModelDownloadErrorKind.unknown,
-    };
   }
 }

@@ -323,8 +323,8 @@ class _GenerationSetupScreenState extends ConsumerState<GenerationSetupScreen> {
                       const SizedBox(width: 6),
                       Text(
                         modelReady
-                            ? 'Model installed · AI ready offline'
-                            : 'No model installed · Download the model to generate',
+                            ? 'AI service ready · Generation needs internet'
+                            : 'AI service not configured · Generation unavailable',
                         style: AppTextStyles.caption(context).copyWith(
                           color: modelReady
                               ? context.appSuccessText
