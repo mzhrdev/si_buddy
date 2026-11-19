@@ -49,7 +49,7 @@ class _SplashDesignScreenState extends ConsumerState<SplashDesignScreen> {
     _advanced = true;
     _timer?.cancel();
     final completed = ref.read(onboardingCompletedProvider);
-    context.go(completed ? AppRoutes.home : AppRoutes.onboardingImport);
+    context.go(completed ? AppRoutes.home : AppRoutes.onboarding);
   }
 
   @override

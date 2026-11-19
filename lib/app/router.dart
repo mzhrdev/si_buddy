@@ -31,9 +31,7 @@ import '../features/flashcards/presentation/screens/study_card_back_screen.dart'
 import '../features/flashcards/presentation/screens/study_card_front_screen.dart';
 import '../features/home/presentation/screens/home_dashboard_screen.dart';
 import '../features/model_management/presentation/screens/api_service_screen.dart';
-import '../features/onboarding/presentation/screens/ai_study_tools_screen.dart';
-import '../features/onboarding/presentation/screens/import_notes_screen.dart';
-import '../features/onboarding/presentation/screens/private_offline_screen.dart';
+import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/onboarding/presentation/screens/splash_screen.dart';
 import '../features/privacy/presentation/screens/privacy_screen.dart';
 import '../features/quizzes/presentation/screens/answer_review_screen.dart';
@@ -58,9 +56,7 @@ import '../features/subscription/presentation/screens/upgrade_premium_screen.dar
 abstract final class AppRoutes {
   static const splash = '/splash';
   static const home = '/home';
-  static const onboardingImport = '/onboarding/import';
-  static const onboardingAi = '/onboarding/ai';
-  static const onboardingPrivate = '/onboarding/private';
+  static const onboarding = '/onboarding';
   static const importFiles = '/documents/import';
   static const selectedPreview = '/documents/preview';
   static const unsupported = '/documents/unsupported';
@@ -121,9 +117,7 @@ final appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
   routes: [
     _route(AppRoutes.splash, const SplashDesignScreen()),
-    _route(AppRoutes.onboardingImport, const ImportNotesScreen()),
-    _route(AppRoutes.onboardingAi, const AiStudyToolsScreen()),
-    _route(AppRoutes.onboardingPrivate, const PrivateOfflineScreen()),
+    _route(AppRoutes.onboarding, const OnboardingScreen()),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),

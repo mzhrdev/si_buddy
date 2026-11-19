@@ -141,14 +141,18 @@ class OnboardingIntro extends StatelessWidget {
 class OnboardingActions extends StatelessWidget {
   const OnboardingActions({
     required this.pageIndex,
+    required this.pageCount,
     required this.buttonLabel,
     required this.caption,
     required this.onNext,
     super.key,
   });
 
-  /// Zero-based index of the active page dot (3 pages total).
+  /// Zero-based index of the active page dot.
   final int pageIndex;
+
+  /// Total number of pages (dots).
+  final int pageCount;
   final String buttonLabel;
   final String caption;
   final VoidCallback onNext;
@@ -162,7 +166,7 @@ class OnboardingActions extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              for (var i = 0; i < 3; i++) ...[
+              for (var i = 0; i < pageCount; i++) ...[
                 if (i > 0) const SizedBox(width: 7),
                 Container(
                   width: i == pageIndex ? 24 : 6,
